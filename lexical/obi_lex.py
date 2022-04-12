@@ -71,16 +71,3 @@ def t_error(t):
  
 # Build the lexer
 lexer = lex.lex()
-
-with open('ejemplo.txt') as f:
-    contents = f.read()
-    #print(contents)
-
-lexer.input(contents)
- 
- # Tokenize
-while True:
-    tok = lexer.token()
-    if not tok: 
-        break      # No more input
-    #print(tok)

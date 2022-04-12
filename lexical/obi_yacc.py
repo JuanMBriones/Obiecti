@@ -2,136 +2,120 @@
  
 from turtle import goto
 import ply.yacc as yacc
+ 
 # Get the token map from the lexer.  This is required.
 from .obi_lex import tokens
 
 compile_status = ''
 
 def p_programa(p):
-    '''programa : PROGRAM ID class
+    '''programa : PROGRAM ID class context
                 | PROGRAM ID context'''
     print("Apropiado")
-
+    
     global compile_status
     compile_status = "Apropiado"
 
 def p_class(p):
-    '''class : scope CLASS ID context
-                | scope CLASS ID COLON ID context'''
+    '''class : scope CLASS ID
+                | scope CLASS ID COLON ID'''
+
 
 def p_context(p):
     '''context : LBRACE aux6 RBRACE'''
 
 def p_aux6(p):
-    '''aux6 : aux6 aux6
+    '''aux6 : vars
+            | constructor
             | funcion
-            | vars
             | estatuto
-            | constructor'''
-
-def p_constructor(p):
-    '''constructor : PUBLIC ID LPAREN param RPAREN contexto_const'''
-
-def p_contexto_const(p):
-    '''contexto_const : LBRACE vars RBRACE
-                        | LBRACE estatuto RBRACE
-                        | LBRACE vars estatuto RBRACE'''
-
-def p_estatuto(p):
-    '''estatuto : asignacion
-                | llamada_func
-                | objeto_metodo
-                | condicion
-                | lectura
-                | escritura
-                | ciclo
-                | estatuto asignacion
-                | estatuto llamada_func
-                | estatuto objeto_metodo
-                | estatuto condicion
-                | estatuto lectura
-                | estatuto escritura
-                | estatuto ciclo'''
-
-def p_ciclo(p):
-    '''ciclo : WHILE LPAREN expresion RPAREN bloque'''
+            | condicion
+            | ciclo
+            | vars aux6
+            | constructor aux6
+            | funcion aux6
+            | estatuto aux6
+            | condicion aux6
+            | ciclo aux6'''
 
 def p_condicion(p):
     '''condicion : IF LPAREN expresion RPAREN bloque
                     | IF LPAREN expresion RPAREN bloque ELIF LPAREN expresion RPAREN bloque'''
 
+
+def p_ciclo(p):
+    '''ciclo : WHILE LPAREN expresion RPAREN bloque'''
+
+def p_constructor(p):
+    '''constructor : PUBLIC ID LPAREN param RPAREN bloque'''
+
 def p_bloque(p):
-    '''bloque : LBRACE estatuto RBRACE'''
-
-def p_lectura(p):
-    '''lectura : READ LPAREN ID RPAREN
-                | READ LPAREN objeto_aAcceso RPAREN'''
-
-def p_escritura(p):
-    '''escritura : PRINT LPAREN aux5 RPAREN'''
-
-def p_aux5(p):
-    '''aux5 : expresion
-            | llamada_func
-            | objeto_metodo
-            | CSTRING
-            | aux5 COMMA expresion
-            | aux5 COMMA llamada_func
-            | aux5 COMMA objeto_metodo
-            | aux5 COMMA CSTRING'''
-
-def p_llamada_func(p):
-    '''llamada_func : ID LPAREN aux3 RPAREN'''
-
-def p_aux3(p):
-    '''aux3 : exp
-            | aux3 COMMA exp'''
+    '''bloque : LBRACE aux5 RBRACE'''
 
 def p_funcion(p):
     '''funcion : scope DEF ID LPAREN param RPAREN contexto_func'''
 
 def p_contexto_func(p):
-    '''contexto_func : LBRACE vars RBRACE
-                        | LBRACE estatuto RBRACE
-                        | LBRACE vars estatuto RBRACE
-                        | LBRACE vars RETURN INT ID RBRACE
-                        | LBRACE vars RETURN FLOAT ID RBRACE
-                        | LBRACE estatuto RETURN INT ID RBRACE
-                        | LBRACE estatuto RETURN FLOAT ID RBRACE
-                        | LBRACE vars estatuto RETURN INT ID RBRACE
-                        | LBRACE vars estatuto RETURN FLOAT ID RBRACE'''
+    '''contexto_func : LBRACE aux5 RBRACE
+                        | LBRACE aux5 RETURN INT ID RBRACE
+                        | LBRACE aux5 RETURN FLOAT ID RBRACE'''
+
+def p_aux5(p):
+    '''aux5 : vars
+            | estatuto
+            | vars aux5
+            | estatuto aux5'''
 
 def p_param(p):
-    '''param : aux4'''
-
-def p_aux4(p):
-    '''aux4 : tipo_simple ID
-            | aux4 COMMA tipo_simple ID'''
+    '''param : tipo_simple ID
+                | tipo_simple ID COMMA param'''
 
 def p_scope(p):
     '''scope : PRIVATE
                 | PUBLIC
                 | PROTECTED'''
 
+def p_estatuto(p):
+    '''estatuto : asignacion
+                | escritura
+                | llamada_func
+                | objeto_metodo
+                | lectura'''
+
+def p_lectura(p):
+    '''lectura : READ LPAREN aux4 RPAREN'''
+
+def p_aux4(p):
+    '''aux4 : ID
+            | objeto_aAcceso
+            | ID COMMA aux4
+            | objeto_aAcceso COMMA aux4'''
+
+def p_escritura(p):
+    '''escritura : PRINT LPAREN aux3 RPAREN'''
+
+def p_aux3(p):
+    '''aux3 : expresion
+            | llamada_func
+            | objeto_metodo
+            | CSTRING
+            | expresion COMMA aux3
+            | llamada_func COMMA aux3
+            | objeto_metodo COMMA aux3
+            | CSTRING COMMA aux3'''
+
 def p_vars(p):
-    '''vars : VAR aux
-            | vars VAR aux'''
-
-def p_aux(p):
-    '''aux : aux aux
-            | ID COLON tipo_simple
-            | ID COLON tipo_compuesto
-            | ID LBRACKET cint RBRACKET LBRACKET cint RBRACKET COLON tipo_simple
-            | ID LBRACKET cint RBRACKET LBRACKET cint RBRACKET COLON tipo_compuesto
-            | ID LBRACKET cint RBRACKET COLON tipo_simple
-            | ID LBRACKET cint RBRACKET COLON tipo_compuesto
-            | ID aux2 COLON tipo_simple
-            | ID aux2 COLON tipo_compuesto'''
-
+    '''vars : VAR aux2 COLON tipo_simple
+            | VAR aux2 COLON tipo_compuesto
+            | VAR ID LBRACKET cint RBRACKET COLON tipo_simple
+            | VAR ID LBRACKET cint RBRACKET COLON tipo_compuesto
+            | VAR ID LBRACKET cint RBRACKET LBRACKET cint RBRACKET COLON tipo_simple
+            | VAR ID LBRACKET cint RBRACKET LBRACKET cint RBRACKET COLON tipo_compuesto'''
+    
 def p_aux2(p):
-    '''aux2 : aux2 aux2
-            | COMMA ID'''
-
+    '''aux2 : ID
+            | ID COMMA aux2'''
+    
 def p_tipo_simple(p):
     '''tipo_simple : INT
                     | FLOAT'''
@@ -140,36 +124,45 @@ def p_tipo_compuesto(p):
     '''tipo_compuesto : ID'''
 
 def p_asignacion(p):
-    '''asignacion : objeto_aAcceso LBRACKET exp RBRACKET LBRACKET exp RBRACKET EQUALS expresion
-                    | objeto_aAcceso LBRACKET exp RBRACKET EQUALS expresion
-                    | objeto_aAcceso EQUALS expresion
-                    | ID LBRACKET exp RBRACKET LBRACKET exp RBRACKET EQUALS expresion
-                    | ID LBRACKET exp RBRACKET EQUALS expresion
-                    | ID EQUALS expresion
-                    | objeto_aAcceso LBRACKET exp RBRACKET LBRACKET exp RBRACKET EQUALS llamada_func
-                    | objeto_aAcceso LBRACKET exp RBRACKET EQUALS llamada_func
-                    | objeto_aAcceso EQUALS llamada_func
-                    | ID LBRACKET exp RBRACKET LBRACKET exp RBRACKET EQUALS llamada_func
-                    | ID LBRACKET exp RBRACKET EQUALS llamada_func
+    '''asignacion : ID EQUALS expresion
                     | ID EQUALS llamada_func
-                    | objeto_aAcceso LBRACKET exp RBRACKET LBRACKET exp RBRACKET EQUALS objeto_metodo
-                    | objeto_aAcceso LBRACKET exp RBRACKET EQUALS objeto_metodo
+                    | ID EQUALS objeto_metodo
+                    | objeto_aAcceso EQUALS expresion
+                    | objeto_aAcceso EQUALS llamada_func
                     | objeto_aAcceso EQUALS objeto_metodo
-                    | ID LBRACKET exp RBRACKET LBRACKET exp RBRACKET EQUALS objeto_metodo
+                    | ID LBRACKET exp RBRACKET EQUALS expresion
+                    | ID LBRACKET exp RBRACKET EQUALS llamada_func
                     | ID LBRACKET exp RBRACKET EQUALS objeto_metodo
-                    | ID EQUALS objeto_metodo'''
+                    | objeto_aAcceso LBRACKET exp RBRACKET EQUALS expresion
+                    | objeto_aAcceso LBRACKET exp RBRACKET EQUALS llamada_func
+                    | objeto_aAcceso LBRACKET exp RBRACKET EQUALS objeto_metodo
+                    | ID LBRACKET exp RBRACKET LBRACKET exp RBRACKET EQUALS expresion
+                    | ID LBRACKET exp RBRACKET LBRACKET exp RBRACKET EQUALS llamada_func
+                    | ID LBRACKET exp RBRACKET LBRACKET exp RBRACKET EQUALS objeto_metodo
+                    | objeto_aAcceso LBRACKET LBRACKET exp RBRACKET exp RBRACKET EQUALS expresion
+                    | objeto_aAcceso LBRACKET LBRACKET exp RBRACKET exp RBRACKET EQUALS llamada_func
+                    | objeto_aAcceso LBRACKET LBRACKET exp RBRACKET exp RBRACKET EQUALS objeto_metodo'''
+
 
 def p_objeto_metodo(p):
     '''objeto_metodo : ID PERIOD llamada_func'''
 
+def p_llamada_func(p):
+    '''llamada_func : ID LPAREN aux RPAREN'''
+    
+
+def p_aux(p):
+    '''aux : exp
+            | exp COMMA aux'''
+
 def p_expresion(p):
     '''expresion : exp_bool
                     | exp_bool rel_op exp_bool
-                    | expresion AND exp_bool
-                    | expresion OR exp_bool
-                    | expresion AND exp_bool rel_op exp_bool
-                    | expresion OR exp_bool rel_op exp_bool'''
-
+                    | exp_bool AND expresion
+                    | exp_bool OR expresion
+                    | exp_bool rel_op exp_bool AND expresion
+                    | exp_bool rel_op exp_bool OR expresion'''
+  
 def p_exp_bool(p):
     '''exp_bool : TRUE
                 | FALSE
@@ -220,7 +213,6 @@ def p_objeto_aAcceso(p):
 # Error rule for syntax errors
 def p_error(p):
     print("Syntax error in input!")
-
     global compile_status
     compile_status = "Syntax error in input!"
 
