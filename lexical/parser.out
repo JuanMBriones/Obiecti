@@ -5524,4 +5524,3 @@ state 234
     PRINT           reduce using rule 26 (contexto_func -> LBRACE aux5 RETURN FLOAT ID RBRACE .)
     READ            reduce using rule 26 (contexto_func -> LBRACE aux5 RETURN FLOAT ID RBRACE .)
     RBRACE          reduce using rule 26 (contexto_func -> LBRACE aux5 RETURN FLOAT ID RBRACE .)
-

@@ -1,19 +1,25 @@
 # Yacc example
  
+from turtle import goto
 import ply.yacc as yacc
  
 # Get the token map from the lexer.  This is required.
 from .obi_lex import tokens
 
+compile_status = ''
+
 def p_programa(p):
     '''programa : PROGRAM ID class context
                 | PROGRAM ID context'''
     print("Apropiado")
-
+    
+    global compile_status
+    compile_status = "Apropiado"
 
 def p_class(p):
     '''class : scope CLASS ID
                 | scope CLASS ID COLON ID'''
+
 
 def p_context(p):
     '''context : LBRACE aux6 RBRACE'''
@@ -35,6 +41,7 @@ def p_aux6(p):
 def p_condicion(p):
     '''condicion : IF LPAREN expresion RPAREN bloque
                     | IF LPAREN expresion RPAREN bloque ELIF LPAREN expresion RPAREN bloque'''
+
 
 def p_ciclo(p):
     '''ciclo : WHILE LPAREN expresion RPAREN bloque'''
@@ -136,6 +143,7 @@ def p_asignacion(p):
                     | objeto_aAcceso LBRACKET LBRACKET exp RBRACKET exp RBRACKET EQUALS llamada_func
                     | objeto_aAcceso LBRACKET LBRACKET exp RBRACKET exp RBRACKET EQUALS objeto_metodo'''
 
+
 def p_objeto_metodo(p):
     '''objeto_metodo : ID PERIOD llamada_func'''
 
@@ -154,7 +162,7 @@ def p_expresion(p):
                     | exp_bool OR expresion
                     | exp_bool rel_op exp_bool AND expresion
                     | exp_bool rel_op exp_bool OR expresion'''
-    
+  
 def p_exp_bool(p):
     '''exp_bool : TRUE
                 | FALSE
@@ -205,14 +213,18 @@ def p_objeto_aAcceso(p):
 # Error rule for syntax errors
 def p_error(p):
     print("Syntax error in input!")
+    global compile_status
+    compile_status = "Syntax error in input!"
 
-# Build the parser
-parser = yacc.yacc()
+def validate_syntax(file: str):
+    # Build the parser
+    parser = yacc.yacc()
+    
+    with open('ejemplo.txt') as f:
+        contents = f.read()
 
+    parser.parse(contents)
 
-with open('ejemplo.txt') as f:
-    contents = f.read()
-
-parser.parse(contents)
+    return compile_status
     #result = parser.parse(s)
     #print(result)
