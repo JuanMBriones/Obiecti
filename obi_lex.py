@@ -1,18 +1,18 @@
 import ply.lex as lex
 
 reserved = {
-    'if' : 'IF', 'else' : 'ELSE', 'elif' : 'ELIF',
+    'if' : 'IF', 'elif' : 'ELIF',
     'public' : 'PUBLIC', 'private' : 'PRIVATE', 'protected' : 'PROTECTED',
     'int' : 'INT', 'float' : 'FLOAT', 'var' : 'VAR',
     'program' : 'PROGRAM', 'class' : 'CLASS', 'def' : 'DEF',
-    'return' : 'RETURN', 'void' : 'VOID', 'and' : 'AND', 
+    'return' : 'RETURN', 'and' : 'AND', 
     'or' : 'OR', 'while' : 'WHILE',
     'print' : 'PRINT', 'read' : 'READ',
     'true' : 'TRUE', 'false': 'FALSE'
  }
 
 tokens = [
-    'DIGIT', 'NUMBER', 'CSTRING',
+    'NUMBER', 'CSTRING',
     'PLUS', 'MODULO', 'MINUS', 
     'TIMES', 'DIVIDE', 'EQUALS',
     'CINT',
@@ -74,7 +74,7 @@ lexer = lex.lex()
 
 with open('ejemplo.txt') as f:
     contents = f.read()
-    print(contents)
+    #print(contents)
 
 lexer.input(contents)
  
@@ -83,4 +83,4 @@ while True:
     tok = lexer.token()
     if not tok: 
         break      # No more input
-    print(tok)
+    #print(tok)
