@@ -1,14 +1,19 @@
 # Yacc example
  
+from turtle import goto
 import ply.yacc as yacc
- 
 # Get the token map from the lexer.  This is required.
-from obi_lex import tokens
+from .obi_lex import tokens
+
+compile_status = ''
 
 def p_programa(p):
     '''programa : PROGRAM ID class
                 | PROGRAM ID context'''
     print("Apropiado")
+
+    global compile_status
+    compile_status = "Apropiado"
 
 def p_class(p):
     '''class : scope CLASS ID context
@@ -216,13 +221,18 @@ def p_objeto_aAcceso(p):
 def p_error(p):
     print("Syntax error in input!")
 
-# Build the parser
-parser = yacc.yacc()
+    global compile_status
+    compile_status = "Syntax error in input!"
 
+def validate_syntax(file: str):
+    # Build the parser
+    parser = yacc.yacc()
+    
+    with open('ejemplo.txt') as f:
+        contents = f.read()
 
-with open('ejemplo.txt') as f:
-    contents = f.read()
+    parser.parse(contents)
 
-parser.parse(contents)
+    return compile_status
     #result = parser.parse(s)
     #print(result)
