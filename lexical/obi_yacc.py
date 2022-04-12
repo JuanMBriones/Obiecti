@@ -3,7 +3,7 @@
 import ply.yacc as yacc
  
 # Get the token map from the lexer.  This is required.
-from obi_lex import tokens
+from .obi_lex import tokens
 
 def p_programa(p):
     '''programa : PROGRAM ID class context
