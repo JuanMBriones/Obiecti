@@ -15,14 +15,14 @@ def p_class(p):
                 | scope CLASS ID COLON ID context'''
 
 def p_context(p):
-    '''context : LBRACE constructor vars funcion estatuto RBRACE
-                | LBRACE constructor vars estatuto RBRACE
-                | LBRACE vars funcion estatuto RBRACE
-                | LBRACE vars estatuto RBRACE
-                | LBRACE funcion RBRACE
-                | LBRACE vars RBRACE
-                | LBRACE estatuto RBRACE
-                | LBRACE constructor RBRACE'''
+    '''context : LBRACE aux6 RBRACE'''
+
+def p_aux6(p):
+    '''aux6 : aux6 aux6
+            | funcion
+            | vars
+            | estatuto
+            | constructor'''
 
 def p_constructor(p):
     '''constructor : PUBLIC ID LPAREN param RPAREN contexto_const'''
@@ -135,23 +135,23 @@ def p_tipo_compuesto(p):
     '''tipo_compuesto : ID'''
 
 def p_asignacion(p):
-    '''asignacion : objeto_aAcceso LBRACKET cint RBRACKET LBRACKET cint RBRACKET EQUALS expresion
-                    | objeto_aAcceso LBRACKET cint RBRACKET EQUALS expresion
+    '''asignacion : objeto_aAcceso LBRACKET exp RBRACKET LBRACKET exp RBRACKET EQUALS expresion
+                    | objeto_aAcceso LBRACKET exp RBRACKET EQUALS expresion
                     | objeto_aAcceso EQUALS expresion
-                    | ID LBRACKET cint RBRACKET LBRACKET cint RBRACKET EQUALS expresion
-                    | ID LBRACKET cint RBRACKET EQUALS expresion
+                    | ID LBRACKET exp RBRACKET LBRACKET exp RBRACKET EQUALS expresion
+                    | ID LBRACKET exp RBRACKET EQUALS expresion
                     | ID EQUALS expresion
-                    | objeto_aAcceso LBRACKET cint RBRACKET LBRACKET cint RBRACKET EQUALS llamada_func
-                    | objeto_aAcceso LBRACKET cint RBRACKET EQUALS llamada_func
+                    | objeto_aAcceso LBRACKET exp RBRACKET LBRACKET exp RBRACKET EQUALS llamada_func
+                    | objeto_aAcceso LBRACKET exp RBRACKET EQUALS llamada_func
                     | objeto_aAcceso EQUALS llamada_func
-                    | ID LBRACKET cint RBRACKET LBRACKET cint RBRACKET EQUALS llamada_func
-                    | ID LBRACKET cint RBRACKET EQUALS llamada_func
+                    | ID LBRACKET exp RBRACKET LBRACKET exp RBRACKET EQUALS llamada_func
+                    | ID LBRACKET exp RBRACKET EQUALS llamada_func
                     | ID EQUALS llamada_func
-                    | objeto_aAcceso LBRACKET cint RBRACKET LBRACKET cint RBRACKET EQUALS objeto_metodo
-                    | objeto_aAcceso LBRACKET cint RBRACKET EQUALS objeto_metodo
+                    | objeto_aAcceso LBRACKET exp RBRACKET LBRACKET exp RBRACKET EQUALS objeto_metodo
+                    | objeto_aAcceso LBRACKET exp RBRACKET EQUALS objeto_metodo
                     | objeto_aAcceso EQUALS objeto_metodo
-                    | ID LBRACKET cint RBRACKET LBRACKET cint RBRACKET EQUALS objeto_metodo
-                    | ID LBRACKET cint RBRACKET EQUALS objeto_metodo
+                    | ID LBRACKET exp RBRACKET LBRACKET exp RBRACKET EQUALS objeto_metodo
+                    | ID LBRACKET exp RBRACKET EQUALS objeto_metodo
                     | ID EQUALS objeto_metodo'''
 
 def p_objeto_metodo(p):
