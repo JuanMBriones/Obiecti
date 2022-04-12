@@ -1,4 +1,3 @@
-from multiprocessing import context
 import ply.lex as lex
 
 reserved = {
@@ -9,12 +8,14 @@ reserved = {
     'return' : 'RETURN', 'void' : 'VOID', 'and' : 'AND', 
     'or' : 'OR', 'while' : 'WHILE',
     'print' : 'PRINT', 'read' : 'READ',
+    'true' : 'TRUE', 'false': 'FALSE'
  }
 
 tokens = [
     'DIGIT', 'NUMBER', 'CSTRING',
     'PLUS', 'MODULO', 'MINUS', 
     'TIMES', 'DIVIDE', 'EQUALS',
+    'CINT',
     'LT', 'LE', 'GT', 
     'GE', 'EQ', 'NE',
     'LPAREN', 'RPAREN', 'LBRACKET', 
@@ -37,8 +38,8 @@ t_RBRACE = r'\}'
 t_COMMA = r','
 t_PERIOD = r'\.'
 t_COLON = r':'
-t_DIGIT = r'\d'
-t_NUMBER = t_DIGIT + r'+(\.' + t_DIGIT + r'+)?(E[+-]?' + t_DIGIT + r'+)?'
+t_CINT = r'\d+'
+t_NUMBER = r'[-+]?[0-9]+(\.([0-9]+)?([eE][-+]?[0-9]+)?|[eE][-+]?[0-9]+)'
 t_CSTRING = r'(\")([A-Za-z0-9]|[ \t\n]|(\()|(\)))+(\")'
 t_EQUALS = r'='
 t_LT = r'<'

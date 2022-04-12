@@ -1,0 +1,537 @@
+Created by PLY version 3.11 (http://www.dabeaz.com/ply)
+
+Unused terminals:
+
+    CLASS
+    CSTRING
+    DEF
+    DIGIT
+    ELIF
+    ELSE
+    IF
+    LBRACE
+    PERIOD
+    PRINT
+    PRIVATE
+    PROGRAM
+    PROTECTED
+    PUBLIC
+    RBRACE
+    READ
+    RETURN
+    VOID
+    WHILE
+
+Grammar
+
+Rule 0     S' -> vars
+Rule 1     vars -> vars vars
+Rule 2     vars -> VAR aux
+Rule 3     aux -> aux aux
+Rule 4     aux -> ID COLON tipo_simple
+Rule 5     aux -> ID COLON tipo_compuesto
+Rule 6     aux -> ID LBRACKET cint RBRACKET LBRACKET cint RBRACKET COLON tipo_simple
+Rule 7     aux -> ID LBRACKET cint RBRACKET LBRACKET cint RBRACKET COLON tipo_compuesto
+Rule 8     aux -> ID LBRACKET cint RBRACKET COLON tipo_simple
+Rule 9     aux -> ID LBRACKET cint RBRACKET COLON tipo_compuesto
+Rule 10    aux -> ID aux2 COLON tipo_simple
+Rule 11    aux -> ID aux2 COLON tipo_compuesto
+Rule 12    aux2 -> aux2 aux2
+Rule 13    aux2 -> COMMA ID
+Rule 14    tipo_simple -> INT
+Rule 15    tipo_simple -> FLOAT
+Rule 16    tipo_compuesto -> ID
+Rule 17    asignacion -> ID LBRACKET cint RBRACKET LBRACKET cint RBRACKET EQUALS expresion
+Rule 18    asignacion -> ID LBRACKET cint RBRACKET EQUALS expresion
+Rule 19    asignacion -> ID EQUALS expresion
+Rule 20    expresion -> exp_bool
+Rule 21    expresion -> exp_bool rel_op exp_bool
+Rule 22    expresion -> expresion AND exp_bool
+Rule 23    expresion -> expresion OR exp_bool
+Rule 24    expresion -> expresion AND exp_bool rel_op exp_bool
+Rule 25    expresion -> expresion OR exp_bool rel_op exp_bool
+Rule 26    exp_bool -> TRUE
+Rule 27    exp_bool -> FALSE
+Rule 28    exp_bool -> exp
+Rule 29    exp -> termino
+Rule 30    exp -> exp PLUS termino
+Rule 31    exp -> exp MINUS termino
+Rule 32    termino -> factor
+Rule 33    termino -> termino TIMES factor
+Rule 34    termino -> termino DIVIDE factor
+Rule 35    termino -> termino MODULO factor
+Rule 36    factor -> LPAREN expresion RPAREN
+Rule 37    factor -> var
+Rule 38    factor -> PLUS var
+Rule 39    factor -> MINUS var
+Rule 40    var -> ID
+Rule 41    var -> cint
+Rule 42    var -> cfloat
+Rule 43    cint -> CINT
+Rule 44    cfloat -> NUMBER
+Rule 45    rel_op -> LT
+Rule 46    rel_op -> LE
+Rule 47    rel_op -> GT
+Rule 48    rel_op -> GE
+Rule 49    rel_op -> EQ
+Rule 50    rel_op -> NE
+
+Terminals, with rules where they appear
+
+AND                  : 22 24
+CINT                 : 43
+CLASS                : 
+COLON                : 4 5 6 7 8 9 10 11
+COMMA                : 13
+CSTRING              : 
+DEF                  : 
+DIGIT                : 
+DIVIDE               : 34
+ELIF                 : 
+ELSE                 : 
+EQ                   : 49
+EQUALS               : 17 18 19
+FALSE                : 27
+FLOAT                : 15
+GE                   : 48
+GT                   : 47
+ID                   : 4 5 6 7 8 9 10 11 13 16 17 18 19 40
+IF                   : 
+INT                  : 14
+LBRACE               : 
+LBRACKET             : 6 6 7 7 8 9 17 17 18
+LE                   : 46
+LPAREN               : 36
+LT                   : 45
+MINUS                : 31 39
+MODULO               : 35
+NE                   : 50
+NUMBER               : 44
+OR                   : 23 25
+PERIOD               : 
+PLUS                 : 30 38
+PRINT                : 
+PRIVATE              : 
+PROGRAM              : 
+PROTECTED            : 
+PUBLIC               : 
+RBRACE               : 
+RBRACKET             : 6 6 7 7 8 9 17 17 18
+READ                 : 
+RETURN               : 
+RPAREN               : 36
+TIMES                : 33
+TRUE                 : 26
+VAR                  : 2
+VOID                 : 
+WHILE                : 
+error                : 
+
+Nonterminals, with rules where they appear
+
+asignacion           : 
+aux                  : 2 3 3
+aux2                 : 10 11 12 12
+cfloat               : 42
+cint                 : 6 6 7 7 8 9 17 17 18 41
+exp                  : 28 30 31
+exp_bool             : 20 21 21 22 23 24 24 25 25
+expresion            : 17 18 19 22 23 24 25 36
+factor               : 32 33 34 35
+rel_op               : 21 24 25
+termino              : 29 30 31 33 34 35
+tipo_compuesto       : 5 7 9 11
+tipo_simple          : 4 6 8 10
+var                  : 37 38 39
+vars                 : 1 1 0
+
+Parsing method: LALR
+
+state 0
+
+    (0) S' -> . vars
+    (1) vars -> . vars vars
+    (2) vars -> . VAR aux
+
+    VAR             shift and go to state 2
+
+    vars                           shift and go to state 1
+
+state 1
+
+    (0) S' -> vars .
+    (1) vars -> vars . vars
+    (1) vars -> . vars vars
+    (2) vars -> . VAR aux
+
+    VAR             shift and go to state 2
+
+    vars                           shift and go to state 3
+
+state 2
+
+    (2) vars -> VAR . aux
+    (3) aux -> . aux aux
+    (4) aux -> . ID COLON tipo_simple
+    (5) aux -> . ID COLON tipo_compuesto
+    (6) aux -> . ID LBRACKET cint RBRACKET LBRACKET cint RBRACKET COLON tipo_simple
+    (7) aux -> . ID LBRACKET cint RBRACKET LBRACKET cint RBRACKET COLON tipo_compuesto
+    (8) aux -> . ID LBRACKET cint RBRACKET COLON tipo_simple
+    (9) aux -> . ID LBRACKET cint RBRACKET COLON tipo_compuesto
+    (10) aux -> . ID aux2 COLON tipo_simple
+    (11) aux -> . ID aux2 COLON tipo_compuesto
+
+    ID              shift and go to state 5
+
+    aux                            shift and go to state 4
+
+state 3
+
+    (1) vars -> vars vars .
+    (1) vars -> vars . vars
+    (1) vars -> . vars vars
+    (2) vars -> . VAR aux
+
+  ! shift/reduce conflict for VAR resolved as shift
+    $end            reduce using rule 1 (vars -> vars vars .)
+    VAR             shift and go to state 2
+
+  ! VAR             [ reduce using rule 1 (vars -> vars vars .) ]
+
+    vars                           shift and go to state 3
+
+state 4
+
+    (2) vars -> VAR aux .
+    (3) aux -> aux . aux
+    (3) aux -> . aux aux
+    (4) aux -> . ID COLON tipo_simple
+    (5) aux -> . ID COLON tipo_compuesto
+    (6) aux -> . ID LBRACKET cint RBRACKET LBRACKET cint RBRACKET COLON tipo_simple
+    (7) aux -> . ID LBRACKET cint RBRACKET LBRACKET cint RBRACKET COLON tipo_compuesto
+    (8) aux -> . ID LBRACKET cint RBRACKET COLON tipo_simple
+    (9) aux -> . ID LBRACKET cint RBRACKET COLON tipo_compuesto
+    (10) aux -> . ID aux2 COLON tipo_simple
+    (11) aux -> . ID aux2 COLON tipo_compuesto
+
+    VAR             reduce using rule 2 (vars -> VAR aux .)
+    $end            reduce using rule 2 (vars -> VAR aux .)
+    ID              shift and go to state 5
+
+    aux                            shift and go to state 6
+
+state 5
+
+    (4) aux -> ID . COLON tipo_simple
+    (5) aux -> ID . COLON tipo_compuesto
+    (6) aux -> ID . LBRACKET cint RBRACKET LBRACKET cint RBRACKET COLON tipo_simple
+    (7) aux -> ID . LBRACKET cint RBRACKET LBRACKET cint RBRACKET COLON tipo_compuesto
+    (8) aux -> ID . LBRACKET cint RBRACKET COLON tipo_simple
+    (9) aux -> ID . LBRACKET cint RBRACKET COLON tipo_compuesto
+    (10) aux -> ID . aux2 COLON tipo_simple
+    (11) aux -> ID . aux2 COLON tipo_compuesto
+    (12) aux2 -> . aux2 aux2
+    (13) aux2 -> . COMMA ID
+
+    COLON           shift and go to state 7
+    LBRACKET        shift and go to state 8
+    COMMA           shift and go to state 10
+
+    aux2                           shift and go to state 9
+
+state 6
+
+    (3) aux -> aux aux .
+    (3) aux -> aux . aux
+    (3) aux -> . aux aux
+    (4) aux -> . ID COLON tipo_simple
+    (5) aux -> . ID COLON tipo_compuesto
+    (6) aux -> . ID LBRACKET cint RBRACKET LBRACKET cint RBRACKET COLON tipo_simple
+    (7) aux -> . ID LBRACKET cint RBRACKET LBRACKET cint RBRACKET COLON tipo_compuesto
+    (8) aux -> . ID LBRACKET cint RBRACKET COLON tipo_simple
+    (9) aux -> . ID LBRACKET cint RBRACKET COLON tipo_compuesto
+    (10) aux -> . ID aux2 COLON tipo_simple
+    (11) aux -> . ID aux2 COLON tipo_compuesto
+
+  ! shift/reduce conflict for ID resolved as shift
+    VAR             reduce using rule 3 (aux -> aux aux .)
+    $end            reduce using rule 3 (aux -> aux aux .)
+    ID              shift and go to state 5
+
+  ! ID              [ reduce using rule 3 (aux -> aux aux .) ]
+
+    aux                            shift and go to state 6
+
+state 7
+
+    (4) aux -> ID COLON . tipo_simple
+    (5) aux -> ID COLON . tipo_compuesto
+    (14) tipo_simple -> . INT
+    (15) tipo_simple -> . FLOAT
+    (16) tipo_compuesto -> . ID
+
+    INT             shift and go to state 14
+    FLOAT           shift and go to state 15
+    ID              shift and go to state 11
+
+    tipo_simple                    shift and go to state 12
+    tipo_compuesto                 shift and go to state 13
+
+state 8
+
+    (6) aux -> ID LBRACKET . cint RBRACKET LBRACKET cint RBRACKET COLON tipo_simple
+    (7) aux -> ID LBRACKET . cint RBRACKET LBRACKET cint RBRACKET COLON tipo_compuesto
+    (8) aux -> ID LBRACKET . cint RBRACKET COLON tipo_simple
+    (9) aux -> ID LBRACKET . cint RBRACKET COLON tipo_compuesto
+    (43) cint -> . CINT
+
+    CINT            shift and go to state 17
+
+    cint                           shift and go to state 16
+
+state 9
+
+    (10) aux -> ID aux2 . COLON tipo_simple
+    (11) aux -> ID aux2 . COLON tipo_compuesto
+    (12) aux2 -> aux2 . aux2
+    (12) aux2 -> . aux2 aux2
+    (13) aux2 -> . COMMA ID
+
+    COLON           shift and go to state 19
+    COMMA           shift and go to state 10
+
+    aux2                           shift and go to state 18
+
+state 10
+
+    (13) aux2 -> COMMA . ID
+
+    ID              shift and go to state 20
+
+
+state 11
+
+    (16) tipo_compuesto -> ID .
+
+    ID              reduce using rule 16 (tipo_compuesto -> ID .)
+    VAR             reduce using rule 16 (tipo_compuesto -> ID .)
+    $end            reduce using rule 16 (tipo_compuesto -> ID .)
+
+
+state 12
+
+    (4) aux -> ID COLON tipo_simple .
+
+    ID              reduce using rule 4 (aux -> ID COLON tipo_simple .)
+    VAR             reduce using rule 4 (aux -> ID COLON tipo_simple .)
+    $end            reduce using rule 4 (aux -> ID COLON tipo_simple .)
+
+
+state 13
+
+    (5) aux -> ID COLON tipo_compuesto .
+
+    ID              reduce using rule 5 (aux -> ID COLON tipo_compuesto .)
+    VAR             reduce using rule 5 (aux -> ID COLON tipo_compuesto .)
+    $end            reduce using rule 5 (aux -> ID COLON tipo_compuesto .)
+
+
+state 14
+
+    (14) tipo_simple -> INT .
+
+    ID              reduce using rule 14 (tipo_simple -> INT .)
+    VAR             reduce using rule 14 (tipo_simple -> INT .)
+    $end            reduce using rule 14 (tipo_simple -> INT .)
+
+
+state 15
+
+    (15) tipo_simple -> FLOAT .
+
+    ID              reduce using rule 15 (tipo_simple -> FLOAT .)
+    VAR             reduce using rule 15 (tipo_simple -> FLOAT .)
+    $end            reduce using rule 15 (tipo_simple -> FLOAT .)
+
+
+state 16
+
+    (6) aux -> ID LBRACKET cint . RBRACKET LBRACKET cint RBRACKET COLON tipo_simple
+    (7) aux -> ID LBRACKET cint . RBRACKET LBRACKET cint RBRACKET COLON tipo_compuesto
+    (8) aux -> ID LBRACKET cint . RBRACKET COLON tipo_simple
+    (9) aux -> ID LBRACKET cint . RBRACKET COLON tipo_compuesto
+
+    RBRACKET        shift and go to state 21
+
+
+state 17
+
+    (43) cint -> CINT .
+
+    RBRACKET        reduce using rule 43 (cint -> CINT .)
+
+
+state 18
+
+    (12) aux2 -> aux2 aux2 .
+    (12) aux2 -> aux2 . aux2
+    (12) aux2 -> . aux2 aux2
+    (13) aux2 -> . COMMA ID
+
+  ! shift/reduce conflict for COMMA resolved as shift
+    COLON           reduce using rule 12 (aux2 -> aux2 aux2 .)
+    COMMA           shift and go to state 10
+
+  ! COMMA           [ reduce using rule 12 (aux2 -> aux2 aux2 .) ]
+
+    aux2                           shift and go to state 18
+
+state 19
+
+    (10) aux -> ID aux2 COLON . tipo_simple
+    (11) aux -> ID aux2 COLON . tipo_compuesto
+    (14) tipo_simple -> . INT
+    (15) tipo_simple -> . FLOAT
+    (16) tipo_compuesto -> . ID
+
+    INT             shift and go to state 14
+    FLOAT           shift and go to state 15
+    ID              shift and go to state 11
+
+    tipo_simple                    shift and go to state 22
+    tipo_compuesto                 shift and go to state 23
+
+state 20
+
+    (13) aux2 -> COMMA ID .
+
+    COLON           reduce using rule 13 (aux2 -> COMMA ID .)
+    COMMA           reduce using rule 13 (aux2 -> COMMA ID .)
+
+
+state 21
+
+    (6) aux -> ID LBRACKET cint RBRACKET . LBRACKET cint RBRACKET COLON tipo_simple
+    (7) aux -> ID LBRACKET cint RBRACKET . LBRACKET cint RBRACKET COLON tipo_compuesto
+    (8) aux -> ID LBRACKET cint RBRACKET . COLON tipo_simple
+    (9) aux -> ID LBRACKET cint RBRACKET . COLON tipo_compuesto
+
+    LBRACKET        shift and go to state 24
+    COLON           shift and go to state 25
+
+
+state 22
+
+    (10) aux -> ID aux2 COLON tipo_simple .
+
+    ID              reduce using rule 10 (aux -> ID aux2 COLON tipo_simple .)
+    VAR             reduce using rule 10 (aux -> ID aux2 COLON tipo_simple .)
+    $end            reduce using rule 10 (aux -> ID aux2 COLON tipo_simple .)
+
+
+state 23
+
+    (11) aux -> ID aux2 COLON tipo_compuesto .
+
+    ID              reduce using rule 11 (aux -> ID aux2 COLON tipo_compuesto .)
+    VAR             reduce using rule 11 (aux -> ID aux2 COLON tipo_compuesto .)
+    $end            reduce using rule 11 (aux -> ID aux2 COLON tipo_compuesto .)
+
+
+state 24
+
+    (6) aux -> ID LBRACKET cint RBRACKET LBRACKET . cint RBRACKET COLON tipo_simple
+    (7) aux -> ID LBRACKET cint RBRACKET LBRACKET . cint RBRACKET COLON tipo_compuesto
+    (43) cint -> . CINT
+
+    CINT            shift and go to state 17
+
+    cint                           shift and go to state 26
+
+state 25
+
+    (8) aux -> ID LBRACKET cint RBRACKET COLON . tipo_simple
+    (9) aux -> ID LBRACKET cint RBRACKET COLON . tipo_compuesto
+    (14) tipo_simple -> . INT
+    (15) tipo_simple -> . FLOAT
+    (16) tipo_compuesto -> . ID
+
+    INT             shift and go to state 14
+    FLOAT           shift and go to state 15
+    ID              shift and go to state 11
+
+    tipo_simple                    shift and go to state 27
+    tipo_compuesto                 shift and go to state 28
+
+state 26
+
+    (6) aux -> ID LBRACKET cint RBRACKET LBRACKET cint . RBRACKET COLON tipo_simple
+    (7) aux -> ID LBRACKET cint RBRACKET LBRACKET cint . RBRACKET COLON tipo_compuesto
+
+    RBRACKET        shift and go to state 29
+
+
+state 27
+
+    (8) aux -> ID LBRACKET cint RBRACKET COLON tipo_simple .
+
+    ID              reduce using rule 8 (aux -> ID LBRACKET cint RBRACKET COLON tipo_simple .)
+    VAR             reduce using rule 8 (aux -> ID LBRACKET cint RBRACKET COLON tipo_simple .)
+    $end            reduce using rule 8 (aux -> ID LBRACKET cint RBRACKET COLON tipo_simple .)
+
+
+state 28
+
+    (9) aux -> ID LBRACKET cint RBRACKET COLON tipo_compuesto .
+
+    ID              reduce using rule 9 (aux -> ID LBRACKET cint RBRACKET COLON tipo_compuesto .)
+    VAR             reduce using rule 9 (aux -> ID LBRACKET cint RBRACKET COLON tipo_compuesto .)
+    $end            reduce using rule 9 (aux -> ID LBRACKET cint RBRACKET COLON tipo_compuesto .)
+
+
+state 29
+
+    (6) aux -> ID LBRACKET cint RBRACKET LBRACKET cint RBRACKET . COLON tipo_simple
+    (7) aux -> ID LBRACKET cint RBRACKET LBRACKET cint RBRACKET . COLON tipo_compuesto
+
+    COLON           shift and go to state 30
+
+
+state 30
+
+    (6) aux -> ID LBRACKET cint RBRACKET LBRACKET cint RBRACKET COLON . tipo_simple
+    (7) aux -> ID LBRACKET cint RBRACKET LBRACKET cint RBRACKET COLON . tipo_compuesto
+    (14) tipo_simple -> . INT
+    (15) tipo_simple -> . FLOAT
+    (16) tipo_compuesto -> . ID
+
+    INT             shift and go to state 14
+    FLOAT           shift and go to state 15
+    ID              shift and go to state 11
+
+    tipo_simple                    shift and go to state 31
+    tipo_compuesto                 shift and go to state 32
+
+state 31
+
+    (6) aux -> ID LBRACKET cint RBRACKET LBRACKET cint RBRACKET COLON tipo_simple .
+
+    ID              reduce using rule 6 (aux -> ID LBRACKET cint RBRACKET LBRACKET cint RBRACKET COLON tipo_simple .)
+    VAR             reduce using rule 6 (aux -> ID LBRACKET cint RBRACKET LBRACKET cint RBRACKET COLON tipo_simple .)
+    $end            reduce using rule 6 (aux -> ID LBRACKET cint RBRACKET LBRACKET cint RBRACKET COLON tipo_simple .)
+
+
+state 32
+
+    (7) aux -> ID LBRACKET cint RBRACKET LBRACKET cint RBRACKET COLON tipo_compuesto .
+
+    ID              reduce using rule 7 (aux -> ID LBRACKET cint RBRACKET LBRACKET cint RBRACKET COLON tipo_compuesto .)
+    VAR             reduce using rule 7 (aux -> ID LBRACKET cint RBRACKET LBRACKET cint RBRACKET COLON tipo_compuesto .)
+    $end            reduce using rule 7 (aux -> ID LBRACKET cint RBRACKET LBRACKET cint RBRACKET COLON tipo_compuesto .)
+
+WARNING: 
+WARNING: Conflicts:
+WARNING: 
+WARNING: shift/reduce conflict for VAR in state 3 resolved as shift
+WARNING: shift/reduce conflict for ID in state 6 resolved as shift
+WARNING: shift/reduce conflict for COMMA in state 18 resolved as shift
