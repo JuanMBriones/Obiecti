@@ -9,7 +9,7 @@ To run your file:
     
     python3 compile.py YOUR_FILE_NAME.txt
 
-To run the tests:
+To run the tests: 🧪🧪🧪🧪
     
     python3 -m unittest discover -s tests/ -v
 
