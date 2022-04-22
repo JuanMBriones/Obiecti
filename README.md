@@ -6,10 +6,15 @@ Requirements:
     pip install ply
 
 To run your file:
+    
     python3 compile.py YOUR_FILE_NAME.txt
 
+To run the tests:
+    
+    python3 -m unittest discover -s tests/ -v
+
 Information about the v1:
-    A lexcial analyzer has been build to recognize the tokens of the language taking in consideration the sytax proposals that were delivered to M.C. Elda Quiroga
+    A lexical analyzer has been build to recognize the tokens of the language taking in consideration the sytax proposals that were delivered to M.C. Elda Quiroga
 
 Semantical Proposal:
     The following is a semantical proposal for the Obiecti language.
