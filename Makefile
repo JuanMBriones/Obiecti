@@ -10,16 +10,16 @@ all:
 # $(PYTHON) app
 
 $(VENV)/bin/activate: requirements.txt
-	python3 -m venv $(VENV)
+	$(PYTHON) -m venv $(VENV)
 	$(PIP) install -r requirements.txt
 
 test:
 	. $(VENV)/bin/activate 
-	python3 -m unittest discover -s tests/ -v
+	$(PYTHON) -m unittest discover -s tests/ -v
 
 coverage:
 	. $(VENV)/bin/activate 
-	python3 -m unittest discover -s tests/ -v
+	$(PYTHON) -m unittest discover -s tests/ -v
 	$(VENV)/bin/coverage run -m unittest discover -s tests/ -v
 	$(VENV)/bin/coverage report -m
 	$(VENV)/bin/coverage html
