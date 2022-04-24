@@ -1,3 +1,5 @@
+#!/usr/bin/env python
+
 from lexical.obi_yacc import validate_syntax
 import sys
 

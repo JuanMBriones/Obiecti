@@ -1,14 +1,65 @@
+from semantical.errors_exceptions import TypeMismatchError
+from semantical.semantic_cube import SemanticCube
+
 class Symbol:
-    def __init__(self, name, data_type, scope):
+    def __init__(self, name, data_type, scope, value=None):
         self.name = name
         self.data_type = data_type
         self.scope = scope
+        self.value = value
 
     def __eq__(self, __o) -> bool:
-        if __o.name == self.name and __o.data_type == self.data_type and __o.scope == self.scope:
+        if self.value == __o.value:
             return True
         
         return False
+    
+    def __ne__(self, __o: object) -> bool:
+        return not self.__eq__(__o)
+
+    def __gt__(self, __o) -> bool:
+        if __o.data_type != self.data_type:
+            raise TypeMismatchError(self, __o)
+            return None
+        
+        if self.value > __o.value:
+            return True
+
+        return False
+
+    def __lt__(self, __o) -> bool:
+        if __o.data_type != self.data_type:
+            raise TypeMismatchError(self, __o)
+            return None
+        
+        if self.value < __o.value:
+            return True
+
+        return False
+
+    def __le__(self, __o) -> bool:
+        return self.__eq__(__o) or self.__lt__(__o)
+
+    def __ge__(self, __o) -> bool:
+        return self.__eq__(__o) or self.__gt__(__o)
+    
+    """
+    
+    'sum': {
+            ('int', 'int'): 'int',
+            ('int', 'float'): 'float',
+            ('float', 'int'): 'float',
+            ('float', 'float'): 'float',
+        },
+    """
+    def __add__(self, __o):
+        type = SemanticCube.semantic_cube['sum'][(self.data_type, __o.data_type)]
+        if not type:
+            raise TypeMismatchError(self, __o)
+        if type == 'int':
+            return int(self.value + __o.value)
+        return float(self.value + __o.value)
+
 
 class ProcedureSymbol(Symbol):
     def __init__(self, name, data_type, scope, params = []):
@@ -58,3 +109,10 @@ class SymbolTable(metaclass=SingletonMeta):
 
     def get_all_variables_names(self):
         return self.symbols.keys() # .values()
+
+    def free_all_variables(self):
+        self.symbols = {}
+    
+    def free_variable(self, name):
+        if name in self.symbols:
+            del self.symbols[name]
