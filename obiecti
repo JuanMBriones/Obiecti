@@ -1,0 +1,24 @@
+#!/bin/bash -e
+
+#####
+#
+# This wrapper script can be customized for your solution, however, we expect
+# that it will work out of the box for you.
+#
+# To use, simply:
+#
+#   RUN `python3 compile.py`
+#   or
+#   Run (this file) `./obiecti`
+#
+#####
+
+# set DIRNAME to this scripts parent directory
+DIRNAME="$(dirname "$(readlink -f "${BASH_SOURCE[0]}")")"
+
+# run make (unless $NOREMAKE is non-empty)
+[[ -z "$NOREMAKE" ]] && [[ -e "$DIRNAME/Makefile" ]] && make -C "$DIRNAME" >/dev/null
+
+# replace this running process with a new one running the binary with
+# the same command line arguments
+exec python3 "$DIRNAME/compile.py" "$@"
