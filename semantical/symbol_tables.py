@@ -1,77 +1,21 @@
+from pydoc import classname
 from semantical.errors_exceptions import TypeMismatchError
 from semantical.semantic_cube import SemanticCube
 
 class Symbol:
-    def __init__(self, name, data_type, scope, value=None):
+    def __init__(self, name, data_type, scope):
         self.name = name
         self.data_type = data_type
         self.scope = scope
-        self.value = value
 
     def __eq__(self, __o) -> bool:
-        if self.value == __o.value:
+        if self.name == __o.name and self.data_type == __o.data_type and self.scope == __o.scope:
             return True
         
         return False
     
     def __ne__(self, __o: object) -> bool:
         return not self.__eq__(__o)
-
-    def __gt__(self, __o) -> bool:
-        if __o.data_type != self.data_type:
-            raise TypeMismatchError(self, __o)
-            return None
-        
-        if self.value > __o.value:
-            return True
-
-        return False
-
-    def __lt__(self, __o) -> bool:
-        if __o.data_type != self.data_type:
-            raise TypeMismatchError(self, __o)
-            return None
-        
-        if self.value < __o.value:
-            return True
-
-        return False
-
-    def __le__(self, __o) -> bool:
-        return self.__eq__(__o) or self.__lt__(__o)
-
-    def __ge__(self, __o) -> bool:
-        return self.__eq__(__o) or self.__gt__(__o)
-    
-    """
-    
-    'sum': {
-            ('int', 'int'): 'int',
-            ('int', 'float'): 'float',
-            ('float', 'int'): 'float',
-            ('float', 'float'): 'float',
-        },
-    """
-    def __add__(self, __o):
-        type = SemanticCube.semantic_cube['sum'][(self.data_type, __o.data_type)]
-        if not type:
-            raise TypeMismatchError(self, __o)
-        if type == 'int':
-            return int(self.value + __o.value)
-        return float(self.value + __o.value)
-
-
-class ProcedureSymbol(Symbol):
-    def __init__(self, name, data_type, scope, params = []):
-        super().__init__(name, data_type, scope)
-        self.params = params
-        self.locals = []
-    
-    def __eq__(self, __o: Symbol) -> bool:
-        bitmask_temp = super().__eq__(__o)
-
-        if bitmask_temp and __o.params == self.params and __o.locals == self.locals:
-            return True
 
 class SingletonMeta(type):
     _instances = {}
@@ -86,8 +30,52 @@ class SingletonMeta(type):
             cls._instances[cls] = instance
         return cls._instances[cls]
 
+class ProcedureSymbol(Symbol, metaclass=SingletonMeta):
+    # __metaclass__ = SingletonMeta
 
-class SymbolTable(metaclass=SingletonMeta):
+    methods = {}
+    global_scope = 'global'
+    def __init__(self, *args): #name, data_type, scope, params = []):
+        if len(args) == 4:
+            name, data_type, scope, params, *rest = args
+            super().__init__(name, data_type, scope)
+        self.params = params
+        self.locals = []
+
+        if not self.global_scope in self.methods:
+            self.methods[self.global_scope] = SymbolTable()
+        if not name in self.methods:
+            self.methods[name] = SymbolTable()
+        print(self.methods)
+    
+    def add_method(self, name, data_type, scope, params):
+        if not name in self.methods:
+            self.methods[name] = SymbolTable()
+
+    def get_method(self, name):
+        try:
+            return self.methods[name]
+        except:
+            return None
+
+    def get_methods_names(self):
+        return self.methods.keys()
+    
+    def get_global_variable(self, name):
+        try:
+            return self.methods[self.global_scope][name]
+        except:
+            return None
+
+    def __eq__(self, __o: Symbol) -> bool:
+        bitmask_temp = super().__eq__(__o)
+
+        if bitmask_temp and __o.params == self.params and __o.locals == self.locals:
+            return True
+        
+    
+
+class SymbolTable(Symbol):
     def __init__(self):
         self.symbols = {}
 
@@ -95,8 +83,6 @@ class SymbolTable(metaclass=SingletonMeta):
         try:
             if name in self.symbols:
                 raise Exception("Symbol already exists")
-            if type == "procedure":
-                self.symbols[name] = ProcedureSymbol(name, data_type, scope, params)
             else:
                 self.symbols[name] = Symbol(name, data_type, scope)
         except:
@@ -105,7 +91,9 @@ class SymbolTable(metaclass=SingletonMeta):
     def get(self, name):
         if name in self.symbols:
             return self.symbols[name]
-        return None
+        else:
+            procedureSymbol = ProcedureSymbol(None, None, None)
+            return procedureSymbol.get_global_variable(name)
 
     def get_all_variables_names(self):
         return self.symbols.keys() # .values()

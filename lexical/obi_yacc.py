@@ -2,19 +2,28 @@
  
 from turtle import goto
 import ply.yacc as yacc
+from semantical.quadruples import Quadruples, Quadruple
  
 # Get the token map from the lexer.  This is required.
 from .obi_lex import tokens
 
 compile_status = ''
+operands_stack = []
+operators_stack = []
+types_stack = []
+quadruples = Quadruples()
 
 def p_programa(p):
     '''programa : PROGRAM ID class context
                 | PROGRAM ID context'''
     print("Apropiado")
+    #print(p[:])
     
     global compile_status
     compile_status = "Apropiado"
+    print(quadruples.get_quadruples())
+    print(operands_stack)
+    print(operators_stack)
 
 def p_class(p):
     '''class : scope CLASS ID
@@ -59,6 +68,13 @@ def p_contexto_func(p):
     '''contexto_func : LBRACE aux5 RBRACE
                         | LBRACE aux5 RETURN INT ID RBRACE
                         | LBRACE aux5 RETURN FLOAT ID RBRACE'''
+    print('f', p[:])
+    if len(p) > 4:
+
+        if operands_stack:
+            operands_stack.pop()
+        # quadruple = Quadruple(operation='RETURN', left_operand=None, right_operand=None, result=p[4])
+
 
 def p_aux5(p):
     '''aux5 : vars
@@ -67,8 +83,10 @@ def p_aux5(p):
             | estatuto aux5'''
 
 def p_param(p):
-    '''param : tipo_simple ID
+    '''param : 
+                | tipo_simple ID
                 | tipo_simple ID COMMA param'''
+    print('param', p[:])
 
 def p_scope(p):
     '''scope : PRIVATE
@@ -81,6 +99,24 @@ def p_estatuto(p):
                 | llamada_func
                 | objeto_metodo
                 | lectura'''
+    """while operators_stack:
+        operator = operators_stack.pop()
+        if operator == '=':
+            operand = operands_stack.pop()
+            operand2 = operands_stack.pop()
+            
+            quadruple = Quadruple(operation=operator, left_operand=operand, right_operand=operand2, result='👾')
+            quadruples.add_quadruple(quadruple=quadruple)
+
+            operands_stack.append(quadruple.left_operand)
+        else:
+            operand = operands_stack.pop()
+            operand2 = operands_stack.pop()
+            quadruple = Quadruple(operation=operator, left_operand=operand, right_operand=operand2, result='👽')
+            quadruples.add_quadruple(quadruple=quadruple)
+            operands_stack.append(quadruple)
+            #operators_stack.append(operator)"""
+            
 
 def p_lectura(p):
     '''lectura : READ LPAREN aux4 RPAREN'''
@@ -93,6 +129,7 @@ def p_aux4(p):
 
 def p_escritura(p):
     '''escritura : PRINT LPAREN aux3 RPAREN'''
+    print('escritura', p[:])
 
 def p_aux3(p):
     '''aux3 : expresion
@@ -103,6 +140,9 @@ def p_aux3(p):
             | llamada_func COMMA aux3
             | objeto_metodo COMMA aux3
             | CSTRING COMMA aux3'''
+    print('aux3', p[:])
+    if not p[1]:
+        operands_stack.pop(0)
 
 def p_vars(p):
     '''vars : VAR aux2 COLON tipo_simple
@@ -111,7 +151,18 @@ def p_vars(p):
             | VAR ID LBRACKET cint RBRACKET COLON tipo_compuesto
             | VAR ID LBRACKET cint RBRACKET LBRACKET cint RBRACKET COLON tipo_simple
             | VAR ID LBRACKET cint RBRACKET LBRACKET cint RBRACKET COLON tipo_compuesto'''
+    print('alm',p[:])
+    print('ALSO')
+    print(operands_stack)
+    print(operators_stack)
+    print('nOALSO')
+
+    to_eliminate = list(p).count('[')
+
+    for i in range(to_eliminate):
+        operands_stack.pop()
     
+
 def p_aux2(p):
     '''aux2 : ID
             | ID COMMA aux2'''
@@ -142,6 +193,36 @@ def p_asignacion(p):
                     | objeto_aAcceso LBRACKET LBRACKET exp RBRACKET exp RBRACKET EQUALS expresion
                     | objeto_aAcceso LBRACKET LBRACKET exp RBRACKET exp RBRACKET EQUALS llamada_func
                     | objeto_aAcceso LBRACKET LBRACKET exp RBRACKET exp RBRACKET EQUALS objeto_metodo'''
+    if len(p)==4:
+        operands_stack.insert(0, p[1])
+        operators_stack.insert(0, p[2])
+        print(p[:])
+        print(operands_stack)
+        print(operators_stack)
+        while operators_stack:
+            operator = operators_stack.pop()
+            if operator == '=':
+                operand = operands_stack.pop()
+                operand2 = operands_stack.pop()
+                quadruple = Quadruple(operation=operator, left_operand=operand, right_operand=None, result=operand2)
+                quadruples.add_quadruple(quadruple=quadruple)
+                #operands_stack.append(quadruple.result)
+                #operators_stack.append(operator)
+            else:
+                operand = operands_stack.pop()
+                operand2 = operands_stack.pop()
+                quadruple = Quadruple(operation=operator, left_operand=operand, right_operand=operand2, result=quadruples.get_current())
+                quadruples.add_quadruple(quadruple=quadruple)
+                operands_stack.append(quadruples.get_current())
+                quadruples.increment_current()
+
+                if operator == '<' or operator == '>' or operator == '<=' or operator == '>=':
+                    operand = operands_stack.pop()
+                    quadruple = Quadruple(operation="GOTOF", left_operand=operand, right_operand=None, result=None)
+                    quadruples.add_quadruple(quadruple=quadruple)
+    else:
+        print('este', p[:])     
+            
 
 
 def p_objeto_metodo(p):
@@ -154,6 +235,8 @@ def p_llamada_func(p):
 def p_aux(p):
     '''aux : exp
             | exp COMMA aux'''
+    
+
 
 def p_expresion(p):
     '''expresion : exp_bool
@@ -162,16 +245,22 @@ def p_expresion(p):
                     | exp_bool OR expresion
                     | exp_bool rel_op exp_bool AND expresion
                     | exp_bool rel_op exp_bool OR expresion'''
-  
+    print(p[:])
+
 def p_exp_bool(p):
     '''exp_bool : TRUE
                 | FALSE
                 | exp'''
+    
 
 def p_exp(p):
     '''exp : termino
             | exp PLUS termino
             | exp MINUS termino'''
+    #operators_stack.append(p[2])
+    if len(p) >= 3 and p[2]:
+        operators_stack.insert(0, p[2])
+
 
 def p_termino(p):
     '''termino : factor
@@ -179,6 +268,30 @@ def p_termino(p):
                 | termino DIVIDE factor
                 | termino MODULO factor'''
 
+    if len(p) >= 3 and p[2]:
+        operators_stack.insert(0, p[2])
+
+    """print('de ntro au')
+    while operators_stack:
+        operator = operators_stack.pop()
+        if operands_stack:
+            operand = operands_stack.pop()
+            if operands_stack:
+                operand2 = operands_stack.pop()
+
+                quadruple = Quadruple(operation=operator, left_operand=operand, right_operand=operand2, result='👺')
+                quadruples.add_quadruple(quadruple=quadruple)
+                operators_stack.append(quadruple)
+            else:
+                operands_stack.append(operand)
+                operators_stack.append(operator)
+                break
+        else:
+            operators_stack.append(operator)
+            break
+    print(quadruples.get_quadruples())"""
+
+    
 def p_factor(p):
     '''factor : LPAREN expresion RPAREN
                 | PLUS objeto_aAcceso
@@ -192,12 +305,48 @@ def p_var(p):
     '''var : ID
             | cint
             | cfloat'''
+    
+    if p[1]:
+        operands_stack.insert(0, p[1])
+    
 
 def p_cint(p):
     'cint : CINT'
+    operands_stack.insert(0, p[1])
+    """
+
+    while operators_stack:
+        operator = operators_stack.pop()
+        if operator != '=':
+            operand = operands_stack.pop()
+            operand2 = operands_stack.pop()
+            quadruple = Quadruple(operation=operator, left_operand=operand, right_operand=operand2, result='👽')
+            quadruples.add_quadruple(quadruple=quadruple)
+            operands_stack.append(quadruple.left_operand)
+            #operators_stack.append(operator)
+        else:
+            operators_stack.append(operator)
+            break"""
+
 
 def p_cfloat(p):
     'cfloat : NUMBER'
+    operands_stack.insert(0, p[1])
+    """
+
+    while operators_stack:
+        operator = operators_stack.pop()
+        if operator != '=':
+            operand = operands_stack.pop()
+            operand2 = operands_stack.pop()
+            quadruple = Quadruple(operation=operator, left_operand=operand, right_operand=operand2, result='👽')
+            quadruples.add_quadruple(quadruple=quadruple)
+            operands_stack.append(quadruple.left_operand)
+            #operators_stack.append(operator)
+        else:
+            operators_stack.append(operator)
+            break"""
+
 
 def p_rel_op(p):
     '''rel_op : LT
@@ -206,6 +355,9 @@ def p_rel_op(p):
                 | GE
                 | EQ
                 | NE'''
+    operators_stack.insert(0, p[1])
+
+
 
 def p_objeto_aAcceso(p):
     '''objeto_aAcceso : ID PERIOD ID'''
@@ -220,7 +372,7 @@ def validate_syntax(file: str):
     # Build the parser
     parser = yacc.yacc()
     
-    with open('ejemplo.txt') as f:
+    with open(file) as f:
         contents = f.read()
 
     parser.parse(contents)
