@@ -1,27 +1,29 @@
+from semantical.data_types import DataType
+
 class SemanticCube:
     semantic_cube = {
         'sum': {
-            ('int', 'int'): 'int',
-            ('int', 'float'): 'float',
-            ('float', 'int'): 'float',
-            ('float', 'float'): 'float',
+            (DataType.INT, DataType.INT): DataType.INT,
+            (DataType.INT, DataType.FLOAT): DataType.FLOAT,
+            (DataType.FLOAT, DataType.INT): DataType.FLOAT,
+            (DataType.FLOAT, DataType.FLOAT): DataType.FLOAT
         },
         'sub': {
-            ('int', 'int'): 'int',
-            ('int', 'float'): 'float',
-            ('float', 'int'): 'float',
-            ('float', 'float'): 'float'
+            (DataType.INT, DataType.INT): DataType.INT,
+            (DataType.INT, DataType.FLOAT): DataType.FLOAT,
+            (DataType.FLOAT, DataType.INT): DataType.FLOAT,
+            (DataType.FLOAT, DataType.FLOAT): DataType.FLOAT
         },
         'mul': {
-            ('int', 'int'): 'int',
-            ('int', 'float'): 'float',
-            ('float', 'int'): 'float',
-            ('float', 'float'): 'float'
+            (DataType.INT, DataType.INT): DataType.INT,
+            (DataType.INT, DataType.FLOAT): DataType.FLOAT,
+            (DataType.FLOAT, DataType.INT): DataType.FLOAT,
+            (DataType.FLOAT, DataType.FLOAT): DataType.FLOAT
         },
         'div': {
-            ('int', 'int'): 'float',
-            ('int', 'float'): 'float',
-            ('float', 'int'): 'float',
-            ('float', 'float'): 'float'
+            (DataType.INT, DataType.INT): DataType.FLOAT,
+            (DataType.INT, DataType.FLOAT): DataType.FLOAT,
+            (DataType.FLOAT, DataType.INT): DataType.FLOAT,
+            (DataType.FLOAT, DataType.FLOAT): DataType.FLOAT
         }
     }

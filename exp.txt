@@ -1,0 +1,5 @@
+program x2 
+private class x3 : x4 {
+
+    x3 = 4 + x2
+}
