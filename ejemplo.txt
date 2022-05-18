@@ -32,7 +32,7 @@ private class x3 : x4 {
         print("Hola mundo")
         read(a.atributo, b.atributo)
     }
-    elif (y2) {
+    elif (y2==1) {
         print("g")
     }
     else {
