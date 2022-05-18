@@ -7,6 +7,9 @@ class Symbol:
         self.name = name
         self.data_type = data_type
         self.scope = scope
+    
+    def get(self):
+        return {self.name, self.data_type, self.scope}
 
     def __eq__(self, __o) -> bool:
         if self.name == __o.name and self.data_type == __o.data_type and self.scope == __o.scope:
@@ -39,13 +42,16 @@ class ProcedureSymbol(Symbol, metaclass=SingletonMeta):
         if len(args) == 4:
             name, data_type, scope, params, *rest = args
             super().__init__(name, data_type, scope)
-        self.params = params
+            self.params = params
+
+            if not name in self.methods:
+                self.methods[name] = SymbolTable()
+
         self.locals = []
 
         if not self.global_scope in self.methods:
             self.methods[self.global_scope] = SymbolTable()
-        if not name in self.methods:
-            self.methods[name] = SymbolTable()
+        
         print(self.methods)
     
     def add_method(self, name, data_type, scope, params):
@@ -73,13 +79,15 @@ class ProcedureSymbol(Symbol, metaclass=SingletonMeta):
         if bitmask_temp and __o.params == self.params and __o.locals == self.locals:
             return True
         
-    
+    def get_status(self):
+        for key, value in self.methods.items():
+            print(f"{key}: {value.get_status()}")
 
 class SymbolTable(Symbol):
     def __init__(self):
         self.symbols = {}
 
-    def add(self, name, data_type, type, scope, params = []):
+    def add(self, name, data_type, scope):
         try:
             if name in self.symbols:
                 raise Exception("Symbol already exists")
@@ -104,3 +112,10 @@ class SymbolTable(Symbol):
     def free_variable(self, name):
         if name in self.symbols:
             del self.symbols[name]
+    
+    def get_status(self):
+        response = {}
+        for key, value in self.symbols.items():
+            response[key] = value.get()
+
+        return response

@@ -28,6 +28,9 @@ class Quadruples:
     def get_quadruple(self, index):
         return self.quadruples[index].get_quadruples()
 
+    def get_quadruple_element(self, index):
+        return self.quadruples[index]
+
     def increment_current(self):
         self.current_quadruple += 1
 

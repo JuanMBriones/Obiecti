@@ -8,7 +8,7 @@ reserved = {
     'return' : 'RETURN', 'and' : 'AND', 
     'or' : 'OR', 'while' : 'WHILE',
     'print' : 'PRINT', 'read' : 'READ',
-    'true' : 'TRUE', 'false': 'FALSE'
+    'true' : 'TRUE', 'false': 'FALSE', 'else': 'ELSE'
  }
 
 tokens = [
