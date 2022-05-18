@@ -20,7 +20,7 @@ def p_programa(p):
     '''programa : PROGRAM ID class context
                 | PROGRAM ID context'''
     print("Apropiado")
-    #print(p[:])
+    print(p[:])
     
     global compile_status
     compile_status = "Apropiado"
@@ -256,15 +256,15 @@ def p_asignacion(p):
                 operand2 = operands_stack.pop()
                 quadruple = Quadruple(operation=operator, left_operand=operand, right_operand=None, result=operand2)
                 quadruples.add_quadruple(quadruple=quadruple)
-                #operands_stack.append(quadruple.result)
-                #operators_stack.append(operator)
+                    #operands_stack.append(quadruple.result)
+                    #operators_stack.append(operator)
             else:
-                operand = operands_stack.pop()
-                operand2 = operands_stack.pop()
-                quadruple = Quadruple(operation=operator, left_operand=operand, right_operand=operand2, result=quadruples.get_current())
-                quadruples.add_quadruple(quadruple=quadruple)
-                operands_stack.append(quadruples.get_current())
-                quadruples.increment_current()
+                #operand = operands_stack.pop()
+                #operand2 = operands_stack.pop()
+                #quadruple = Quadruple(operation=operator, left_operand=operand, right_operand=operand2, result=quadruples.get_current())
+                #quadruples.add_quadruple(quadruple=quadruple)
+                #operands_stack.append(quadruples.get_current())
+                #quadruples.increment_current()
 
                 if operator == '<' or operator == '>' or operator == '<=' or operator == '>=' or operator == '==' or operator == '!=':
                     operand = operands_stack.pop()
@@ -310,9 +310,16 @@ def p_exp(p):
     '''exp : termino
             | exp PLUS termino
             | exp MINUS termino'''
-    #operators_stack.append(p[2])
     if len(p) >= 3 and p[2]:
-        operators_stack.insert(0, p[2])
+        operators_stack.append(p[2])
+        if operators_stack[0] == "+" or operators_stack[0] == "-":
+            operator = operators_stack.pop(0)
+            right_operand = operands_stack.pop(0)
+            left_operand = operands_stack.pop(0)
+            quadruple = Quadruple(operation=operator, left_operand=left_operand, right_operand=right_operand, result=quadruples.get_current())
+            quadruples.add_quadruple(quadruple=quadruple)
+            operands_stack.append(quadruples.get_current())
+            quadruples.increment_current()
 
 
 def p_termino(p):
@@ -320,9 +327,18 @@ def p_termino(p):
                 | termino TIMES factor
                 | termino DIVIDE factor
                 | termino MODULO factor'''
+    
 
     if len(p) >= 3 and p[2]:
-        operators_stack.insert(0, p[2])
+        operators_stack.append(p[2])
+        if operators_stack[0] == "*" or operators_stack[0] == "/" or operators_stack[0] == "%":
+            operator = operators_stack.pop(0)
+            right_operand = operands_stack.pop(0)
+            left_operand = operands_stack.pop(0)
+            quadruple = Quadruple(operation=operator, left_operand=left_operand, right_operand=right_operand, result=quadruples.get_current())
+            quadruples.add_quadruple(quadruple=quadruple)
+            operands_stack.append(quadruples.get_current())
+            quadruples.increment_current()
 
     """print('de ntro au')
     while operators_stack:
