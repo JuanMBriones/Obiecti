@@ -272,9 +272,16 @@ def p_exp(p):
     '''exp : termino
             | exp PLUS termino
             | exp MINUS termino'''
-    #operators_stack.append(p[2])
     if len(p) >= 3 and p[2]:
-        operators_stack.insert(0, p[2])
+        operators_stack.append(p[2])
+        if operators_stack[0] == "+" or operators_stack[0] == "-":
+            operator = operators_stack.pop(0)
+            right_operand = operands_stack.pop(0)
+            left_operand = operands_stack.pop(0)
+            quadruple = Quadruple(operation=operator, left_operand=left_operand, right_operand=right_operand, result=quadruples.get_current())
+            quadruples.add_quadruple(quadruple=quadruple)
+            operands_stack.append(quadruples.get_current())
+            quadruples.increment_current()
 
 
 def p_termino(p):
@@ -282,9 +289,18 @@ def p_termino(p):
                 | termino TIMES factor
                 | termino DIVIDE factor
                 | termino MODULO factor'''
+    
 
     if len(p) >= 3 and p[2]:
-        operators_stack.insert(0, p[2])
+        operators_stack.append(p[2])
+        if operators_stack[0] == "*" or operators_stack[0] == "/" or operators_stack[0] == "%":
+            operator = operators_stack.pop(0)
+            right_operand = operands_stack.pop(0)
+            left_operand = operands_stack.pop(0)
+            quadruple = Quadruple(operation=operator, left_operand=left_operand, right_operand=right_operand, result=quadruples.get_current())
+            quadruples.add_quadruple(quadruple=quadruple)
+            operands_stack.append(quadruples.get_current())
+            quadruples.increment_current()
 
     
 def p_factor(p):
