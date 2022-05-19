@@ -133,15 +133,27 @@ def p_estatuto(p):
 
 def p_lectura(p):
     '''lectura : READ LPAREN aux4 RPAREN'''
+    while operands_stack:
+        quadruple = Quadruple(operation='read', left_operand=None, right_operand=None, result=operands_stack.pop(0))
+        quadruples.add_quadruple(quadruple=quadruple)
+        quadruples.increment_current()
 
 def p_aux4(p):
     '''aux4 : ID
             | objeto_aAcceso
             | ID COMMA aux4
             | objeto_aAcceso COMMA aux4'''
+    
+    if p[1]:
+        operands_stack.insert(0, p[1])
+    
 
 def p_escritura(p):
     '''escritura : PRINT LPAREN aux3 RPAREN'''
+    while operands_stack:
+        quadruple = Quadruple(operation='print', left_operand=None, right_operand=None, result=operands_stack.pop(0))
+        quadruples.add_quadruple(quadruple=quadruple)
+        quadruples.increment_current()
 
 def p_aux3(p):
     '''aux3 : expresion
@@ -153,8 +165,8 @@ def p_aux3(p):
             | objeto_metodo COMMA aux3
             | CSTRING COMMA aux3'''
 
-    if not p[1]:
-        operands_stack.pop(0)
+    #if not p[1]:
+     #   operands_stack.pop(0)
 
 def p_vars(p):
     '''vars : VAR aux2 COLON tipo_simple
