@@ -78,12 +78,12 @@ def p_aux5_cond(p):
 
 def p_ciclo(p):
     '''ciclo : WHILE LPAREN expresion RPAREN bloque'''
-    jump_index = jumps_stack.pop()
+    jump_index = jumps_stack.pop(0)
     quadruple = Quadruple(operation='GOTO', left_operand=None, right_operand=None, result=jump_index)
     quadruples.add_quadruple(quadruple=quadruple)
 
     if jumps_stack:
-        quadruple_goto_f = jumps_stack.pop()
+        quadruple_goto_f = jumps_stack.pop(0)
         jump_index = len(quadruples.quadruples)
         quadruples.quadruples[quadruple_goto_f].result = jump_index
 
@@ -179,7 +179,7 @@ def p_vars(p):
     to_eliminate = list(p).count('[')
 
     for i in range(to_eliminate):
-        operands_stack.pop()
+        operands_stack.pop(0)
 
     
     if len(p) == 5:
@@ -189,23 +189,23 @@ def p_vars(p):
         table = function_table.get_method('global')
         table.add(operands_stack[-1], types_stack[-1], 'global')
 
-        operands_stack.pop()
-        types_stack.pop()
+        operands_stack.pop(0)
+        types_stack.pop(0)
 
 def p_aux2(p):
     '''aux2 : ID
             | ID COMMA aux2'''
-    operands_stack.append(p[1])
+    operands_stack.insert(0, p[1])
 
     
 def p_tipo_simple(p):
     '''tipo_simple : INT
                     | FLOAT'''
-    types_stack.append(p[1])
+    types_stack.insert(0, p[1])
 
 def p_tipo_compuesto(p):
     '''tipo_compuesto : ID'''
-    types_stack.append(p[1])
+    types_stack.insert(0, p[1])
 
 def p_asignacion(p):
     '''asignacion : ID EQUALS expresion
@@ -231,10 +231,10 @@ def p_asignacion(p):
         operators_stack.insert(0, p[2])
 
         while operators_stack:
-            operator = operators_stack.pop()
+            operator = operators_stack.pop(0)
             if operator == '=':
-                operand = operands_stack.pop()
-                operand2 = operands_stack.pop()
+                operand = operands_stack.pop(0)
+                operand2 = operands_stack.pop(0)
                 quadruple = Quadruple(operation=operator, left_operand=operand, right_operand=None, result=operand2)
                 quadruples.add_quadruple(quadruple=quadruple)
 
@@ -259,20 +259,20 @@ def p_expresion(p):
                     | exp_bool rel_op exp_bool AND expresion
                     | exp_bool rel_op exp_bool OR expresion'''
     while operators_stack:
-            operator = operators_stack.pop()
+            operator = operators_stack.pop(0)
             if operator != '=':
-                operand = operands_stack.pop()
-                operand2 = operands_stack.pop()
-                quadruple = Quadruple(operation=operator, left_operand=operand, right_operand=operand2, result=quadruples.get_current())
+                right_operand = operands_stack.pop(0)
+                left_operand = operands_stack.pop(0)
+                quadruple = Quadruple(operation=operator, left_operand=left_operand, right_operand=right_operand, result=quadruples.get_current())
                 quadruples.add_quadruple(quadruple=quadruple)
-                operands_stack.append(quadruples.get_current())
+                operands_stack.insert(0, quadruples.get_current())
                 quadruples.increment_current()
 
                 if operator in rel_op:
-                    operand = operands_stack.pop()
+                    operand = operands_stack.pop(0)
                     quadruple = Quadruple(operation="GOTOF", left_operand=operand, right_operand=None, result=None)
-                    jumps_stack.append(len(quadruples.quadruples))
-                    jumps_stack.append(len(quadruples.quadruples))
+                    jumps_stack.insert(0, len(quadruples.quadruples))
+                    jumps_stack.insert(0, len(quadruples.quadruples))
                     quadruples.add_quadruple(quadruple=quadruple)
 
 def p_exp_bool(p):
