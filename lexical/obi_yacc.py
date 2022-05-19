@@ -1,5 +1,6 @@
 # Yacc example
  
+from ast import operator
 from turtle import goto
 from typing import Set
 import ply.yacc as yacc
@@ -273,15 +274,18 @@ def p_exp(p):
             | exp PLUS termino
             | exp MINUS termino'''
     if len(p) >= 3 and p[2]:
-        operators_stack.append(p[2])
+        operators_stack.insert(0, p[2])
         if operators_stack[0] == "+" or operators_stack[0] == "-":
+            #print("Exp Operandos:", operands_stack)
+            #print("Exp Operadores:", operators_stack)
             operator = operators_stack.pop(0)
             right_operand = operands_stack.pop(0)
             left_operand = operands_stack.pop(0)
             quadruple = Quadruple(operation=operator, left_operand=left_operand, right_operand=right_operand, result=quadruples.get_current())
             quadruples.add_quadruple(quadruple=quadruple)
-            operands_stack.append(quadruples.get_current())
+            operands_stack.insert(0, quadruples.get_current())
             quadruples.increment_current()
+            
 
 
 def p_termino(p):
@@ -292,14 +296,16 @@ def p_termino(p):
     
 
     if len(p) >= 3 and p[2]:
-        operators_stack.append(p[2])
+        operators_stack.insert(0, p[2])
         if operators_stack[0] == "*" or operators_stack[0] == "/" or operators_stack[0] == "%":
+            #print("Termino Operandos:", operands_stack)
+            #print("Termino Operadores:", operators_stack)
             operator = operators_stack.pop(0)
             right_operand = operands_stack.pop(0)
             left_operand = operands_stack.pop(0)
             quadruple = Quadruple(operation=operator, left_operand=left_operand, right_operand=right_operand, result=quadruples.get_current())
             quadruples.add_quadruple(quadruple=quadruple)
-            operands_stack.append(quadruples.get_current())
+            operands_stack.insert(0, quadruples.get_current())
             quadruples.increment_current()
 
     
@@ -311,6 +317,7 @@ def p_factor(p):
                 | MINUS var
                 | var
                 | objeto_aAcceso'''
+
 
 def p_var(p):
     '''var : ID
