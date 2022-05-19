@@ -1,4 +1,5 @@
 program x2 
 private class x3 : x4 {
-    x3 = A * (C * D - E * F / H + I) / J   
+    print(A * (C * D - E * F / H + I) / J, B)
+    read(A, B, C, D)   
 }
