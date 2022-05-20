@@ -137,7 +137,6 @@ def p_lectura(p):
     while operands_stack:
         quadruple = Quadruple(operation='read', left_operand=None, right_operand=None, result=operands_stack.pop(0))
         quadruples.add_quadruple(quadruple=quadruple)
-        quadruples.increment_current()
 
 def p_aux4(p):
     '''aux4 : ID
@@ -152,10 +151,8 @@ def p_aux4(p):
 def p_escritura(p):
     '''escritura : PRINT LPAREN aux3 RPAREN'''
     while operands_stack:
-        print("Escritura operandos:", operands_stack)
         quadruple = Quadruple(operation='print', left_operand=None, right_operand=None, result=operands_stack.pop(0))
         quadruples.add_quadruple(quadruple=quadruple)
-        quadruples.increment_current()
 
 def p_aux3(p):
     '''aux3 : expresion
@@ -341,9 +338,6 @@ def p_factor(p):
     #print("Factor operadores:", operators_stack)
     #print("Factor saltos:", jumps_stack)
     #print("Factor cuadruplos:", len(quadruples.quadruples))
-
-    #if operators_stack:
-     #   jumps_stack.insert(0, len(quadruples.quadruples))
 
 def p_var(p):
     '''var : ID
