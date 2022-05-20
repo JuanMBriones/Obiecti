@@ -77,7 +77,7 @@ def p_aux_elif(p):
 
 
 def p_ciclo(p):
-    '''ciclo : WHILE LPAREN aux_ciclo expresion RPAREN bloque'''
+    '''ciclo : aux_ciclo WHILE LPAREN expresion RPAREN bloque'''
     end = jumps_stack.pop()
     jump_index = jumps_stack.pop()
     quadruple = Quadruple(operation='GOTO', left_operand=None, right_operand=None, result=jump_index)
