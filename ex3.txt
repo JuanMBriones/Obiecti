@@ -1,7 +1,19 @@
 program x2 
 private class x3 : x4 {
-    while(x2 < 3) {
-        x3 = A * (C * D - E * F / H + I) / J
-        x9 = 0
+
+    if (x2 > x3) {
+        x2 = x3
+    } elif (y2 + 9 < y3) {
+        x2 = 3
+    } elif (y2 + 9 < y3) {
+        x2 = 3
+    } elif (y2 + 9 < y3) {
+        x2 = 3
+    } elif (y2 + 9 < y3) {
+        x2 = 3
+    }
+
+    while (x2 + 9 < y3) {
+        x2 = 3
     }
 }

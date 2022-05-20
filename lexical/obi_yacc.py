@@ -16,6 +16,7 @@ operators_stack = []
 types_stack = []
 jumps_stack = []
 quadruples = Quadruples()
+aux_quadruple = 0
 function_table = ProcedureSymbol()
 rel_op = set(['==', '!=', '>', '<', '>=', '<='])
 
@@ -54,38 +55,38 @@ def p_aux6(p):
             | ciclo aux6'''
 
 def p_condicion(p):
-    '''condicion : IF LPAREN expresion RPAREN bloque_cond
-                    | IF LPAREN expresion RPAREN bloque_cond elif
-                    | IF LPAREN expresion RPAREN bloque_cond elif else'''
+    '''condicion : IF LPAREN expresion RPAREN bloque
+                    | IF LPAREN expresion RPAREN bloque elif'''
+    end = jumps_stack.pop()
+    quadruples.quadruples[end].result = len(quadruples.quadruples)
+    while jumps_stack:
+        end = jumps_stack.pop()
+        quadruples.quadruples[end].result = len(quadruples.quadruples)
 
 def p_elif(p):
-    '''elif : 
-            | ELIF LPAREN expresion RPAREN bloque_cond elif'''
+    '''elif : aux_elif ELIF LPAREN expresion RPAREN bloque
+                | aux_elif ELIF LPAREN expresion RPAREN bloque elif'''
 
-def p_else(p):
-    '''else : ELSE bloque_cond'''
+def p_aux_elif(p):
+    '''aux_elif :'''
+    false = jumps_stack.pop()
+    quadruple = Quadruple(operation='GOTO', left_operand=None, right_operand=None, result=None)
+    quadruples.add_quadruple(quadruple=quadruple)
+    jumps_stack.append(len(quadruples.quadruples) - 1)
+    quadruples.quadruples[false].result = len(quadruples.quadruples)
 
-    quadruples.add_quadruple(Quadruple(operation='🥨', left_operand=None, right_operand=None, result=None))
-
-def p_bloque_cond(p):
-    '''bloque_cond : LBRACE aux5_cond RBRACE'''
-
-def p_aux5_cond(p):
-    '''aux5_cond : vars
-            | estatuto
-            | vars aux5_cond
-            | estatuto aux5_cond'''
 
 def p_ciclo(p):
-    '''ciclo : WHILE LPAREN expresion RPAREN bloque'''
-    jump_index = jumps_stack.pop(0)
+    '''ciclo : WHILE LPAREN aux_ciclo expresion RPAREN bloque'''
+    end = jumps_stack.pop()
+    jump_index = jumps_stack.pop()
     quadruple = Quadruple(operation='GOTO', left_operand=None, right_operand=None, result=jump_index)
     quadruples.add_quadruple(quadruple=quadruple)
-
-    if jumps_stack:
-        quadruple_goto_f = jumps_stack.pop(0)
-        jump_index = len(quadruples.quadruples)
-        quadruples.quadruples[quadruple_goto_f].result = jump_index
+    quadruples.quadruples[end].result = len(quadruples.quadruples)
+    
+def p_aux_ciclo(p):
+    '''aux_ciclo :'''
+    jumps_stack.append(len(quadruples.quadruples))
 
 def p_constructor(p):
     '''constructor : PUBLIC ID LPAREN param RPAREN bloque'''
@@ -105,7 +106,7 @@ def p_contexto_func(p):
 
     if len(p) > 4:
         if operands_stack:
-            operands_stack.pop()
+            operands_stack.pop(0)
 
 
 def p_aux5(p):
@@ -151,6 +152,7 @@ def p_aux4(p):
 def p_escritura(p):
     '''escritura : PRINT LPAREN aux3 RPAREN'''
     while operands_stack:
+        print("Escritura operandos:", operands_stack)
         quadruple = Quadruple(operation='print', left_operand=None, right_operand=None, result=operands_stack.pop(0))
         quadruples.add_quadruple(quadruple=quadruple)
         quadruples.increment_current()
@@ -165,8 +167,8 @@ def p_aux3(p):
             | objeto_metodo COMMA aux3
             | CSTRING COMMA aux3'''
 
-    #if not p[1]:
-     #   operands_stack.pop(0)
+    if p[1]:
+       operands_stack.insert(0, p[1])
 
 def p_vars(p):
     '''vars : VAR aux2 COLON tipo_simple
@@ -258,6 +260,8 @@ def p_expresion(p):
                     | exp_bool OR expresion
                     | exp_bool rel_op exp_bool AND expresion
                     | exp_bool rel_op exp_bool OR expresion'''
+    #print("Expresion operadores:", operators_stack)
+    #print("Expresion cuadruplos:", len(quadruples.quadruples))
     while operators_stack:
             operator = operators_stack.pop(0)
             if operator != '=':
@@ -271,14 +275,16 @@ def p_expresion(p):
                 if operator in rel_op:
                     operand = operands_stack.pop(0)
                     quadruple = Quadruple(operation="GOTOF", left_operand=operand, right_operand=None, result=None)
-                    jumps_stack.insert(0, len(quadruples.quadruples))
-                    jumps_stack.insert(0, len(quadruples.quadruples))
                     quadruples.add_quadruple(quadruple=quadruple)
+                    jumps_stack.append(len(quadruples.quadruples) - 1)
+                    #print("Expresion saltos:", jumps_stack)
 
 def p_exp_bool(p):
     '''exp_bool : TRUE
                 | FALSE
                 | exp'''
+    #print("Exp bool operadores:", operators_stack)
+    #print("Exp bool cuadruplos:", len(quadruples.quadruples))
     
 
 def p_exp(p):
@@ -286,6 +292,8 @@ def p_exp(p):
             | exp PLUS termino
             | exp MINUS termino'''
     if len(p) >= 3 and p[2]:
+        #print("Exp operadores:", operators_stack)
+        #print("Exp cuadruplos:", len(quadruples.quadruples))
         operators_stack.insert(0, p[2])
         if operators_stack[0] == "+" or operators_stack[0] == "-":
             #print("Exp Operandos:", operands_stack)
@@ -330,6 +338,12 @@ def p_factor(p):
                 | var
                 | objeto_aAcceso'''
 
+    #print("Factor operadores:", operators_stack)
+    #print("Factor saltos:", jumps_stack)
+    #print("Factor cuadruplos:", len(quadruples.quadruples))
+
+    #if operators_stack:
+     #   jumps_stack.insert(0, len(quadruples.quadruples))
 
 def p_var(p):
     '''var : ID
