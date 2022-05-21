@@ -1,11 +1,12 @@
 # Yacc example
  
 from ast import operator
+from asyncio import constants
 from turtle import goto
 from typing import Set
 import ply.yacc as yacc
 from semantical.quadruples import Quadruples, Quadruple
-from semantical.symbol_tables import ProcedureSymbol, SymbolTable
+from semantical.symbol_tables import ConstantTable, ProcedureSymbol, SymbolTable
  
 # Get the token map from the lexer.  This is required.
 from .obi_lex import tokens
@@ -15,9 +16,11 @@ operands_stack = []
 operators_stack = []
 types_stack = []
 jumps_stack = []
+constants_segments = [25000, 30000, 35000, 40000]
 quadruples = Quadruples()
 aux_quadruple = 0
 function_table = ProcedureSymbol()
+constants_table = ConstantTable()
 rel_op = set(['==', '!=', '>', '<', '>=', '<='])
 
 def p_programa(p):
@@ -166,6 +169,8 @@ def p_aux3(p):
 
     if p[1]:
        operands_stack.insert(0, p[1])
+       add_constant(p[1], "string")
+       print(constants_table.get(p[1]).get())
 
 def p_vars(p):
     '''vars : VAR aux2 COLON tipo_simple
@@ -350,12 +355,16 @@ def p_var(p):
 
 def p_cint(p):
     'cint : CINT'
-    operands_stack.insert(0, p[1])
+    add_constant(p[1], "int")
+    print(p[1], constants_table.get_address(p[1]))
+    operands_stack.insert(0, constants_table.get(p[1]).get()[1])
 
 
 def p_cfloat(p):
     'cfloat : NUMBER'
     operands_stack.insert(0, p[1])
+    add_constant(p[1], "float")
+    print(constants_table.get(p[1]).get())
 
 
 def p_rel_op(p):
@@ -390,3 +399,37 @@ def validate_syntax(file: str):
     return compile_status
     #result = parser.parse(s)
     #print(result)
+
+def add_constant(valor, type):
+    if type == "int":
+        if constants_segments[0] + 1 >= 30000:
+            print("Too many INT constants")
+            exit(-1)
+        else:
+            added = constants_table.add(valor, constants_segments[0])
+            if added:
+                constants_segments[0] += 1
+    elif type == "float":
+        if constants_segments[1] + 1 >= 35000:
+            print("Too many FLOAT constants")
+            exit(-1)
+        else:
+            added = constants_table.add(valor, constants_segments[1])
+            if added:
+                constants_segments[1] += 1
+    elif type == "char":
+        if constants_segments[2] + 1 >= 40000:
+            print("Too many CHAR constants")
+            exit(-1)
+        else:
+            added = constants_table.add(valor, constants_segments[2])
+            if added:
+                constants_segments[2] += 1
+    elif type == "string":
+        if constants_segments[3] + 1 >= 45000:
+            print("Too many STRING constants")
+            exit(-1)
+        else:
+            added = constants_table.add(valor, constants_segments[3])
+            if added:
+                constants_segments[3] += 1

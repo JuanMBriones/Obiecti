@@ -1,3 +1,4 @@
+from asyncio import constants
 from pydoc import classname
 from semantical.errors_exceptions import TypeMismatchError
 from semantical.semantic_cube import SemanticCube
@@ -119,3 +120,43 @@ class SymbolTable(Symbol):
             response[key] = value.get()
 
         return response
+
+class Constant():
+    def __init__(self, value, address):
+        self.value = value
+        self.address = address
+    
+    def get(self):
+        return (self.value, self.address)
+
+    def __eq__(self, __o) -> bool:
+        if self.value == __o.value and self.address == __o.address:
+            return True
+        
+        return False
+    
+    def __ne__(self, __o: object) -> bool:
+        return not self.__eq__(__o)
+
+class ConstantTable(Constant):
+    def __init__(self):
+        self.constants = {}
+
+    def add(self, value, address):
+        try:
+            if value in self.constants:
+                raise Exception("Constant already exists")
+            else:
+                self.constants[value] = Constant(value, address)
+                return True
+        except:
+            return False
+    
+    def get(self, value):
+        return self.constants.get(value, False)
+
+    def get_address(self, value):
+        return self.get(value).get()[1]
+    
+    def get_all_constants_values(self):
+        return self.constants.keys()
