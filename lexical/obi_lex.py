@@ -12,7 +12,7 @@ reserved = {
  }
 
 tokens = [
-    'NUMBER', 'CSTRING',
+    'NUMBER', 'CSTRING', 'CCHAR',
     'PLUS', 'MODULO', 'MINUS', 
     'TIMES', 'DIVIDE', 'EQUALS',
     'CINT',
@@ -40,6 +40,7 @@ t_PERIOD = r'\.'
 t_COLON = r':'
 t_CINT = r'\d+'
 t_NUMBER = r'[-+]?[0-9]+(\.([0-9]+)?([eE][-+]?[0-9]+)?|[eE][-+]?[0-9]+)'
+t_CCHAR = r'(\')([A-Za-z0-9]|[ \t\n]|(\()|(\)))(\')'
 t_CSTRING = r'(\")([A-Za-z0-9]|[ \t\n]|(\()|(\)))+(\")'
 t_EQUALS = r'='
 t_LT = r'<'

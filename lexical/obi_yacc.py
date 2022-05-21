@@ -168,9 +168,9 @@ def p_aux3(p):
             | CSTRING COMMA aux3'''
 
     if p[1]:
-       operands_stack.insert(0, p[1])
-       add_constant(p[1], "string")
-       print(constants_table.get(p[1]).get())
+        add_constant(p[1], "string")
+        print(p[1], constants_table.get_address(p[1]))
+        operands_stack.insert(0, constants_table.get_address(p[1]))
 
 def p_vars(p):
     '''vars : VAR aux2 COLON tipo_simple
@@ -347,7 +347,8 @@ def p_factor(p):
 def p_var(p):
     '''var : ID
             | cint
-            | cfloat'''
+            | cfloat
+            | cchar'''
     
     if p[1]:
         operands_stack.insert(0, p[1])
@@ -357,15 +358,20 @@ def p_cint(p):
     'cint : CINT'
     add_constant(p[1], "int")
     print(p[1], constants_table.get_address(p[1]))
-    operands_stack.insert(0, constants_table.get(p[1]).get()[1])
+    operands_stack.insert(0, constants_table.get_address(p[1]))
 
 
 def p_cfloat(p):
     'cfloat : NUMBER'
-    operands_stack.insert(0, p[1])
     add_constant(p[1], "float")
-    print(constants_table.get(p[1]).get())
+    print(p[1], constants_table.get_address(p[1]))
+    operands_stack.insert(0, constants_table.get_address(p[1]))
 
+def p_cchar(p):
+    'cchar : CCHAR'
+    add_constant(p[1], "char")
+    print(p[1], constants_table.get_address(p[1]))
+    operands_stack.insert(0, constants_table.get_address(p[1]))
 
 def p_rel_op(p):
     '''rel_op : LT
