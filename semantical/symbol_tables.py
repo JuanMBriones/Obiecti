@@ -1,5 +1,6 @@
 from asyncio import constants
 from pydoc import classname
+from semantical.data_types import DataType
 from semantical.errors_exceptions import TypeMismatchError
 from semantical.semantic_cube import SemanticCube
 
@@ -88,16 +89,26 @@ class Function:
         self.initial_address = None
         self.size = [0, 0, 0, 0, 0, 0]      #[int, float, char, temp_int, temp_float, temp_char]
         self.symbol_table = SymbolTable()
-        self.param_table = ()
+        self.param_table = []
 
     def get(self):
         return (self.data_type, self.initial_address, self.size, self.symbol_table, self.param_table)
 
-    def set_params(self, params):
-        self.param_table = params
+    def get_data_type(self):
+        return self.data_type
+
+    def add_param(self, param):
+        self.param_table.append(param)
+
+    def get_param_table(self):
+        return self.get_param_table
         
     def set_size(self, size):
         self.size = size
+
+    def add_param_count(self, position):
+        self.size[position] += 1
+        print(self.size)
 
     def set_address(self, address):
         self.initial_address = address
@@ -126,7 +137,7 @@ class ProcedureSymbol(metaclass=SingletonMeta):
     methods = {}
     global_scope = 'global'
     def __init__(self): #name, data_type, scope, params = []):
-        self.methods["global"] = Function("void")
+        self.methods["global"] = Function(DataType.VOID)
 
     
 
@@ -167,6 +178,21 @@ class ProcedureSymbol(metaclass=SingletonMeta):
         except:
             return None
 
+    def add_variable(self, name_func, name_var, data_type, address):
+        try:
+            return self.get_method(name_func).add_variable(name_var, data_type, "local", address)
+        except:
+            return None
+
+    def get_param(self, name_func):
+        try:
+            return self.get_method(name_func).get()[4]
+        except:
+            return None
+
+    def add_param_count(self, name_func, position):
+        self.get_method(name_func).add_param_count(position)
+
     def get_variable_address(self, name_function, name_variable):
         return self.get_method(name_function).get_virtual_address(name_variable)
 
@@ -174,8 +200,10 @@ class ProcedureSymbol(metaclass=SingletonMeta):
         return self.get_method(name_function).get_variable_type(name_variable)
 
     def get_all_variables(self, name_function):
-        print(name_function)
         return self.get_method(name_function).get_all_variables()
+
+    def get_func_data_type(self, name_function):
+        return self.get_method(name_function).get_data_type()
     
     def __eq__(self, __o: Symbol) -> bool:
         bitmask_temp = super().__eq__(__o)
@@ -186,6 +214,7 @@ class ProcedureSymbol(metaclass=SingletonMeta):
     def get_status(self):
         for key, value in self.methods.items():
             print(f"{key}: {value.get_status()}")
+    
 
 class Constant:
     def __init__(self, value, address):

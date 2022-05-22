@@ -38,7 +38,7 @@ def p_programa(p):
     
     global compile_status
     compile_status = "Apropiado"
-    
+
     for key, value in quadruples.get_quadruples().items():
         print(f"{key}: {value}")
     print('Uff✨')
@@ -106,18 +106,39 @@ def p_bloque(p):
     '''bloque : LBRACE aux5 RBRACE'''
 
 def p_funcion(p):
-    '''funcion : scope DEF ID LPAREN param RPAREN contexto_func'''
-
+    '''funcion : scope type DEF id LPAREN param aux_param RPAREN contexto_func
+                | scope VOID DEF id LPAREN param aux_param RPAREN contexto_func'''
     #function_table.add_method(name=p[3], data_type=None, scope=p[1], params=p[4])
+
+def p_id(p):
+    '''id : ID'''
+    is_var_global = function_table.get_global_variable(p[1])
+    is_func_global = function_table.get_method(p[1])
+    if is_var_global or is_func_global:
+        print(f'{p[1]} is already defined')
+        exit(-1)
+    else:
+        if len(types_stack) > 0:
+            function_table.add_method(p[1], types_stack.pop(0))
+        else:
+            function_table.add_method(p[1], DataType.VOID)
+        operands_stack.insert(0, p[1])
+    
+
+def p_type(p):
+    '''type : INT
+            | FLOAT
+            | CHAR'''
+    if p[1] == "int":
+        types_stack.insert(0, DataType.INT)
+    elif p[1] == "float":
+        types_stack.insert(0, DataType.FLOAT)
+    elif p[1] == "char":
+        types_stack.insert(0, DataType.CHAR)
 
 def p_contexto_func(p):
     '''contexto_func : LBRACE aux5 RBRACE
-                        | LBRACE aux5 RETURN INT ID RBRACE
-                        | LBRACE aux5 RETURN FLOAT ID RBRACE'''
-
-    if len(p) > 4:
-        if operands_stack:
-            operands_stack.pop(0)
+                        | LBRACE aux5 RETURN ID RBRACE'''
 
 
 def p_aux5(p):
@@ -130,9 +151,22 @@ def p_param(p):
     '''param : 
                 | tipo_simple ID
                 | tipo_simple ID COMMA param'''
+    if len(p) >= 3 and p[2]:
+        operands_stack.append(p[2])
+
+def p_aux_param(p):
+    '''aux_param :'''
+    while len(operands_stack) > 1:
+        name_func = operands_stack[0]
+        name_var = operands_stack.pop()
+        data_type = types_stack.pop()
+        add_local_variable(name_func, name_var, data_type)
+        add_param(name_func, data_type)
+    operands_stack.pop(0)
 
 def p_scope(p):
-    '''scope : PRIVATE
+    '''scope : 
+                | PRIVATE
                 | PUBLIC
                 | PROTECTED'''
 
@@ -197,13 +231,10 @@ def p_vars(p):
         while operands_stack:
             name_variable = operands_stack.pop(0)
             type_variable = types_stack[0]
-            add_local_variable(name_variable, type_variable)
+            add_global_variable(name_variable, type_variable)
             address_variable = function_table.get_variable_address("global", name_variable)
             quadruple = Quadruple(operation='DECLARE_VAR', left_operand=None, right_operand=None, result=address_variable)
             quadruples.add_quadruple(quadruple=quadruple)
-
-            #table = function_table.get_method('global')
-            #table.add(operands_stack[-1], types_stack[-1], 'global')
 
         types_stack.pop(0)
 
@@ -222,7 +253,7 @@ def p_tipo_simple(p):
     elif p[1] == "float":
         types_stack.insert(0, DataType.FLOAT)
     elif p[1] == "char":
-        types_stack.insert(0, DataType.STRING)
+        types_stack.insert(0, DataType.CHAR)
 
 def p_tipo_compuesto(p):
     '''tipo_compuesto : ID'''
@@ -327,10 +358,6 @@ def p_expresion(p):
                     | exp LE expresion
                     | exp EQ expresion
                     | exp NE expresion'''
-    #print("Expresion operandos:", operands_stack)
-    #print("Expresion operadores:", operators_stack)
-    #print("Expresion cuadruplos:", len(quadruples.quadruples))
-
     if len(p) >= 3 and p[2]:
         operators_stack.insert(0, p[2])
         if (operators_stack[0] in rel_op):
@@ -348,23 +375,13 @@ def p_expresion(p):
                     print("Type mismatch")
                     exit(-1)
 
-                    #if operator in rel_op:
-                     #   operand = operands_stack.pop(0)
-                      #  quadruple = Quadruple(operation="GOTOF", left_operand=operand, right_operand=None, result=None)
-                       # quadruples.add_quadruple(quadruple=quadruple)
-                        #jumps_stack.append(len(quadruples.quadruples) - 1)
-                        #print("Expresion saltos:", jumps_stack)
-
 def p_exp(p):
     '''exp : termino
             | exp PLUS termino
             | exp MINUS termino'''
     if len(p) >= 3 and p[2]:
-        #print("Exp operadores:", operators_stack)
-        #print("Exp cuadruplos:", len(quadruples.quadruples))
         operators_stack.insert(0, p[2])
         if operators_stack[0] == "+" or operators_stack[0] == "-":
-            #print("Exp Operandos:", operands_stack)
             operator = operators_stack.pop(0)
             right_operand = operands_stack.pop(0)
             left_operand = operands_stack.pop(0)
@@ -390,8 +407,6 @@ def p_termino(p):
     if len(p) >= 3 and p[2]:
         operators_stack.insert(0, p[2])
         if operators_stack[0] == "*" or operators_stack[0] == "/" or operators_stack[0] == "%":
-            #print("Termino Operandos:", operands_stack)
-            #print("Termino Operadores:", operators_stack)
             operator = operators_stack.pop(0)
             right_operand = operands_stack.pop(0)
             left_operand = operands_stack.pop(0)
@@ -415,10 +430,6 @@ def p_factor(p):
                 | MINUS var
                 | var
                 | objeto_aAcceso'''
-
-    #print("Factor operadores:", operators_stack)
-    #print("Factor saltos:", jumps_stack)
-    #print("Factor cuadruplos:", len(quadruples.quadruples))
 
 def p_var(p):
     '''var : ID
@@ -455,7 +466,7 @@ def p_cchar(p):
     add_constant(p[1], "char")
     #print(p[1], constants_table.get_address(p[1]))
     operands_stack.insert(0, constants_table.get_address(p[1]))
-    types_stack.insert(0, DataType.STRING)
+    types_stack.insert(0, DataType.CHAR)
 
 def p_objeto_aAcceso(p):
     '''objeto_aAcceso : ID PERIOD ID'''
@@ -513,7 +524,7 @@ def add_constant(valor, type):
             if added:
                 constants_segments[3] += 1
 
-def add_local_variable(valor, type):
+def add_global_variable(valor, type):
     if type == DataType.INT:
         if local_variables_segments[0] + 1 >= 10000:
             print("Too many INT variables")
@@ -536,14 +547,74 @@ def add_local_variable(valor, type):
             else:
                 print(f"Variable {valor} already defined")
                 exit(-1)
-    elif type == DataType.STRING:
+    elif type == DataType.CHAR:
         if local_variables_segments[2] + 1 >= 30000:
             print("Too many CHAR variables")
             exit(-1)
         else:
-            added = function_table.add_global_variable(valor, DataType.STRING, local_variables_segments[2])
+            added = function_table.add_global_variable(valor, DataType.CHAR, local_variables_segments[2])
             if added != None:
                 local_variables_segments[2] += 1
             else:
                 print(f"Variable {valor} already defined")
                 exit(-1)
+
+
+def add_local_variable(name_func, valor, type):
+    if type == DataType.INT:
+        if local_variables_segments[0] + 1 >= 10000:
+            print("Too many INT variables")
+            exit(-1)
+        else:
+            is_global = function_table.get_global_variable(valor)
+            if is_global:
+                print(f"Variable {valor} already defined")
+                exit(-1)
+            else:
+                added = function_table.add_variable(name_func, valor, type, local_variables_segments[0])
+                if added != None:
+                    local_variables_segments[0] += 1
+                else:
+                    print(f"Variable {valor} already defined")
+                    exit(-1)
+    elif type == DataType.FLOAT:
+        if local_variables_segments[1] + 1 >= 20000:
+            print("Too many FLOAT variables")
+            exit(-1)
+        else:
+            is_global = function_table.get_global_variable(valor)
+            if is_global:
+                print(f"Variable {valor} already defined")
+                exit(-1)
+            else:
+                added = function_table.add_variable(name_func, valor, type, local_variables_segments[1])
+                if added != None:
+                    local_variables_segments[1] += 1
+                else:
+                    print(f"Variable {valor} already defined")
+                    exit(-1)
+    elif type == DataType.CHAR:
+        if local_variables_segments[2] + 1 >= 30000:
+            print("Too many CHAR variables")
+            exit(-1)
+        else:
+            is_global = function_table.get_global_variable(valor)
+            if is_global:
+                print(f"Variable {valor} already defined")
+                exit(-1)
+            else:
+                added = function_table.add_variable(name_func, valor, type, local_variables_segments[2])
+                if added != None:
+                    local_variables_segments[2] += 1
+                else:
+                    print(f"Variable {valor} already defined")
+                    exit(-1)
+    
+def add_param(name_func, type):
+    function_table.get_method(name_func).add_param(type)
+    if type == DataType.INT:
+        function_table.add_param_count(name_func, 0)
+    elif type == DataType.FLOAT:
+        function_table.add_param_count(name_func, 1)
+    elif type == DataType.CHAR:
+        function_table.add_param_count(name_func, 2)

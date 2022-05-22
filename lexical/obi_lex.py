@@ -4,7 +4,7 @@ reserved = {
     'if' : 'IF', 'elif' : 'ELIF',
     'public' : 'PUBLIC', 'private' : 'PRIVATE', 'protected' : 'PROTECTED',
     'int' : 'INT', 'float' : 'FLOAT', 'var' : 'VAR', 'char' : 'CHAR',
-    'program' : 'PROGRAM', 'class' : 'CLASS', 'def' : 'DEF',
+    'program' : 'PROGRAM', 'class' : 'CLASS', 'def' : 'DEF', 'void' : 'VOID',
     'return' : 'RETURN', 'and' : 'AND', 
     'or' : 'OR', 'while' : 'WHILE',
     'print' : 'PRINT', 'read' : 'READ',

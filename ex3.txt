@@ -1,14 +1,12 @@
 program x2 
 private class x : y {
-    var x2 : int
-    var x3 : float
-    x3 = 3 + 4 + 10 + 20 + x2
-
-    if (x2 < x3) {
-        print(x2)
+    var y5 : int
+    void def x3 (int y2, int y5) {
+        var x4 : int
+        var x3 : int
     }
-
-    while (x2 < x3) {
-        print(x3)
+    
+    void def x6() {
+        var x6 : int
     }
 }
