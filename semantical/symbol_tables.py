@@ -4,16 +4,18 @@ from semantical.errors_exceptions import TypeMismatchError
 from semantical.semantic_cube import SemanticCube
 
 class Symbol:
-    def __init__(self, name, data_type, scope):
+    def __init__(self, name, data_type, scope, address):
         self.name = name
         self.data_type = data_type
         self.scope = scope
+        self.address = address
     
     def get(self):
-        return {self.name, self.data_type, self.scope}
+        return (self.name, self.data_type, self.scope, self.address)
 
     def __eq__(self, __o) -> bool:
-        if self.name == __o.name and self.data_type == __o.data_type and self.scope == __o.scope:
+        if (self.name == __o.name and self.data_type == __o.data_type and 
+            self.scope == __o.scope and self.address == __o.address):
             return True
         
         return False
@@ -41,8 +43,8 @@ class ProcedureSymbol(Symbol, metaclass=SingletonMeta):
     global_scope = 'global'
     def __init__(self, *args): #name, data_type, scope, params = []):
         if len(args) == 4:
-            name, data_type, scope, params, *rest = args
-            super().__init__(name, data_type, scope)
+            name, data_type, address, scope, params, *rest = args
+            super().__init__(name, data_type, scope, address)
             self.params = params
 
             if not name in self.methods:
@@ -88,12 +90,13 @@ class SymbolTable(Symbol):
     def __init__(self):
         self.symbols = {}
 
-    def add(self, name, data_type, scope):
+    def add(self, name, data_type, scope, address):
         try:
             if name in self.symbols:
                 raise Exception("Symbol already exists")
             else:
-                self.symbols[name] = Symbol(name, data_type, scope)
+                self.symbols[name] = Symbol(name, data_type, scope, address)
+                return True
         except:
             return None
 
@@ -103,6 +106,15 @@ class SymbolTable(Symbol):
         else:
             procedureSymbol = ProcedureSymbol(None, None, None)
             return procedureSymbol.get_global_variable(name)
+
+    def get_address(self, name):
+        return self.get(name).get()[3]
+
+    def get_type(self, name):
+        return self.get(name).get()[1]
+
+    def find_variable(self, name):
+        return self.symbols.get(name, False)
 
     def get_all_variables_names(self):
         return self.symbols.keys() # .values()

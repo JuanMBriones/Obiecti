@@ -1,6 +1,6 @@
 program x2 
-private class x3 : x4 {
-
-    A = 1 + 3 + 1 + 'a' + 'c'
-    print("Hola")
+private class x : y {
+    var x2 : float
+    var x3, x4 : int
+    x2 = 10 * (21 * 2 - 3 * 40 / 12 + 1) / 10
 }

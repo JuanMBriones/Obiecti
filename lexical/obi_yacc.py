@@ -4,8 +4,11 @@ from ast import operator
 from asyncio import constants
 from turtle import goto
 from typing import Set
+from unittest import result
 import ply.yacc as yacc
+from semantical.data_types import DataType
 from semantical.quadruples import Quadruples, Quadruple
+from semantical.semantic_cube import SemanticCube
 from semantical.symbol_tables import ConstantTable, ProcedureSymbol, SymbolTable
  
 # Get the token map from the lexer.  This is required.
@@ -16,12 +19,17 @@ operands_stack = []
 operators_stack = []
 types_stack = []
 jumps_stack = []
-constants_segments = [25000, 30000, 35000, 40000]
+local_variables_segments = [0, 10000, 20000]
+constants_segments = [30000, 35000, 40000, 45000]
 quadruples = Quadruples()
 aux_quadruple = 0
 function_table = ProcedureSymbol()
 constants_table = ConstantTable()
+semantic_cube = SemanticCube()
 rel_op = set(['==', '!=', '>', '<', '>=', '<='])
+
+#   Se usa esta tabla de simbolos para pruebas
+tabla_prueba = SymbolTable()
 
 def p_programa(p):
     '''programa : PROGRAM ID class context
@@ -58,8 +66,8 @@ def p_aux6(p):
             | ciclo aux6'''
 
 def p_condicion(p):
-    '''condicion : IF LPAREN expresion RPAREN bloque
-                    | IF LPAREN expresion RPAREN bloque elif'''
+    '''condicion : IF LPAREN gotoF RPAREN bloque
+                    | IF LPAREN gotoF RPAREN bloque elif'''
     end = jumps_stack.pop()
     quadruples.quadruples[end].result = len(quadruples.quadruples)
     while jumps_stack:
@@ -67,8 +75,8 @@ def p_condicion(p):
         quadruples.quadruples[end].result = len(quadruples.quadruples)
 
 def p_elif(p):
-    '''elif : aux_elif ELIF LPAREN expresion RPAREN bloque
-                | aux_elif ELIF LPAREN expresion RPAREN bloque elif'''
+    '''elif : aux_elif ELIF LPAREN gotoF RPAREN bloque
+                | aux_elif ELIF LPAREN gotoF RPAREN bloque elif'''
 
 def p_aux_elif(p):
     '''aux_elif :'''
@@ -80,7 +88,7 @@ def p_aux_elif(p):
 
 
 def p_ciclo(p):
-    '''ciclo : aux_ciclo WHILE LPAREN expresion RPAREN bloque'''
+    '''ciclo : aux_ciclo WHILE LPAREN gotoF RPAREN bloque'''
     end = jumps_stack.pop()
     jump_index = jumps_stack.pop()
     quadruple = Quadruple(operation='GOTO', left_operand=None, right_operand=None, result=jump_index)
@@ -100,7 +108,7 @@ def p_bloque(p):
 def p_funcion(p):
     '''funcion : scope DEF ID LPAREN param RPAREN contexto_func'''
 
-    function_table.add_method(name=p[3], data_type=None, scope=p[1], params=p[4])
+    #function_table.add_method(name=p[3], data_type=None, scope=p[1], params=p[4])
 
 def p_contexto_func(p):
     '''contexto_func : LBRACE aux5 RBRACE
@@ -169,7 +177,6 @@ def p_aux3(p):
 
     if p[1]:
         add_constant(p[1], "string")
-        print(p[1], constants_table.get_address(p[1]))
         operands_stack.insert(0, constants_table.get_address(p[1]))
 
 def p_vars(p):
@@ -180,20 +187,24 @@ def p_vars(p):
             | VAR ID LBRACKET cint RBRACKET LBRACKET cint RBRACKET COLON tipo_simple
             | VAR ID LBRACKET cint RBRACKET LBRACKET cint RBRACKET COLON tipo_compuesto'''
 
-    to_eliminate = list(p).count('[')
+    """to_eliminate = list(p).count('[')
 
     for i in range(to_eliminate):
-        operands_stack.pop(0)
+        operands_stack.pop(0) """
 
     
     if len(p) == 5:
-        quadruple = Quadruple(operation='DECLARE_VAR', left_operand=None, right_operand=None, result=operands_stack[-1])
-        quadruples.add_quadruple(quadruple=quadruple)
+        while operands_stack:
+            name_variable = operands_stack.pop(0)
+            type_variable = types_stack[0]
+            add_local_variable(name_variable, type_variable)
+            address_variable = tabla_prueba.get_address(name_variable)
+            quadruple = Quadruple(operation='DECLARE_VAR', left_operand=None, right_operand=None, result=address_variable)
+            quadruples.add_quadruple(quadruple=quadruple)
 
-        table = function_table.get_method('global')
-        table.add(operands_stack[-1], types_stack[-1], 'global')
+            #table = function_table.get_method('global')
+            #table.add(operands_stack[-1], types_stack[-1], 'global')
 
-        operands_stack.pop(0)
         types_stack.pop(0)
 
 def p_aux2(p):
@@ -204,8 +215,14 @@ def p_aux2(p):
     
 def p_tipo_simple(p):
     '''tipo_simple : INT
-                    | FLOAT'''
-    types_stack.insert(0, p[1])
+                    | FLOAT
+                    | CHAR'''
+    if p[1] == "int":
+        types_stack.insert(0, DataType.INT)
+    elif p[1] == "float":
+        types_stack.insert(0, DataType.FLOAT)
+    elif p[1] == "char":
+        types_stack.insert(0, DataType.STRING)
 
 def p_tipo_compuesto(p):
     '''tipo_compuesto : ID'''
@@ -231,7 +248,11 @@ def p_asignacion(p):
                     | objeto_aAcceso LBRACKET LBRACKET exp RBRACKET exp RBRACKET EQUALS llamada_func
                     | objeto_aAcceso LBRACKET LBRACKET exp RBRACKET exp RBRACKET EQUALS objeto_metodo'''
     if len(p)==4:
-        operands_stack.insert(0, p[1])
+        if not tabla_prueba.find_variable(p[1]):
+            print(f"Variable {p[1]} not defined")
+            exit(-1)
+        operands_stack.insert(0, tabla_prueba.get_address(p[1]))
+        types_stack.insert(0, tabla_prueba.get_type(p[1]))
         operators_stack.insert(0, p[2])
 
         while operators_stack:
@@ -239,8 +260,13 @@ def p_asignacion(p):
             if operator == '=':
                 operand = operands_stack.pop(0)
                 operand2 = operands_stack.pop(0)
-                quadruple = Quadruple(operation=operator, left_operand=operand, right_operand=None, result=operand2)
-                quadruples.add_quadruple(quadruple=quadruple)
+                result_type = semantic_cube.validate(operator, types_stack.pop(0), types_stack.pop(0))
+                if result_type != None:
+                    quadruple = Quadruple(operation=operator, left_operand=operand, right_operand=None, result=operand2)
+                    quadruples.add_quadruple(quadruple=quadruple)
+                else:
+                    print("Type mismatch")
+                    exit(-1)
 
 def p_objeto_metodo(p):
     '''objeto_metodo : ID PERIOD llamada_func'''
@@ -254,40 +280,80 @@ def p_aux(p):
             | exp COMMA aux'''
     
 
+def p_gotoF(p):
+    '''gotoF : exp_cond'''
+    
+    if len(p) >= 2:
+        operand = operands_stack.pop(0)
+        quadruple = Quadruple(operation="GOTOF", left_operand=operand, right_operand=None, result=None)
+        quadruples.add_quadruple(quadruple=quadruple)
+        jumps_stack.append(len(quadruples.quadruples) - 1)
 
-def p_expresion(p):
-    '''expresion : exp_bool
-                    | exp_bool rel_op exp_bool
-                    | exp_bool AND expresion
-                    | exp_bool OR expresion
-                    | exp_bool rel_op exp_bool AND expresion
-                    | exp_bool rel_op exp_bool OR expresion'''
-    #print("Expresion operadores:", operators_stack)
-    #print("Expresion cuadruplos:", len(quadruples.quadruples))
-    while operators_stack:
+def p_exp_cond(p):
+    '''exp_cond : exp_bool
+                | exp_bool AND exp_cond
+                | exp_bool OR exp_cond'''
+    if len(p) >= 3 and p[2]:
+        operators_stack.insert(0, p[2])
+        if operators_stack[0] == 'and' or operators_stack[0] == 'or':
             operator = operators_stack.pop(0)
-            if operator != '=':
-                right_operand = operands_stack.pop(0)
-                left_operand = operands_stack.pop(0)
+            right_operand = operands_stack.pop(0)
+            left_operand = operands_stack.pop(0)
+            result_type = semantic_cube.validate(operator, types_stack.pop(0), types_stack.pop(0))
+            if result_type != None:
                 quadruple = Quadruple(operation=operator, left_operand=left_operand, right_operand=right_operand, result=quadruples.get_current())
                 quadruples.add_quadruple(quadruple=quadruple)
+                types_stack.insert(0, result_type)
                 operands_stack.insert(0, quadruples.get_current())
                 quadruples.increment_current()
-
-                if operator in rel_op:
-                    operand = operands_stack.pop(0)
-                    quadruple = Quadruple(operation="GOTOF", left_operand=operand, right_operand=None, result=None)
-                    quadruples.add_quadruple(quadruple=quadruple)
-                    jumps_stack.append(len(quadruples.quadruples) - 1)
-                    #print("Expresion saltos:", jumps_stack)
+        else:
+            print("Type mismatch")
+            exit(-1)
 
 def p_exp_bool(p):
     '''exp_bool : TRUE
                 | FALSE
-                | exp'''
-    #print("Exp bool operadores:", operators_stack)
-    #print("Exp bool cuadruplos:", len(quadruples.quadruples))
-    
+                | expresion'''
+    if p[1]:
+        operands_stack.insert(0, p[1])
+        #print(operands_stack)
+        types_stack.insert(0, DataType.BOOL)
+
+def p_expresion(p):
+    '''expresion : exp
+                    | exp LT expresion
+                    | exp GT expresion
+                    | exp GE expresion
+                    | exp LE expresion
+                    | exp EQ expresion
+                    | exp NE expresion'''
+    #print("Expresion operandos:", operands_stack)
+    #print("Expresion operadores:", operators_stack)
+    #print("Expresion cuadruplos:", len(quadruples.quadruples))
+
+    if len(p) >= 3 and p[2]:
+        operators_stack.insert(0, p[2])
+        if (operators_stack[0] in rel_op):
+                operator = operators_stack.pop(0)
+                right_operand = operands_stack.pop(0)
+                left_operand = operands_stack.pop(0)
+                result_type = semantic_cube.validate(operator, types_stack.pop(0), types_stack.pop(0))
+                if result_type != None:
+                    quadruple = Quadruple(operation=operator, left_operand=left_operand, right_operand=right_operand, result=quadruples.get_current())
+                    quadruples.add_quadruple(quadruple=quadruple)
+                    types_stack.insert(0, result_type)
+                    operands_stack.insert(0, quadruples.get_current())
+                    quadruples.increment_current()
+                else:
+                    print("Type mismatch")
+                    exit(-1)
+
+                    #if operator in rel_op:
+                     #   operand = operands_stack.pop(0)
+                      #  quadruple = Quadruple(operation="GOTOF", left_operand=operand, right_operand=None, result=None)
+                       # quadruples.add_quadruple(quadruple=quadruple)
+                        #jumps_stack.append(len(quadruples.quadruples) - 1)
+                        #print("Expresion saltos:", jumps_stack)
 
 def p_exp(p):
     '''exp : termino
@@ -299,14 +365,19 @@ def p_exp(p):
         operators_stack.insert(0, p[2])
         if operators_stack[0] == "+" or operators_stack[0] == "-":
             #print("Exp Operandos:", operands_stack)
-            #print("Exp Operadores:", operators_stack)
             operator = operators_stack.pop(0)
             right_operand = operands_stack.pop(0)
             left_operand = operands_stack.pop(0)
-            quadruple = Quadruple(operation=operator, left_operand=left_operand, right_operand=right_operand, result=quadruples.get_current())
-            quadruples.add_quadruple(quadruple=quadruple)
-            operands_stack.insert(0, quadruples.get_current())
-            quadruples.increment_current()
+            result_type = semantic_cube.validate(operator, types_stack.pop(0), types_stack.pop(0))
+            if result_type != None:
+                quadruple = Quadruple(operation=operator, left_operand=left_operand, right_operand=right_operand, result=quadruples.get_current())
+                quadruples.add_quadruple(quadruple=quadruple)
+                types_stack.insert(0, result_type)
+                operands_stack.insert(0, quadruples.get_current())
+                quadruples.increment_current()
+            else:
+                print("Type mismatch")
+                exit(-1)
             
 
 
@@ -316,7 +387,6 @@ def p_termino(p):
                 | termino DIVIDE factor
                 | termino MODULO factor'''
     
-
     if len(p) >= 3 and p[2]:
         operators_stack.insert(0, p[2])
         if operators_stack[0] == "*" or operators_stack[0] == "/" or operators_stack[0] == "%":
@@ -325,14 +395,20 @@ def p_termino(p):
             operator = operators_stack.pop(0)
             right_operand = operands_stack.pop(0)
             left_operand = operands_stack.pop(0)
-            quadruple = Quadruple(operation=operator, left_operand=left_operand, right_operand=right_operand, result=quadruples.get_current())
-            quadruples.add_quadruple(quadruple=quadruple)
-            operands_stack.insert(0, quadruples.get_current())
-            quadruples.increment_current()
+            result_type = semantic_cube.validate(operator, types_stack.pop(0), types_stack.pop(0))
+            if result_type != None:
+                quadruple = Quadruple(operation=operator, left_operand=left_operand, right_operand=right_operand, result=quadruples.get_current())
+                quadruples.add_quadruple(quadruple=quadruple)
+                types_stack.insert(0, result_type)
+                operands_stack.insert(0, quadruples.get_current())
+                quadruples.increment_current()
+            else:
+                print("Type mismatch")
+                exit(-1) 
 
     
 def p_factor(p):
-    '''factor : LPAREN expresion RPAREN
+    '''factor : LPAREN exp_cond RPAREN
                 | PLUS objeto_aAcceso
                 | MINUS objeto_aAcceso
                 | PLUS var
@@ -351,38 +427,35 @@ def p_var(p):
             | cchar'''
     
     if p[1]:
-        operands_stack.insert(0, p[1])
+        if not tabla_prueba.find_variable(p[1]):
+            print(f"Variable {p[1]} not defined")
+            exit(-1)
+        operands_stack.insert(0, tabla_prueba.get_address(p[1]))
+        types_stack.insert(0, tabla_prueba.get_type(p[1]))
     
 
 def p_cint(p):
     'cint : CINT'
     add_constant(p[1], "int")
-    print(p[1], constants_table.get_address(p[1]))
+    #print(p[1], constants_table.get_address(p[1]))
     operands_stack.insert(0, constants_table.get_address(p[1]))
+    types_stack.insert(0, DataType.INT)
+    #print(types_stack)
 
 
 def p_cfloat(p):
     'cfloat : NUMBER'
     add_constant(p[1], "float")
-    print(p[1], constants_table.get_address(p[1]))
+    #print(p[1], constants_table.get_address(p[1]))
     operands_stack.insert(0, constants_table.get_address(p[1]))
+    types_stack.insert(0, DataType.FLOAT)
 
 def p_cchar(p):
     'cchar : CCHAR'
     add_constant(p[1], "char")
-    print(p[1], constants_table.get_address(p[1]))
+    #print(p[1], constants_table.get_address(p[1]))
     operands_stack.insert(0, constants_table.get_address(p[1]))
-
-def p_rel_op(p):
-    '''rel_op : LT
-                | LE
-                | GT
-                | GE
-                | EQ
-                | NE'''
-    operators_stack.insert(0, p[1])
-
-
+    types_stack.insert(0, DataType.STRING)
 
 def p_objeto_aAcceso(p):
     '''objeto_aAcceso : ID PERIOD ID'''
@@ -408,7 +481,7 @@ def validate_syntax(file: str):
 
 def add_constant(valor, type):
     if type == "int":
-        if constants_segments[0] + 1 >= 30000:
+        if constants_segments[0] + 1 >= 35000:
             print("Too many INT constants")
             exit(-1)
         else:
@@ -416,7 +489,7 @@ def add_constant(valor, type):
             if added:
                 constants_segments[0] += 1
     elif type == "float":
-        if constants_segments[1] + 1 >= 35000:
+        if constants_segments[1] + 1 >= 40000:
             print("Too many FLOAT constants")
             exit(-1)
         else:
@@ -424,7 +497,7 @@ def add_constant(valor, type):
             if added:
                 constants_segments[1] += 1
     elif type == "char":
-        if constants_segments[2] + 1 >= 40000:
+        if constants_segments[2] + 1 >= 45000:
             print("Too many CHAR constants")
             exit(-1)
         else:
@@ -432,10 +505,45 @@ def add_constant(valor, type):
             if added:
                 constants_segments[2] += 1
     elif type == "string":
-        if constants_segments[3] + 1 >= 45000:
+        if constants_segments[3] + 1 >= 50000:
             print("Too many STRING constants")
             exit(-1)
         else:
             added = constants_table.add(valor, constants_segments[3])
             if added:
                 constants_segments[3] += 1
+
+def add_local_variable(valor, type):
+    if type == DataType.INT:
+        if local_variables_segments[0] + 1 >= 10000:
+            print("Too many INT variables")
+            exit(-1)
+        else:
+            added = tabla_prueba.add(valor, DataType.INT, "local", local_variables_segments[0])
+            if added != None:
+                local_variables_segments[0] += 1
+            else:
+                print(f"Variable {valor} already defined")
+                exit(-1)
+    elif type == DataType.FLOAT:
+        if local_variables_segments[1] + 1 >= 20000:
+            print("Too many FLOAT variables")
+            exit(-1)
+        else:
+            added = tabla_prueba.add(valor, DataType.FLOAT, "local", local_variables_segments[1])
+            if added != None:
+                local_variables_segments[1] += 1
+            else:
+                print(f"Variable {valor} already defined")
+                exit(-1)
+    elif type == DataType.STRING:
+        if local_variables_segments[2] + 1 >= 30000:
+            print("Too many CHAR variables")
+            exit(-1)
+        else:
+            added = tabla_prueba.add(valor, DataType.STRING, "local", local_variables_segments[2])
+            if added != None:
+                local_variables_segments[2] += 1
+            else:
+                print(f"Variable {valor} already defined")
+                exit(-1)

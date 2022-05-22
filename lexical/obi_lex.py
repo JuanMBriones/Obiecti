@@ -3,12 +3,12 @@ import ply.lex as lex
 reserved = {
     'if' : 'IF', 'elif' : 'ELIF',
     'public' : 'PUBLIC', 'private' : 'PRIVATE', 'protected' : 'PROTECTED',
-    'int' : 'INT', 'float' : 'FLOAT', 'var' : 'VAR',
+    'int' : 'INT', 'float' : 'FLOAT', 'var' : 'VAR', 'char' : 'CHAR',
     'program' : 'PROGRAM', 'class' : 'CLASS', 'def' : 'DEF',
     'return' : 'RETURN', 'and' : 'AND', 
     'or' : 'OR', 'while' : 'WHILE',
     'print' : 'PRINT', 'read' : 'READ',
-    'true' : 'TRUE', 'false': 'FALSE'
+    'True' : 'TRUE', 'False': 'FALSE'
  }
 
 tokens = [
