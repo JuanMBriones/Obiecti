@@ -1,4 +1,5 @@
 from asyncio import constants
+import gc
 from pydoc import classname
 from semantical.data_types import DataType
 from semantical.errors_exceptions import TypeMismatchError
@@ -108,7 +109,6 @@ class Function:
 
     def add_param_count(self, position):
         self.size[position] += 1
-        print(self.size)
 
     def set_address(self, address):
         self.initial_address = address
@@ -130,6 +130,10 @@ class Function:
 
     def get_all_variables(self):
         return self.symbol_table.get_all_variables_names()
+
+    def delete_table(self):
+        del self.symbol_table
+        gc.collect()
 
 class ProcedureSymbol(metaclass=SingletonMeta):
     # __metaclass__ = SingletonMeta
@@ -189,6 +193,9 @@ class ProcedureSymbol(metaclass=SingletonMeta):
             return self.get_method(name_func).get()[4]
         except:
             return None
+        
+    def delete_table(self, name_func):
+        self.get_method(name_func).delete_table()
 
     def add_param_count(self, name_func, position):
         self.get_method(name_func).add_param_count(position)

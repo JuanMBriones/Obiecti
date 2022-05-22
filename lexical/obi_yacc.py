@@ -19,6 +19,7 @@ operands_stack = []
 operators_stack = []
 types_stack = []
 jumps_stack = []
+functions_stack = ["global"]
 local_variables_segments = [0, 10000, 20000]
 constants_segments = [30000, 35000, 40000, 45000]
 quadruples = Quadruples()
@@ -50,6 +51,7 @@ def p_class(p):
 
 def p_context(p):
     '''context : LBRACE aux6 RBRACE'''
+    functions_stack.pop()
 
 def p_aux6(p):
     '''aux6 : vars
@@ -108,7 +110,8 @@ def p_bloque(p):
 def p_funcion(p):
     '''funcion : scope type DEF id LPAREN param aux_param RPAREN contexto_func
                 | scope VOID DEF id LPAREN param aux_param RPAREN contexto_func'''
-    #function_table.add_method(name=p[3], data_type=None, scope=p[1], params=p[4])
+    function_table.delete_table(functions_stack[-1])
+    functions_stack.pop()
 
 def p_id(p):
     '''id : ID'''
@@ -119,10 +122,14 @@ def p_id(p):
         exit(-1)
     else:
         if len(types_stack) > 0:
-            function_table.add_method(p[1], types_stack.pop(0))
+            name_method = p[1]
+            type_method = types_stack.pop()
+            function_table.add_method(name_method, type_method)
+            add_global_variable(name_method, type_method)
         else:
             function_table.add_method(p[1], DataType.VOID)
-        operands_stack.insert(0, p[1])
+        operands_stack.append(p[1])
+        functions_stack.append(p[1])
     
 
 def p_type(p):
@@ -130,11 +137,11 @@ def p_type(p):
             | FLOAT
             | CHAR'''
     if p[1] == "int":
-        types_stack.insert(0, DataType.INT)
+        types_stack.append(DataType.INT)
     elif p[1] == "float":
-        types_stack.insert(0, DataType.FLOAT)
+        types_stack.append(DataType.FLOAT)
     elif p[1] == "char":
-        types_stack.insert(0, DataType.CHAR)
+        types_stack.append(DataType.CHAR)
 
 def p_contexto_func(p):
     '''contexto_func : LBRACE aux5 RBRACE
@@ -162,7 +169,7 @@ def p_aux_param(p):
         data_type = types_stack.pop()
         add_local_variable(name_func, name_var, data_type)
         add_param(name_func, data_type)
-    operands_stack.pop(0)
+    operands_stack.pop()
 
 def p_scope(p):
     '''scope : 
@@ -180,7 +187,7 @@ def p_estatuto(p):
 def p_lectura(p):
     '''lectura : READ LPAREN aux4 RPAREN'''
     while operands_stack:
-        quadruple = Quadruple(operation='read', left_operand=None, right_operand=None, result=operands_stack.pop(0))
+        quadruple = Quadruple(operation='read', left_operand=None, right_operand=None, result=operands_stack.pop())
         quadruples.add_quadruple(quadruple=quadruple)
 
 def p_aux4(p):
@@ -190,13 +197,13 @@ def p_aux4(p):
             | objeto_aAcceso COMMA aux4'''
     
     if p[1]:
-        operands_stack.insert(0, p[1])
+        operands_stack.append(p[1])
     
 
 def p_escritura(p):
     '''escritura : PRINT LPAREN aux3 RPAREN'''
     while operands_stack:
-        quadruple = Quadruple(operation='print', left_operand=None, right_operand=None, result=operands_stack.pop(0))
+        quadruple = Quadruple(operation='print', left_operand=None, right_operand=None, result=operands_stack.pop())
         quadruples.add_quadruple(quadruple=quadruple)
 
 def p_aux3(p):
@@ -211,7 +218,7 @@ def p_aux3(p):
 
     if p[1]:
         add_constant(p[1], "string")
-        operands_stack.insert(0, constants_table.get_address(p[1]))
+        operands_stack.append(constants_table.get_address(p[1]))
 
 def p_vars(p):
     '''vars : VAR aux2 COLON tipo_simple
@@ -220,28 +227,27 @@ def p_vars(p):
             | VAR ID LBRACKET cint RBRACKET COLON tipo_compuesto
             | VAR ID LBRACKET cint RBRACKET LBRACKET cint RBRACKET COLON tipo_simple
             | VAR ID LBRACKET cint RBRACKET LBRACKET cint RBRACKET COLON tipo_compuesto'''
-
-    """to_eliminate = list(p).count('[')
-
-    for i in range(to_eliminate):
-        operands_stack.pop(0) """
-
     
     if len(p) == 5:
         while operands_stack:
-            name_variable = operands_stack.pop(0)
-            type_variable = types_stack[0]
-            add_global_variable(name_variable, type_variable)
-            address_variable = function_table.get_variable_address("global", name_variable)
+            name_variable = operands_stack.pop()
+            type_variable = types_stack[-1]
+            if len(functions_stack) > 1:
+                name_function = functions_stack[-1]
+                add_local_variable(name_function, name_variable, type_variable)
+                address_variable = function_table.get_variable_address(name_function, name_variable)
+            else:
+                add_global_variable(name_variable, type_variable)
+                address_variable = function_table.get_variable_address("global", name_variable)
             quadruple = Quadruple(operation='DECLARE_VAR', left_operand=None, right_operand=None, result=address_variable)
             quadruples.add_quadruple(quadruple=quadruple)
 
-        types_stack.pop(0)
+        types_stack.pop()
 
 def p_aux2(p):
     '''aux2 : ID
             | ID COMMA aux2'''
-    operands_stack.insert(0, p[1])
+    operands_stack.append(p[1])
 
     
 def p_tipo_simple(p):
@@ -249,15 +255,15 @@ def p_tipo_simple(p):
                     | FLOAT
                     | CHAR'''
     if p[1] == "int":
-        types_stack.insert(0, DataType.INT)
+        types_stack.append(DataType.INT)
     elif p[1] == "float":
-        types_stack.insert(0, DataType.FLOAT)
+        types_stack.append(DataType.FLOAT)
     elif p[1] == "char":
-        types_stack.insert(0, DataType.CHAR)
+        types_stack.append(DataType.CHAR)
 
 def p_tipo_compuesto(p):
     '''tipo_compuesto : ID'''
-    types_stack.insert(0, p[1])
+    types_stack.append(p[1])
 
 def p_asignacion(p):
     '''asignacion : ID EQUALS expresion
@@ -279,19 +285,35 @@ def p_asignacion(p):
                     | objeto_aAcceso LBRACKET LBRACKET exp RBRACKET exp RBRACKET EQUALS llamada_func
                     | objeto_aAcceso LBRACKET LBRACKET exp RBRACKET exp RBRACKET EQUALS objeto_metodo'''
     if len(p)==4:
-        if not function_table.get_global_variable(p[1]):
-            print(f"Variable {p[1]} not defined")
-            exit(-1)
-        operands_stack.insert(0, function_table.get_variable_address("global", p[1]))
-        types_stack.insert(0, function_table.get_variable_type("global", p[1]))
-        operators_stack.insert(0, p[2])
+        if len(functions_stack) > 1:
+            name_function = functions_stack[-1]
+            if (not function_table.get_global_variable(p[1]) and 
+                not function_table.get_variable(name_function, p[1])):
+                    print(f"Variable {p[1]} not defined")
+                    exit(-1)
+            
+            if function_table.get_global_variable(p[1]):
+                operands_stack.append(function_table.get_variable_address("global", p[1]))
+                types_stack.append(function_table.get_variable_type("global", p[1]))
+
+            if function_table.get_variable(name_function, p[1]):
+                operands_stack.append(function_table.get_variable_address(name_function, p[1]))
+                types_stack.append(function_table.get_variable_type(name_function, p[1]))
+        else:
+            if (not function_table.get_global_variable(p[1])):
+                print(f"Variable {p[1]} not defined")
+                exit(-1)
+            operands_stack.append(function_table.get_variable_address("global", p[1]))
+            types_stack.append(function_table.get_variable_type("global", p[1]))
+
+        operators_stack.append(p[2])
 
         while operators_stack:
-            operator = operators_stack.pop(0)
+            operator = operators_stack.pop()
             if operator == '=':
-                operand = operands_stack.pop(0)
-                operand2 = operands_stack.pop(0)
-                result_type = semantic_cube.validate(operator, types_stack.pop(0), types_stack.pop(0))
+                operand = operands_stack.pop()
+                operand2 = operands_stack.pop()
+                result_type = semantic_cube.validate(operator, types_stack.pop(), types_stack.pop())
                 if result_type != None:
                     quadruple = Quadruple(operation=operator, left_operand=operand, right_operand=None, result=operand2)
                     quadruples.add_quadruple(quadruple=quadruple)
@@ -315,7 +337,7 @@ def p_gotoF(p):
     '''gotoF : exp_cond'''
     
     if len(p) >= 2:
-        operand = operands_stack.pop(0)
+        operand = operands_stack.pop()
         quadruple = Quadruple(operation="GOTOF", left_operand=operand, right_operand=None, result=None)
         quadruples.add_quadruple(quadruple=quadruple)
         jumps_stack.append(len(quadruples.quadruples) - 1)
@@ -325,17 +347,17 @@ def p_exp_cond(p):
                 | exp_bool AND exp_cond
                 | exp_bool OR exp_cond'''
     if len(p) >= 3 and p[2]:
-        operators_stack.insert(0, p[2])
-        if operators_stack[0] == 'and' or operators_stack[0] == 'or':
-            operator = operators_stack.pop(0)
-            right_operand = operands_stack.pop(0)
-            left_operand = operands_stack.pop(0)
-            result_type = semantic_cube.validate(operator, types_stack.pop(0), types_stack.pop(0))
+        operators_stack.append(p[2])
+        if operators_stack[-1] == 'and' or operators_stack[-1] == 'or':
+            operator = operators_stack.pop()
+            right_operand = operands_stack.pop()
+            left_operand = operands_stack.pop()
+            result_type = semantic_cube.validate(operator, types_stack.pop(), types_stack.pop())
             if result_type != None:
                 quadruple = Quadruple(operation=operator, left_operand=left_operand, right_operand=right_operand, result=quadruples.get_current())
                 quadruples.add_quadruple(quadruple=quadruple)
-                types_stack.insert(0, result_type)
-                operands_stack.insert(0, quadruples.get_current())
+                types_stack.append(result_type)
+                operands_stack.append(quadruples.get_current())
                 quadruples.increment_current()
         else:
             print("Type mismatch")
@@ -346,9 +368,9 @@ def p_exp_bool(p):
                 | FALSE
                 | expresion'''
     if p[1]:
-        operands_stack.insert(0, p[1])
+        operands_stack.append(p[1])
         #print(operands_stack)
-        types_stack.insert(0, DataType.BOOL)
+        types_stack.append(DataType.BOOL)
 
 def p_expresion(p):
     '''expresion : exp
@@ -359,17 +381,17 @@ def p_expresion(p):
                     | exp EQ expresion
                     | exp NE expresion'''
     if len(p) >= 3 and p[2]:
-        operators_stack.insert(0, p[2])
-        if (operators_stack[0] in rel_op):
-                operator = operators_stack.pop(0)
-                right_operand = operands_stack.pop(0)
-                left_operand = operands_stack.pop(0)
-                result_type = semantic_cube.validate(operator, types_stack.pop(0), types_stack.pop(0))
+        operators_stack.append(p[2])
+        if (operators_stack[-1] in rel_op):
+                operator = operators_stack.pop()
+                right_operand = operands_stack.pop()
+                left_operand = operands_stack.pop()
+                result_type = semantic_cube.validate(operator, types_stack.pop(), types_stack.pop())
                 if result_type != None:
                     quadruple = Quadruple(operation=operator, left_operand=left_operand, right_operand=right_operand, result=quadruples.get_current())
                     quadruples.add_quadruple(quadruple=quadruple)
-                    types_stack.insert(0, result_type)
-                    operands_stack.insert(0, quadruples.get_current())
+                    types_stack.append(result_type)
+                    operands_stack.append(quadruples.get_current())
                     quadruples.increment_current()
                 else:
                     print("Type mismatch")
@@ -380,17 +402,17 @@ def p_exp(p):
             | exp PLUS termino
             | exp MINUS termino'''
     if len(p) >= 3 and p[2]:
-        operators_stack.insert(0, p[2])
-        if operators_stack[0] == "+" or operators_stack[0] == "-":
-            operator = operators_stack.pop(0)
-            right_operand = operands_stack.pop(0)
-            left_operand = operands_stack.pop(0)
-            result_type = semantic_cube.validate(operator, types_stack.pop(0), types_stack.pop(0))
+        operators_stack.append(p[2])
+        if operators_stack[-1] == "+" or operators_stack[-1] == "-":
+            operator = operators_stack.pop()
+            right_operand = operands_stack.pop()
+            left_operand = operands_stack.pop()
+            result_type = semantic_cube.validate(operator, types_stack.pop(), types_stack.pop())
             if result_type != None:
                 quadruple = Quadruple(operation=operator, left_operand=left_operand, right_operand=right_operand, result=quadruples.get_current())
                 quadruples.add_quadruple(quadruple=quadruple)
-                types_stack.insert(0, result_type)
-                operands_stack.insert(0, quadruples.get_current())
+                types_stack.append(result_type)
+                operands_stack.append(quadruples.get_current())
                 quadruples.increment_current()
             else:
                 print("Type mismatch")
@@ -405,17 +427,17 @@ def p_termino(p):
                 | termino MODULO factor'''
     
     if len(p) >= 3 and p[2]:
-        operators_stack.insert(0, p[2])
-        if operators_stack[0] == "*" or operators_stack[0] == "/" or operators_stack[0] == "%":
-            operator = operators_stack.pop(0)
-            right_operand = operands_stack.pop(0)
-            left_operand = operands_stack.pop(0)
-            result_type = semantic_cube.validate(operator, types_stack.pop(0), types_stack.pop(0))
+        operators_stack.append(p[2])
+        if operators_stack[-1] == "*" or operators_stack[-1] == "/" or operators_stack[-1] == "%":
+            operator = operators_stack.pop()
+            right_operand = operands_stack.pop()
+            left_operand = operands_stack.pop()
+            result_type = semantic_cube.validate(operator, types_stack.pop(), types_stack.pop())
             if result_type != None:
                 quadruple = Quadruple(operation=operator, left_operand=left_operand, right_operand=right_operand, result=quadruples.get_current())
                 quadruples.add_quadruple(quadruple=quadruple)
-                types_stack.insert(0, result_type)
-                operands_stack.insert(0, quadruples.get_current())
+                types_stack.append(result_type)
+                operands_stack.append(quadruples.get_current())
                 quadruples.increment_current()
             else:
                 print("Type mismatch")
@@ -438,35 +460,46 @@ def p_var(p):
             | cchar'''
     
     if p[1]:
-        if not function_table.get_global_variable(p[1]):
-            print(f"Variable {p[1]} not defined")
-            exit(-1)
-        operands_stack.insert(0, function_table.get_variable_address("global", p[1]))
-        types_stack.insert(0, function_table.get_variable_type("global", p[1]))
+        if len(functions_stack) > 1:
+            name_function = functions_stack[-1]
+            if (not function_table.get_global_variable(p[1]) and 
+                not function_table.get_variable(name_function, p[1])):
+                    print(f"Variable {p[1]} not defined")
+                    exit(-1)
+            if function_table.get_global_variable(p[1]):
+                operands_stack.append(function_table.get_variable_address("global", p[1]))
+                types_stack.append(function_table.get_variable_type("global", p[1]))
+
+            if function_table.get_variable(name_function, p[1]):
+                operands_stack.append(function_table.get_variable_address(name_function, p[1]))
+                types_stack.append(function_table.get_variable_type(name_function, p[1]))
+
+        else:
+            if (not function_table.get_global_variable(p[1])):
+                print(f"Variable {p[1]} not defined")
+                exit(-1)
+            operands_stack.append(function_table.get_variable_address("global", p[1]))
+            types_stack.append(function_table.get_variable_type("global", p[1]))
     
 
 def p_cint(p):
     'cint : CINT'
     add_constant(p[1], "int")
-    #print(p[1], constants_table.get_address(p[1]))
-    operands_stack.insert(0, constants_table.get_address(p[1]))
-    types_stack.insert(0, DataType.INT)
-    #print(types_stack)
+    operands_stack.append(constants_table.get_address(p[1]))
+    types_stack.append(DataType.INT)
 
 
 def p_cfloat(p):
     'cfloat : NUMBER'
     add_constant(p[1], "float")
-    #print(p[1], constants_table.get_address(p[1]))
-    operands_stack.insert(0, constants_table.get_address(p[1]))
-    types_stack.insert(0, DataType.FLOAT)
+    operands_stack.append(constants_table.get_address(p[1]))
+    types_stack.append(DataType.FLOAT)
 
 def p_cchar(p):
     'cchar : CCHAR'
     add_constant(p[1], "char")
-    #print(p[1], constants_table.get_address(p[1]))
-    operands_stack.insert(0, constants_table.get_address(p[1]))
-    types_stack.insert(0, DataType.CHAR)
+    operands_stack.append(constants_table.get_address(p[1]))
+    types_stack.append(DataType.CHAR)
 
 def p_objeto_aAcceso(p):
     '''objeto_aAcceso : ID PERIOD ID'''
@@ -487,8 +520,7 @@ def validate_syntax(file: str):
     parser.parse(contents)
 
     return compile_status
-    #result = parser.parse(s)
-    #print(result)
+
 
 def add_constant(valor, type):
     if type == "int":

@@ -1,12 +1,20 @@
 program x2 
 private class x : y {
-    var y5 : int
-    void def x3 (int y2, int y5) {
-        var x4 : int
-        var x3 : int
+    var x2 : int
+    int def x3(int x8, int x4) {
+        var x5 : int
+        x5 = x2 + x4
+        return x5
     }
-    
-    void def x6() {
-        var x6 : int
+
+    while(x2 < 3) {
+        var x10, x9 : int
+        x10 = 3
+        x9 = 0
+    }
+
+    void def x5(int x7, int x4) {
+        print("Hola mundo")
+        print(x2)
     }
 }
