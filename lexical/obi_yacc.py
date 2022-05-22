@@ -198,7 +198,7 @@ def p_vars(p):
             name_variable = operands_stack.pop(0)
             type_variable = types_stack[0]
             add_local_variable(name_variable, type_variable)
-            address_variable = tabla_prueba.get_address(name_variable)
+            address_variable = function_table.get_variable_address("global", name_variable)
             quadruple = Quadruple(operation='DECLARE_VAR', left_operand=None, right_operand=None, result=address_variable)
             quadruples.add_quadruple(quadruple=quadruple)
 
@@ -248,11 +248,11 @@ def p_asignacion(p):
                     | objeto_aAcceso LBRACKET LBRACKET exp RBRACKET exp RBRACKET EQUALS llamada_func
                     | objeto_aAcceso LBRACKET LBRACKET exp RBRACKET exp RBRACKET EQUALS objeto_metodo'''
     if len(p)==4:
-        if not tabla_prueba.find_variable(p[1]):
+        if not function_table.get_global_variable(p[1]):
             print(f"Variable {p[1]} not defined")
             exit(-1)
-        operands_stack.insert(0, tabla_prueba.get_address(p[1]))
-        types_stack.insert(0, tabla_prueba.get_type(p[1]))
+        operands_stack.insert(0, function_table.get_variable_address("global", p[1]))
+        types_stack.insert(0, function_table.get_variable_type("global", p[1]))
         operators_stack.insert(0, p[2])
 
         while operators_stack:
@@ -427,11 +427,11 @@ def p_var(p):
             | cchar'''
     
     if p[1]:
-        if not tabla_prueba.find_variable(p[1]):
+        if not function_table.get_global_variable(p[1]):
             print(f"Variable {p[1]} not defined")
             exit(-1)
-        operands_stack.insert(0, tabla_prueba.get_address(p[1]))
-        types_stack.insert(0, tabla_prueba.get_type(p[1]))
+        operands_stack.insert(0, function_table.get_variable_address("global", p[1]))
+        types_stack.insert(0, function_table.get_variable_type("global", p[1]))
     
 
 def p_cint(p):
@@ -519,7 +519,7 @@ def add_local_variable(valor, type):
             print("Too many INT variables")
             exit(-1)
         else:
-            added = tabla_prueba.add(valor, DataType.INT, "local", local_variables_segments[0])
+            added = function_table.add_global_variable(valor, DataType.INT, local_variables_segments[0])
             if added != None:
                 local_variables_segments[0] += 1
             else:
@@ -530,7 +530,7 @@ def add_local_variable(valor, type):
             print("Too many FLOAT variables")
             exit(-1)
         else:
-            added = tabla_prueba.add(valor, DataType.FLOAT, "local", local_variables_segments[1])
+            added = function_table.add_global_variable(valor, DataType.FLOAT, local_variables_segments[1])
             if added != None:
                 local_variables_segments[1] += 1
             else:
@@ -541,7 +541,7 @@ def add_local_variable(valor, type):
             print("Too many CHAR variables")
             exit(-1)
         else:
-            added = tabla_prueba.add(valor, DataType.STRING, "local", local_variables_segments[2])
+            added = function_table.add_global_variable(valor, DataType.STRING, local_variables_segments[2])
             if added != None:
                 local_variables_segments[2] += 1
             else:

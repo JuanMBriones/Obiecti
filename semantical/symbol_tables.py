@@ -23,6 +23,8 @@ class Symbol:
     def __ne__(self, __o: object) -> bool:
         return not self.__eq__(__o)
 
+
+
 class SingletonMeta(type):
     _instances = {}
 
@@ -35,56 +37,6 @@ class SingletonMeta(type):
             instance = super().__call__(*args, **kwargs)
             cls._instances[cls] = instance
         return cls._instances[cls]
-
-class ProcedureSymbol(Symbol, metaclass=SingletonMeta):
-    # __metaclass__ = SingletonMeta
-
-    methods = {}
-    global_scope = 'global'
-    def __init__(self, *args): #name, data_type, scope, params = []):
-        if len(args) == 4:
-            name, data_type, address, scope, params, *rest = args
-            super().__init__(name, data_type, scope, address)
-            self.params = params
-
-            if not name in self.methods:
-                self.methods[name] = SymbolTable()
-
-        self.locals = []
-
-        if not self.global_scope in self.methods:
-            self.methods[self.global_scope] = SymbolTable()
-        
-        print(self.methods)
-    
-    def add_method(self, name, data_type, scope, params):
-        if not name in self.methods:
-            self.methods[name] = SymbolTable()
-
-    def get_method(self, name):
-        try:
-            return self.methods[name]
-        except:
-            return None
-
-    def get_methods_names(self):
-        return self.methods.keys()
-    
-    def get_global_variable(self, name):
-        try:
-            return self.methods[self.global_scope][name]
-        except:
-            return None
-
-    def __eq__(self, __o: Symbol) -> bool:
-        bitmask_temp = super().__eq__(__o)
-
-        if bitmask_temp and __o.params == self.params and __o.locals == self.locals:
-            return True
-        
-    def get_status(self):
-        for key, value in self.methods.items():
-            print(f"{key}: {value.get_status()}")
 
 class SymbolTable(Symbol):
     def __init__(self):
@@ -103,9 +55,6 @@ class SymbolTable(Symbol):
     def get(self, name):
         if name in self.symbols:
             return self.symbols[name]
-        else:
-            procedureSymbol = ProcedureSymbol(None, None, None)
-            return procedureSymbol.get_global_variable(name)
 
     def get_address(self, name):
         return self.get(name).get()[3]
@@ -133,7 +82,112 @@ class SymbolTable(Symbol):
 
         return response
 
-class Constant():
+class Function:
+    def __init__(self, data_type):
+        self.data_type = data_type
+        self.initial_address = None
+        self.size = [0, 0, 0, 0, 0, 0]      #[int, float, char, temp_int, temp_float, temp_char]
+        self.symbol_table = SymbolTable()
+        self.param_table = ()
+
+    def get(self):
+        return (self.data_type, self.initial_address, self.size, self.symbol_table, self.param_table)
+
+    def set_params(self, params):
+        self.param_table = params
+        
+    def set_size(self, size):
+        self.size = size
+
+    def set_address(self, address):
+        self.initial_address = address
+
+    def add_variable(self, name, data_type, scope, address):
+        return self.symbol_table.add(name, data_type, scope, address)
+
+    def find_variable(self, name):
+        return self.symbol_table.find_variable(name)
+
+    def get_virtual_address(self, name):
+        return self.symbol_table.get_address(name)
+
+    def get_variable_type(self, name):
+        return self.symbol_table.get_type(name)
+
+    def get_initial_address(self):
+        return self.initial_address
+
+    def get_all_variables(self):
+        return self.symbol_table.get_all_variables_names()
+
+class ProcedureSymbol(metaclass=SingletonMeta):
+    # __metaclass__ = SingletonMeta
+
+    methods = {}
+    global_scope = 'global'
+    def __init__(self): #name, data_type, scope, params = []):
+        self.methods["global"] = Function("void")
+
+    
+
+        """ self.params = params
+
+            if not name in self.methods:
+                self.methods[name] = SymbolTable()
+
+        self.locals = []
+
+        if not self.global_scope in self.methods:
+            self.methods[self.global_scope] = SymbolTable() """
+        
+        #print(self.methods)
+
+    def get_method(self, name):
+        return self.methods.get(name, False)
+
+    def add_method(self, name, data_type):
+        if not name in self.methods:
+            self.methods[name] = Function(data_type)
+
+    def get_methods_names(self):
+        return self.methods.keys()
+    
+    def get_global_variable(self, name):
+        return self.get_variable("global", name)
+
+    def get_variable(self, name_function, name_variable):
+        try:
+            return self.get_method(name_function).find_variable(name_variable)
+        except:
+            return None
+
+    def add_global_variable(self, name, data_type, address):
+        try:
+            return self.get_method("global").add_variable(name, data_type, "global", address)
+        except:
+            return None
+
+    def get_variable_address(self, name_function, name_variable):
+        return self.get_method(name_function).get_virtual_address(name_variable)
+
+    def get_variable_type(self, name_function, name_variable):
+        return self.get_method(name_function).get_variable_type(name_variable)
+
+    def get_all_variables(self, name_function):
+        print(name_function)
+        return self.get_method(name_function).get_all_variables()
+    
+    def __eq__(self, __o: Symbol) -> bool:
+        bitmask_temp = super().__eq__(__o)
+
+        if bitmask_temp and __o.params == self.params and __o.locals == self.locals:
+            return True
+        
+    def get_status(self):
+        for key, value in self.methods.items():
+            print(f"{key}: {value.get_status()}")
+
+class Constant:
     def __init__(self, value, address):
         self.value = value
         self.address = address
