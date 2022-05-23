@@ -104,14 +104,16 @@ class Function:
     def get_param_table(self):
         return self.get_param_table
         
-    def set_size(self, size):
-        self.size = size
+    def add_var_count(self, position):
+        self.size[position] += 1
+        print(self.size)
 
     def add_param_count(self, position):
         self.size[position] += 1
 
     def set_address(self, address):
         self.initial_address = address
+        print(self.initial_address)
 
     def add_variable(self, name, data_type, scope, address):
         return self.symbol_table.add(name, data_type, scope, address)
@@ -200,6 +202,9 @@ class ProcedureSymbol(metaclass=SingletonMeta):
     def add_param_count(self, name_func, position):
         self.get_method(name_func).add_param_count(position)
 
+    def add_var_count(self, name_func, position):
+        self.get_method(name_func).add_var_count(position)
+
     def get_variable_address(self, name_function, name_variable):
         return self.get_method(name_function).get_virtual_address(name_variable)
 
@@ -211,6 +216,9 @@ class ProcedureSymbol(metaclass=SingletonMeta):
 
     def get_func_data_type(self, name_function):
         return self.get_method(name_function).get_data_type()
+
+    def set_initial_address(self, name_func, address):
+        self.get_method(name_func).set_address(address)
     
     def __eq__(self, __o: Symbol) -> bool:
         bitmask_temp = super().__eq__(__o)

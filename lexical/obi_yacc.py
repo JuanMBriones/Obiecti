@@ -23,7 +23,6 @@ functions_stack = ["global"]
 local_variables_segments = [0, 10000, 20000]
 constants_segments = [30000, 35000, 40000, 45000]
 quadruples = Quadruples()
-aux_quadruple = 0
 function_table = ProcedureSymbol()
 constants_table = ConstantTable()
 semantic_cube = SemanticCube()
@@ -33,8 +32,8 @@ rel_op = set(['==', '!=', '>', '<', '>=', '<='])
 tabla_prueba = SymbolTable()
 
 def p_programa(p):
-    '''programa : PROGRAM ID class context
-                | PROGRAM ID context'''
+    '''programa : PROGRAM ID aux_program class context
+                | PROGRAM ID aux_program context'''
     print("Apropiado")
     
     global compile_status
@@ -43,6 +42,11 @@ def p_programa(p):
     for key, value in quadruples.get_quadruples().items():
         print(f"{key}: {value}")
     print('Uff✨')
+
+def p_aux_program(p):
+    '''aux_program :'''
+    quadruple = Quadruple(operation='GOTO', left_operand='Main', right_operand=None, result=None)
+    quadruples.add_quadruple(quadruple=quadruple)
 
 def p_class(p):
     '''class : scope CLASS ID
@@ -112,6 +116,8 @@ def p_funcion(p):
                 | scope VOID DEF id LPAREN param aux_param RPAREN contexto_func'''
     function_table.delete_table(functions_stack[-1])
     functions_stack.pop()
+    quadruple = Quadruple(operation='ENDFUNC', left_operand=None, right_operand=None, result=None)
+    quadruples.add_quadruple(quadruple=quadruple)
 
 def p_id(p):
     '''id : ID'''
@@ -164,12 +170,13 @@ def p_param(p):
 def p_aux_param(p):
     '''aux_param :'''
     while len(operands_stack) > 1:
+        print(operands_stack)
         name_func = operands_stack[0]
         name_var = operands_stack.pop()
         data_type = types_stack.pop()
         add_local_variable(name_func, name_var, data_type)
         add_param(name_func, data_type)
-    operands_stack.pop()
+    function_table.set_initial_address(operands_stack.pop(), len(quadruples.quadruples))
 
 def p_scope(p):
     '''scope : 
@@ -236,8 +243,10 @@ def p_vars(p):
                 name_function = functions_stack[-1]
                 add_local_variable(name_function, name_variable, type_variable)
                 address_variable = function_table.get_variable_address(name_function, name_variable)
+                add_var_func_size(name_function, type_variable)
             else:
                 add_global_variable(name_variable, type_variable)
+                add_var_func_size("global", type_variable)
                 address_variable = function_table.get_variable_address("global", name_variable)
             quadruple = Quadruple(operation='DECLARE_VAR', left_operand=None, right_operand=None, result=address_variable)
             quadruples.add_quadruple(quadruple=quadruple)
@@ -357,6 +366,7 @@ def p_exp_cond(p):
                 quadruple = Quadruple(operation=operator, left_operand=left_operand, right_operand=right_operand, result=quadruples.get_current())
                 quadruples.add_quadruple(quadruple=quadruple)
                 types_stack.append(result_type)
+                add_temp_func_size(functions_stack[-1], result_type)
                 operands_stack.append(quadruples.get_current())
                 quadruples.increment_current()
         else:
@@ -391,6 +401,7 @@ def p_expresion(p):
                     quadruple = Quadruple(operation=operator, left_operand=left_operand, right_operand=right_operand, result=quadruples.get_current())
                     quadruples.add_quadruple(quadruple=quadruple)
                     types_stack.append(result_type)
+                    add_temp_func_size(functions_stack[-1], result_type)
                     operands_stack.append(quadruples.get_current())
                     quadruples.increment_current()
                 else:
@@ -412,6 +423,7 @@ def p_exp(p):
                 quadruple = Quadruple(operation=operator, left_operand=left_operand, right_operand=right_operand, result=quadruples.get_current())
                 quadruples.add_quadruple(quadruple=quadruple)
                 types_stack.append(result_type)
+                add_temp_func_size(functions_stack[-1], result_type)
                 operands_stack.append(quadruples.get_current())
                 quadruples.increment_current()
             else:
@@ -437,6 +449,7 @@ def p_termino(p):
                 quadruple = Quadruple(operation=operator, left_operand=left_operand, right_operand=right_operand, result=quadruples.get_current())
                 quadruples.add_quadruple(quadruple=quadruple)
                 types_stack.append(result_type)
+                add_temp_func_size(functions_stack[-1], result_type)
                 operands_stack.append(quadruples.get_current())
                 quadruples.increment_current()
             else:
@@ -650,3 +663,19 @@ def add_param(name_func, type):
         function_table.add_param_count(name_func, 1)
     elif type == DataType.CHAR:
         function_table.add_param_count(name_func, 2)
+
+def add_var_func_size(name_func, type):
+    if type == DataType.INT:
+        function_table.add_var_count(name_func, 0)
+    elif type == DataType.FLOAT:
+        function_table.add_var_count(name_func, 1)
+    elif type == DataType.CHAR:
+        function_table.add_var_count(name_func, 2)
+
+def add_temp_func_size(name_func, type):
+    if type == DataType.INT:
+        function_table.add_var_count(name_func, 3)
+    elif type == DataType.FLOAT:
+        function_table.add_var_count(name_func, 4)
+    elif type == DataType.CHAR:
+        function_table.add_var_count(name_func, 5)
