@@ -62,7 +62,7 @@ class SymbolTable(Symbol):
         return self.get(name).get()[3]
 
     def get_type(self, name):
-        return self.get(name).get()[1]
+        return self.get(name).data_type
 
     def find_variable(self, name):
         return self.symbols.get(name, False)
@@ -91,6 +91,7 @@ class Function:
         self.size = [0, 0, 0, 0, 0, 0]      #[int, float, char, temp_int, temp_float, temp_char]
         self.symbol_table = SymbolTable()
         self.param_table = []
+        self.counter = 0
 
     def get(self):
         return (self.data_type, self.initial_address, self.size, self.symbol_table, self.param_table)
@@ -100,20 +101,15 @@ class Function:
 
     def add_param(self, param):
         self.param_table.append(param)
-
-    def get_param_table(self):
-        return self.get_param_table
         
     def add_var_count(self, position):
         self.size[position] += 1
-        print(self.size)
 
     def add_param_count(self, position):
         self.size[position] += 1
 
     def set_address(self, address):
         self.initial_address = address
-        print(self.initial_address)
 
     def add_variable(self, name, data_type, scope, address):
         return self.symbol_table.add(name, data_type, scope, address)
@@ -190,11 +186,23 @@ class ProcedureSymbol(metaclass=SingletonMeta):
         except:
             return None
 
-    def get_param(self, name_func):
+    def get_param(self, name_func, position):
         try:
-            return self.get_method(name_func).get()[4]
+            return self.get_method(name_func).param_table[position]
         except:
             return None
+
+    def get_len_param(self, name_func):
+        return len(self.get_method(name_func).param_table)
+    
+    def get_counter(self, name_func):
+        return self.get_method(name_func).counter
+
+    def set_counter(self, name_func, cont):
+        self.get_method(name_func).counter = cont
+
+    def reset_counter(self, name_func):
+        self.set_counter(name_func, 0)
         
     def delete_table(self, name_func):
         self.get_method(name_func).delete_table()
@@ -219,7 +227,14 @@ class ProcedureSymbol(metaclass=SingletonMeta):
 
     def set_initial_address(self, name_func, address):
         self.get_method(name_func).set_address(address)
-    
+
+    def get_initial_address(self, name_func):
+        return self.get_method(name_func).initial_address
+
+    def get_func_type(self, name_func):
+        return self.get_method(name_func).data_type
+
+            
     def __eq__(self, __o: Symbol) -> bool:
         bitmask_temp = super().__eq__(__o)
 

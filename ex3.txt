@@ -1,15 +1,16 @@
 program x2 
 private class x : y {
 
-
-
-    int def x3(int x4, int x7, int x6) {
-        var x5, x8 : float
-        var x10 : float
-        x5 = 10 * (21 * 2 - 3 * 40 / 12 + 1) / 10
+    int def x3(int x4, int x10, int x11, int x12) {
+        print("Hola")
+        var x5 : int
+        x5 = 10
     }
 
-    void def x10() {
+    var x5, x6, x7, x8, x9 : int
+
+    void def main() {
         print("Hola")
+        x5 = x3(x5, x6, x7, x8)
     }
 }
