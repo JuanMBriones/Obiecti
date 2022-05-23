@@ -5,4 +5,6 @@ class DataType(Enum):
     FLOAT = 'float'
     BOOL = 'bool'
     STRING = 'string'
+    VOID = 'void'
+    CHAR = 'char'
     

@@ -3,16 +3,16 @@ import ply.lex as lex
 reserved = {
     'if' : 'IF', 'elif' : 'ELIF',
     'public' : 'PUBLIC', 'private' : 'PRIVATE', 'protected' : 'PROTECTED',
-    'int' : 'INT', 'float' : 'FLOAT', 'var' : 'VAR',
-    'program' : 'PROGRAM', 'class' : 'CLASS', 'def' : 'DEF',
+    'int' : 'INT', 'float' : 'FLOAT', 'var' : 'VAR', 'char' : 'CHAR',
+    'program' : 'PROGRAM', 'class' : 'CLASS', 'def' : 'DEF', 'void' : 'VOID',
     'return' : 'RETURN', 'and' : 'AND', 
     'or' : 'OR', 'while' : 'WHILE',
     'print' : 'PRINT', 'read' : 'READ',
-    'true' : 'TRUE', 'false': 'FALSE'
+    'True' : 'TRUE', 'False': 'FALSE'
  }
 
 tokens = [
-    'NUMBER', 'CSTRING',
+    'NUMBER', 'CSTRING', 'CCHAR',
     'PLUS', 'MODULO', 'MINUS', 
     'TIMES', 'DIVIDE', 'EQUALS',
     'CINT',
@@ -40,6 +40,7 @@ t_PERIOD = r'\.'
 t_COLON = r':'
 t_CINT = r'\d+'
 t_NUMBER = r'[-+]?[0-9]+(\.([0-9]+)?([eE][-+]?[0-9]+)?|[eE][-+]?[0-9]+)'
+t_CCHAR = r'(\')([A-Za-z0-9]|[ \t\n]|(\()|(\)))(\')'
 t_CSTRING = r'(\")([A-Za-z0-9]|[ \t\n]|(\()|(\)))+(\")'
 t_EQUALS = r'='
 t_LT = r'<'

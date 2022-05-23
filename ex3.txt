@@ -1,9 +1,15 @@
 program x2 
-private class x3 : x4 {
+private class x : y {
 
-    while (A > B * C) {
-        A = A - D
-        print(A)
+
+
+    int def x3(int x4, int x7, int x6) {
+        var x5, x8 : float
+        var x10 : float
+        x5 = 10 * (21 * 2 - 3 * 40 / 12 + 1) / 10
     }
-    B = C + A
+
+    void def x10() {
+        print("Hola")
+    }
 }
