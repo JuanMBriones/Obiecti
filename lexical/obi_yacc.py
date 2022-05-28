@@ -5,6 +5,7 @@ from asyncio import constants
 from turtle import goto
 from typing import Set
 from unittest import result
+from xml.etree.ElementPath import get_parent_map
 import ply.yacc as yacc
 from semantical.data_types import DataType
 from semantical.quadruples import Quadruples, Quadruple
@@ -19,6 +20,7 @@ operands_stack = []
 operators_stack = []
 types_stack = []
 jumps_stack = []
+params_stack = []
 functions_stack = ["global"]
 local_variables_segments = [0, 10000, 20000]
 constants_segments = [30000, 35000, 40000, 45000]
@@ -27,6 +29,8 @@ function_table = ProcedureSymbol()
 constants_table = ConstantTable()
 semantic_cube = SemanticCube()
 rel_op = set(['==', '!=', '>', '<', '>=', '<='])
+param_count = 1
+paramater = None
 
 #   Se usa esta tabla de simbolos para pruebas
 tabla_prueba = SymbolTable()
@@ -115,9 +119,12 @@ def p_funcion(p):
     '''funcion : scope type DEF id LPAREN param aux_param RPAREN contexto_func
                 | scope VOID DEF id LPAREN param aux_param RPAREN contexto_func'''
     function_table.delete_table(functions_stack[-1])
-    functions_stack.pop()
+    name_function = functions_stack.pop()
     quadruple = Quadruple(operation='ENDFUNC', left_operand=None, right_operand=None, result=None)
     quadruples.add_quadruple(quadruple=quadruple)
+    if name_function == "main":
+        address = function_table.get_initial_address(name_function)
+        quadruples.quadruples[0].result = address
 
 def p_id(p):
     '''id : ID'''
@@ -170,7 +177,6 @@ def p_param(p):
 def p_aux_param(p):
     '''aux_param :'''
     while len(operands_stack) > 1:
-        print(operands_stack)
         name_func = operands_stack[0]
         name_var = operands_stack.pop()
         data_type = types_stack.pop()
@@ -248,8 +254,8 @@ def p_vars(p):
                 add_global_variable(name_variable, type_variable)
                 add_var_func_size("global", type_variable)
                 address_variable = function_table.get_variable_address("global", name_variable)
-            quadruple = Quadruple(operation='DECLARE_VAR', left_operand=None, right_operand=None, result=address_variable)
-            quadruples.add_quadruple(quadruple=quadruple)
+            #quadruple = Quadruple(operation='DECLARE_VAR', left_operand=None, right_operand=None, result=address_variable)
+            #quadruples.add_quadruple(quadruple=quadruple)
 
         types_stack.pop()
 
@@ -334,13 +340,66 @@ def p_objeto_metodo(p):
     '''objeto_metodo : ID PERIOD llamada_func'''
 
 def p_llamada_func(p):
-    '''llamada_func : ID LPAREN aux RPAREN'''
+    '''llamada_func : llamada_id llamada_lparen aux llamada_rparen'''
+    name_function = operands_stack[-1]
+    address = function_table.get_initial_address(name_function)
+    quadruple = Quadruple(operation='GOSUB', left_operand=name_function, right_operand=None, result=address)
+    quadruples.add_quadruple(quadruple=quadruple)
+    types_stack.append(function_table.get_func_data_type(name_function))
     
+def p_llamada_id(p):
+    '''llamada_id : ID'''
+    if not function_table.get_method(p[1]):
+        print(f"{p[1]} is not defined")
+        exit(-1)
+    operands_stack.append(p[1])
+
+def p_llamada_lparen(p):
+    '''llamada_lparen : LPAREN'''
+    name_function = operands_stack[-1]
+    quadruple = Quadruple(operation='ERA', left_operand=None, right_operand=None, result=name_function)
+    quadruples.add_quadruple(quadruple=quadruple)
+    function_table.reset_counter(name_function)
+    counter = function_table.get_counter(operands_stack[-1])
+    params_stack.append(function_table.get_param(name_function, counter))
+    #print(paramater)
+
+
+def p_llamada_rparen(p):
+    '''llamada_rparen : RPAREN'''
+    name_function = operands_stack[-1]
+    counter = function_table.get_counter(name_function)
+    length_param = function_table.get_len_param(name_function)
+    if counter + 1 > length_param:
+        print(f"Expected {length_param} arguments but instead {counter + 1} were given")
+        exit(-1)
 
 def p_aux(p):
-    '''aux : exp
-            | exp COMMA aux'''
-    
+    '''aux : exp aux_exp
+            | exp aux_exp aux_comma aux'''
+
+def p_aux_exp(p):
+    '''aux_exp :'''
+    argument = operands_stack.pop()
+    argument_type = types_stack.pop()
+    current_param = params_stack.pop()
+    if current_param:
+        if argument_type != current_param:
+            expected = current_param.value
+            argument = argument_type.value
+            print(f"Expected argument of type {expected.upper()} but instead {argument.upper()} were given")
+            exit(-1)
+        name_function = operands_stack[-1]
+        counter = function_table.get_counter(name_function)
+        quadruple = Quadruple(operation='PARAMETER', left_operand=argument, right_operand=None, result=counter)
+        quadruples.add_quadruple(quadruple=quadruple)
+
+def p_aux_comma(p):
+    '''aux_comma : COMMA'''
+    name_function = operands_stack[-1]
+    counter = function_table.get_counter(name_function)
+    function_table.set_counter(name_function, counter + 1)
+    params_stack.append(function_table.get_param(name_function, counter))
 
 def p_gotoF(p):
     '''gotoF : exp_cond'''
