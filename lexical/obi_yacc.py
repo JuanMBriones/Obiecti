@@ -49,10 +49,16 @@ def p_programa(p):
         for key in function_table.get_methods_names():
             name_func = key
             initial_address = function_table.get_initial_address(name_func)
+            data_type = function_table.get_func_data_type(name_func)
             size = function_table.get_size(name_func)
             param_table = function_table.get_param_table(name_func)
-            object_file.write(f"{name_func}, {initial_address}, ")
-            object_file.write(f"{size}, {param_table}\n")
+            object_file.write(f"{name_func}; {data_type}; {initial_address}; ")
+            object_file.write(f"{size}; {param_table}\n")
+
+        object_file.write("%%\n")
+
+        for key in constants_table.get_all_constants_values():
+            object_file.write(f"{key}\n")
 
         object_file.write("%%\n")
 
