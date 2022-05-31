@@ -63,13 +63,14 @@ class Constant:
     def __init__(self, value, address):
         self.value = value
         self.address = address
+        print(self.address)
 
 class ConstantTable(Constant):
     def __init__(self):
         self.constants = {}
         
-    def add(self, value):
-        self.constants[value] = Constant(value, None)
+    def add(self, value, address):
+        self.constants[value] = Constant(value, int(address))
 
     def get(self, value):
         return self.constants.get(value)

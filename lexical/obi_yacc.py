@@ -58,7 +58,9 @@ def p_programa(p):
         object_file.write("%%\n")
 
         for key in constants_table.get_all_constants_values():
-            object_file.write(f"{key}\n")
+            value = key
+            address = constants_table.get_address(value)
+            object_file.write(f"{key}, {address}\n")
 
         object_file.write("%%\n")
 

@@ -1,4 +1,5 @@
 from ast import operator
+from asyncio import constants
 from stat import FILE_ATTRIBUTE_REPARSE_POINT
 from turtle import right
 from execution.memory import Memory
@@ -43,10 +44,17 @@ def read_file(file):
     for function in functions_good:
         functions_table.add_method(function[0], function[1], function[2], function[3], function[4])
 
-    constants_table = ConstantTable()
+    constants_good = []
     for constant in constants_text:
-        constants_table.add(constant.strip())
+        constants_good.append(constant.strip().split(','))
     
+    constants_table = ConstantTable()
+    for constant in constants_good:
+        constants_table.add(constant[0], constant[1])
+
+    #constants_table = ConstantTable()
+    #for constant in constants_text:
+     #   constants_table.add(constant.strip())
 
     quadruples_text_strip = []
     for quadruple in quadruples_text:
