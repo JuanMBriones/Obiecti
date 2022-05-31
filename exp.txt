@@ -1,5 +1,16 @@
 program x2 
 private class x3 : x4 {
+    int def x3(int x4, int x10, int x11, int x12) {
+        print("Hola")
+        var x5 : int
+        x5 = 10
+    }
 
-    x3 = A * (C * D - E * F / H + I) / J
+    var x5, x6, x7, x8, x9 : int
+
+    void def main() {
+        print("Hola")
+        x5 = x3(x5, x6, x7, x8)
+        x5 = 10
+    }
 }
