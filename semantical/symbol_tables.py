@@ -3,6 +3,7 @@ import gc
 from pydoc import classname
 from semantical.data_types import DataType
 from semantical.errors_exceptions import TypeMismatchError
+from semantical.memory import ConstantsMemory, GlobalMemory, TemporalMemory
 from semantical.semantic_cube import SemanticCube
 
 class Symbol:
@@ -43,6 +44,7 @@ class SingletonMeta(type):
 class SymbolTable(Symbol):
     def __init__(self):
         self.symbols = {}
+        self.temporal_memory = TemporalMemory()
 
     def add(self, name, data_type, scope, address):
         try:
@@ -53,6 +55,12 @@ class SymbolTable(Symbol):
                 return True
         except:
             return None
+
+    def add_temporal_variable(self, data_type):
+        return self.temporal_memory.requestSpace(data_type)
+
+    def move_next_direction(self, data_type):
+        self.temporal_memory.move_next_direction(data_type)
 
     def get(self, name):
         if name in self.symbols:
@@ -114,6 +122,12 @@ class Function:
     def add_variable(self, name, data_type, scope, address):
         return self.symbol_table.add(name, data_type, scope, address)
 
+    def add_temporal_variable(self, data_type):
+        return self.symbol_table.add_temporal_variable(data_type)
+
+    def move_next_direction(self, data_type):
+        self.symbol_table.move_next_direction(data_type)
+
     def find_variable(self, name):
         return self.symbol_table.find_variable(name)
 
@@ -140,6 +154,7 @@ class ProcedureSymbol(metaclass=SingletonMeta):
     global_scope = 'global'
     def __init__(self): #name, data_type, scope, params = []):
         self.methods["global"] = Function(DataType.VOID)
+        self.global_memory = GlobalMemory()
 
     
 
@@ -174,17 +189,27 @@ class ProcedureSymbol(metaclass=SingletonMeta):
         except:
             return None
 
-    def add_global_variable(self, name, data_type, address):
-        try:
-            return self.get_method("global").add_variable(name, data_type, "global", address)
-        except:
-            return None
+    def add_global_variable(self, name, data_type):
+        address = self.global_memory.requestSpace(data_type)
+        added = self.get_method("global").add_variable(name, data_type, "global", address)
+        if added != None:
+            self.global_memory.move_next_direction(data_type)
+        else:
+            print(f"Variable {name} already defined")
+            exit(-1)
 
     def add_variable(self, name_func, name_var, data_type, address):
         try:
             return self.get_method(name_func).add_variable(name_var, data_type, "local", address)
         except:
             return None
+
+    
+    def add_temporal_variable(self, name_func, data_type):
+        return self.get_method(name_func).add_temporal_variable(data_type)
+
+    def move_next_direction(self, name_func, data_type):
+        return self.get_method(name_func).move_next_direction(data_type)
 
     def get_param(self, name_func, position):
         try:
@@ -266,13 +291,16 @@ class Constant:
 class ConstantTable(Constant):
     def __init__(self):
         self.constants = {}
+        self.constants_memory = ConstantsMemory()
 
-    def add(self, value, address):
+    def add(self, value, type):
         try:
             if value in self.constants:
                 raise Exception("Constant already exists")
             else:
+                address = self.constants_memory.requestSpace(type)
                 self.constants[value] = Constant(value, address)
+                self.constants_memory.move_next_direction(type)
                 return True
         except:
             return False

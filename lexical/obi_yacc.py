@@ -2,6 +2,7 @@
  
 from ast import operator
 from asyncio import constants
+from audioop import add
 from turtle import goto
 from typing import Set
 from unittest import result
@@ -49,7 +50,7 @@ def p_programa(p):
 
 def p_aux_program(p):
     '''aux_program :'''
-    quadruple = Quadruple(operation='GOTO', left_operand='Main', right_operand=None, result=None)
+    quadruple = Quadruple(operation=2100014, left_operand='Main', right_operand=None, result=None)
     quadruples.add_quadruple(quadruple=quadruple)
 
 def p_class(p):
@@ -91,7 +92,7 @@ def p_elif(p):
 def p_aux_elif(p):
     '''aux_elif :'''
     false = jumps_stack.pop()
-    quadruple = Quadruple(operation='GOTO', left_operand=None, right_operand=None, result=None)
+    quadruple = Quadruple(operation=2100014, left_operand=None, right_operand=None, result=None)
     quadruples.add_quadruple(quadruple=quadruple)
     jumps_stack.append(len(quadruples.quadruples) - 1)
     quadruples.quadruples[false].result = len(quadruples.quadruples)
@@ -101,7 +102,7 @@ def p_ciclo(p):
     '''ciclo : aux_ciclo WHILE LPAREN gotoF RPAREN bloque'''
     end = jumps_stack.pop()
     jump_index = jumps_stack.pop()
-    quadruple = Quadruple(operation='GOTO', left_operand=None, right_operand=None, result=jump_index)
+    quadruple = Quadruple(operation=2100014, left_operand=None, right_operand=None, result=jump_index)
     quadruples.add_quadruple(quadruple=quadruple)
     quadruples.quadruples[end].result = len(quadruples.quadruples)
     
@@ -120,7 +121,7 @@ def p_funcion(p):
                 | scope VOID DEF id LPAREN param aux_param RPAREN contexto_func'''
     function_table.delete_table(functions_stack[-1])
     name_function = functions_stack.pop()
-    quadruple = Quadruple(operation='ENDFUNC', left_operand=None, right_operand=None, result=None)
+    quadruple = Quadruple(operation=2100019, left_operand=None, right_operand=None, result=None)
     quadruples.add_quadruple(quadruple=quadruple)
     if name_function == "main":
         address = function_table.get_initial_address(name_function)
@@ -138,7 +139,7 @@ def p_id(p):
             name_method = p[1]
             type_method = types_stack.pop()
             function_table.add_method(name_method, type_method)
-            add_global_variable(name_method, type_method)
+            function_table.add_global_variable(name_method, type_method)
         else:
             function_table.add_method(p[1], DataType.VOID)
         operands_stack.append(p[1])
@@ -200,7 +201,7 @@ def p_estatuto(p):
 def p_lectura(p):
     '''lectura : READ LPAREN aux4 RPAREN'''
     while operands_stack:
-        quadruple = Quadruple(operation='read', left_operand=None, right_operand=None, result=operands_stack.pop())
+        quadruple = Quadruple(operation=2100021, left_operand=None, right_operand=None, result=operands_stack.pop())
         quadruples.add_quadruple(quadruple=quadruple)
 
 def p_aux4(p):
@@ -216,7 +217,7 @@ def p_aux4(p):
 def p_escritura(p):
     '''escritura : PRINT LPAREN aux3 RPAREN'''
     while operands_stack:
-        quadruple = Quadruple(operation='print', left_operand=None, right_operand=None, result=operands_stack.pop())
+        quadruple = Quadruple(operation=2100020, left_operand=None, right_operand=None, result=operands_stack.pop())
         quadruples.add_quadruple(quadruple=quadruple)
 
 def p_aux3(p):
@@ -230,7 +231,7 @@ def p_aux3(p):
             | CSTRING COMMA aux3'''
 
     if p[1]:
-        add_constant(p[1], "string")
+        constants_table.add(p[1], DataType.STRING)
         operands_stack.append(constants_table.get_address(p[1]))
 
 def p_vars(p):
@@ -251,7 +252,7 @@ def p_vars(p):
                 address_variable = function_table.get_variable_address(name_function, name_variable)
                 add_var_func_size(name_function, type_variable)
             else:
-                add_global_variable(name_variable, type_variable)
+                function_table.add_global_variable(name_variable, type_variable)
                 add_var_func_size("global", type_variable)
                 address_variable = function_table.get_variable_address("global", name_variable)
             #quadruple = Quadruple(operation='DECLARE_VAR', left_operand=None, right_operand=None, result=address_variable)
@@ -326,11 +327,11 @@ def p_asignacion(p):
         while operators_stack:
             operator = operators_stack.pop()
             if operator == '=':
-                operand = operands_stack.pop()
-                operand2 = operands_stack.pop()
+                right_operand = operands_stack.pop()
+                left_operand = operands_stack.pop()
                 result_type = semantic_cube.validate(operator, types_stack.pop(), types_stack.pop())
                 if result_type != None:
-                    quadruple = Quadruple(operation=operator, left_operand=operand, right_operand=None, result=operand2)
+                    quadruple = Quadruple(operation=2100005, left_operand=left_operand, right_operand=None, result=right_operand)
                     quadruples.add_quadruple(quadruple=quadruple)
                 else:
                     print("Type mismatch")
@@ -343,7 +344,7 @@ def p_llamada_func(p):
     '''llamada_func : llamada_id llamada_lparen aux llamada_rparen'''
     name_function = operands_stack[-1]
     address = function_table.get_initial_address(name_function)
-    quadruple = Quadruple(operation='GOSUB', left_operand=name_function, right_operand=None, result=address)
+    quadruple = Quadruple(operation=2100018, left_operand=name_function, right_operand=None, result=address)
     quadruples.add_quadruple(quadruple=quadruple)
     types_stack.append(function_table.get_func_data_type(name_function))
     
@@ -357,7 +358,7 @@ def p_llamada_id(p):
 def p_llamada_lparen(p):
     '''llamada_lparen : LPAREN'''
     name_function = operands_stack[-1]
-    quadruple = Quadruple(operation='ERA', left_operand=None, right_operand=None, result=name_function)
+    quadruple = Quadruple(operation=2100016, left_operand=None, right_operand=None, result=name_function)
     quadruples.add_quadruple(quadruple=quadruple)
     function_table.reset_counter(name_function)
     counter = function_table.get_counter(operands_stack[-1])
@@ -391,7 +392,7 @@ def p_aux_exp(p):
             exit(-1)
         name_function = operands_stack[-1]
         counter = function_table.get_counter(name_function)
-        quadruple = Quadruple(operation='PARAMETER', left_operand=argument, right_operand=None, result=counter)
+        quadruple = Quadruple(operation=2100017, left_operand=argument, right_operand=None, result=counter)
         quadruples.add_quadruple(quadruple=quadruple)
 
 def p_aux_comma(p):
@@ -406,7 +407,7 @@ def p_gotoF(p):
     
     if len(p) >= 2:
         operand = operands_stack.pop()
-        quadruple = Quadruple(operation="GOTOF", left_operand=operand, right_operand=None, result=None)
+        quadruple = Quadruple(operation=2100015, left_operand=operand, right_operand=None, result=None)
         quadruples.add_quadruple(quadruple=quadruple)
         jumps_stack.append(len(quadruples.quadruples) - 1)
 
@@ -418,15 +419,23 @@ def p_exp_cond(p):
         operators_stack.append(p[2])
         if operators_stack[-1] == 'and' or operators_stack[-1] == 'or':
             operator = operators_stack.pop()
+            address_operator = 0
+            if operator == 'and':
+                address_operator = 2100012
+            elif operator == 'or':
+                address_operator = 2100013
+
             right_operand = operands_stack.pop()
             left_operand = operands_stack.pop()
             result_type = semantic_cube.validate(operator, types_stack.pop(), types_stack.pop())
             if result_type != None:
-                quadruple = Quadruple(operation=operator, left_operand=left_operand, right_operand=right_operand, result=quadruples.get_current())
+                address = function_table.add_temporal_variable(functions_stack[-1], result_type)
+                quadruple = Quadruple(operation=address_operator, left_operand=left_operand, right_operand=right_operand, result=address)
                 quadruples.add_quadruple(quadruple=quadruple)
                 types_stack.append(result_type)
                 add_temp_func_size(functions_stack[-1], result_type)
-                operands_stack.append(quadruples.get_current())
+                operands_stack.append(address)
+                function_table.move_next_direction(functions_stack[-1], result_type)
                 quadruples.increment_current()
         else:
             print("Type mismatch")
@@ -453,15 +462,31 @@ def p_expresion(p):
         operators_stack.append(p[2])
         if (operators_stack[-1] in rel_op):
                 operator = operators_stack.pop()
+                address_operator = 0
+                if operator == '<':
+                    address_operator = 2100006
+                elif operator == '>':
+                    address_operator = 2100007
+                elif operator == '<=':
+                    address_operator = 2100008
+                elif operator == '>=':
+                    address_operator = 2100009
+                elif operator == '==':
+                    address_operator = 2100010
+                elif operator == '!=':
+                    address_operator = 2100011
+
                 right_operand = operands_stack.pop()
                 left_operand = operands_stack.pop()
                 result_type = semantic_cube.validate(operator, types_stack.pop(), types_stack.pop())
                 if result_type != None:
-                    quadruple = Quadruple(operation=operator, left_operand=left_operand, right_operand=right_operand, result=quadruples.get_current())
+                    address = function_table.add_temporal_variable(functions_stack[-1], result_type)
+                    quadruple = Quadruple(operation=address_operator, left_operand=left_operand, right_operand=right_operand, result=address)
                     quadruples.add_quadruple(quadruple=quadruple)
                     types_stack.append(result_type)
                     add_temp_func_size(functions_stack[-1], result_type)
-                    operands_stack.append(quadruples.get_current())
+                    operands_stack.append(address)
+                    function_table.move_next_direction(functions_stack[-1], result_type)
                     quadruples.increment_current()
                 else:
                     print("Type mismatch")
@@ -474,16 +499,25 @@ def p_exp(p):
     if len(p) >= 3 and p[2]:
         operators_stack.append(p[2])
         if operators_stack[-1] == "+" or operators_stack[-1] == "-":
+
             operator = operators_stack.pop()
+            address_operator = 0
+            if operator == "+":
+                address_operator = 2100000
+            elif operator == "-":
+                address_operator = 2100001
+
             right_operand = operands_stack.pop()
             left_operand = operands_stack.pop()
             result_type = semantic_cube.validate(operator, types_stack.pop(), types_stack.pop())
             if result_type != None:
-                quadruple = Quadruple(operation=operator, left_operand=left_operand, right_operand=right_operand, result=quadruples.get_current())
+                address = function_table.add_temporal_variable(functions_stack[-1], result_type)
+                quadruple = Quadruple(operation=address_operator, left_operand=left_operand, right_operand=right_operand, result=address)
                 quadruples.add_quadruple(quadruple=quadruple)
                 types_stack.append(result_type)
                 add_temp_func_size(functions_stack[-1], result_type)
-                operands_stack.append(quadruples.get_current())
+                operands_stack.append(address)
+                function_table.move_next_direction(functions_stack[-1], result_type)
                 quadruples.increment_current()
             else:
                 print("Type mismatch")
@@ -501,15 +535,26 @@ def p_termino(p):
         operators_stack.append(p[2])
         if operators_stack[-1] == "*" or operators_stack[-1] == "/" or operators_stack[-1] == "%":
             operator = operators_stack.pop()
+            address_operator = 0
+            if operator == "*":
+                address_operator = 2100002
+            elif operator == "/":
+                address_operator = 2100003
+            elif operator == "%":
+                address_operator = 2100004
+
+
             right_operand = operands_stack.pop()
             left_operand = operands_stack.pop()
             result_type = semantic_cube.validate(operator, types_stack.pop(), types_stack.pop())
             if result_type != None:
-                quadruple = Quadruple(operation=operator, left_operand=left_operand, right_operand=right_operand, result=quadruples.get_current())
+                address = function_table.add_temporal_variable(functions_stack[-1], result_type)
+                quadruple = Quadruple(operation=address_operator, left_operand=left_operand, right_operand=right_operand, result=address)
                 quadruples.add_quadruple(quadruple=quadruple)
                 types_stack.append(result_type)
                 add_temp_func_size(functions_stack[-1], result_type)
-                operands_stack.append(quadruples.get_current())
+                operands_stack.append(address)
+                function_table.move_next_direction(functions_stack[-1], result_type)
                 quadruples.increment_current()
             else:
                 print("Type mismatch")
@@ -556,20 +601,20 @@ def p_var(p):
 
 def p_cint(p):
     'cint : CINT'
-    add_constant(p[1], "int")
+    constants_table.add(p[1], DataType.INT)
     operands_stack.append(constants_table.get_address(p[1]))
     types_stack.append(DataType.INT)
 
 
 def p_cfloat(p):
     'cfloat : NUMBER'
-    add_constant(p[1], "float")
+    constants_table.add(p[1], DataType.FLOAT)
     operands_stack.append(constants_table.get_address(p[1]))
     types_stack.append(DataType.FLOAT)
 
 def p_cchar(p):
     'cchar : CCHAR'
-    add_constant(p[1], "char")
+    constants_table.add(p[1], DataType.CHAR)
     operands_stack.append(constants_table.get_address(p[1]))
     types_stack.append(DataType.CHAR)
 
@@ -592,77 +637,6 @@ def validate_syntax(file: str):
     parser.parse(contents)
 
     return compile_status
-
-
-def add_constant(valor, type):
-    if type == "int":
-        if constants_segments[0] + 1 >= 35000:
-            print("Too many INT constants")
-            exit(-1)
-        else:
-            added = constants_table.add(valor, constants_segments[0])
-            if added:
-                constants_segments[0] += 1
-    elif type == "float":
-        if constants_segments[1] + 1 >= 40000:
-            print("Too many FLOAT constants")
-            exit(-1)
-        else:
-            added = constants_table.add(valor, constants_segments[1])
-            if added:
-                constants_segments[1] += 1
-    elif type == "char":
-        if constants_segments[2] + 1 >= 45000:
-            print("Too many CHAR constants")
-            exit(-1)
-        else:
-            added = constants_table.add(valor, constants_segments[2])
-            if added:
-                constants_segments[2] += 1
-    elif type == "string":
-        if constants_segments[3] + 1 >= 50000:
-            print("Too many STRING constants")
-            exit(-1)
-        else:
-            added = constants_table.add(valor, constants_segments[3])
-            if added:
-                constants_segments[3] += 1
-
-def add_global_variable(valor, type):
-    if type == DataType.INT:
-        if local_variables_segments[0] + 1 >= 10000:
-            print("Too many INT variables")
-            exit(-1)
-        else:
-            added = function_table.add_global_variable(valor, DataType.INT, local_variables_segments[0])
-            if added != None:
-                local_variables_segments[0] += 1
-            else:
-                print(f"Variable {valor} already defined")
-                exit(-1)
-    elif type == DataType.FLOAT:
-        if local_variables_segments[1] + 1 >= 20000:
-            print("Too many FLOAT variables")
-            exit(-1)
-        else:
-            added = function_table.add_global_variable(valor, DataType.FLOAT, local_variables_segments[1])
-            if added != None:
-                local_variables_segments[1] += 1
-            else:
-                print(f"Variable {valor} already defined")
-                exit(-1)
-    elif type == DataType.CHAR:
-        if local_variables_segments[2] + 1 >= 30000:
-            print("Too many CHAR variables")
-            exit(-1)
-        else:
-            added = function_table.add_global_variable(valor, DataType.CHAR, local_variables_segments[2])
-            if added != None:
-                local_variables_segments[2] += 1
-            else:
-                print(f"Variable {valor} already defined")
-                exit(-1)
-
 
 def add_local_variable(name_func, valor, type):
     if type == DataType.INT:

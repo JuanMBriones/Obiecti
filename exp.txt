@@ -1,5 +1,8 @@
 program x2 
 private class x3 : x4 {
 
-    x3 = A * (C * D - E * F / H + I) / J
+    var x3: float
+    if ((x3 == 2) and (x3 == 2)) {
+        x3 = 2
+    }
 }

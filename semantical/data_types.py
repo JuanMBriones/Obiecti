@@ -7,4 +7,5 @@ class DataType(Enum):
     STRING = 'string'
     VOID = 'void'
     CHAR = 'char'
+    POINTER = 'pointer'
     
