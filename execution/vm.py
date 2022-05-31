@@ -2,7 +2,7 @@ from ast import operator
 from stat import FILE_ATTRIBUTE_REPARSE_POINT
 from turtle import right
 from execution.memory import Memory
-from execution.tables import Function, ProcedureSymbol
+from execution.tables import ConstantTable, Function, ProcedureSymbol
 from semantical.quadruples import Quadruple, Quadruples
 
 globalMemory = Memory()
@@ -39,6 +39,14 @@ def read_file(file):
 
     functions_table = ProcedureSymbol(functions_good[0][3])
     functions_good.pop(0)
+
+    for function in functions_good:
+        functions_table.add_method(function[0], function[1], function[2], function[3], function[4])
+
+    constants_table = ConstantTable()
+    for constant in constants_text:
+        constants_table.add(constant.strip())
+    
 
     quadruples_text_strip = []
     for quadruple in quadruples_text:
