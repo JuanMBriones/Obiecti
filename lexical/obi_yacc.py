@@ -181,7 +181,7 @@ def p_aux_param(p):
         name_func = operands_stack[0]
         name_var = operands_stack.pop()
         data_type = types_stack.pop()
-        add_local_variable(name_func, name_var, data_type)
+        function_table.add_variable(name_func, name_var, data_type)
         add_param(name_func, data_type)
     function_table.set_initial_address(operands_stack.pop(), len(quadruples.quadruples))
 
@@ -248,7 +248,7 @@ def p_vars(p):
             type_variable = types_stack[-1]
             if len(functions_stack) > 1:
                 name_function = functions_stack[-1]
-                add_local_variable(name_function, name_variable, type_variable)
+                function_table.add_variable(name_function, name_variable, type_variable)
                 address_variable = function_table.get_variable_address(name_function, name_variable)
                 add_var_func_size(name_function, type_variable)
             else:
@@ -342,10 +342,12 @@ def p_objeto_metodo(p):
 
 def p_llamada_func(p):
     '''llamada_func : llamada_id llamada_lparen aux llamada_rparen'''
-    name_function = operands_stack[-1]
-    address = function_table.get_initial_address(name_function)
-    quadruple = Quadruple(operation=2100018, left_operand=name_function, right_operand=None, result=address)
+    name_function = operands_stack.pop()
+    address_function = function_table.get_variable_address("global", name_function)
+    ip = function_table.get_initial_address(name_function)
+    quadruple = Quadruple(operation=2100018, left_operand=address_function, right_operand=None, result=ip)
     quadruples.add_quadruple(quadruple=quadruple)
+    operands_stack.append(address_function)
     types_stack.append(function_table.get_func_data_type(name_function))
     
 def p_llamada_id(p):
@@ -358,7 +360,8 @@ def p_llamada_id(p):
 def p_llamada_lparen(p):
     '''llamada_lparen : LPAREN'''
     name_function = operands_stack[-1]
-    quadruple = Quadruple(operation=2100016, left_operand=None, right_operand=None, result=name_function)
+    address_function = function_table.get_variable_address("global", name_function)
+    quadruple = Quadruple(operation=2100016, left_operand=None, right_operand=None, result=address_function)
     quadruples.add_quadruple(quadruple=quadruple)
     function_table.reset_counter(name_function)
     counter = function_table.get_counter(operands_stack[-1])
@@ -435,7 +438,7 @@ def p_exp_cond(p):
                 types_stack.append(result_type)
                 add_temp_func_size(functions_stack[-1], result_type)
                 operands_stack.append(address)
-                function_table.move_next_direction(functions_stack[-1], result_type)
+                function_table.move_temporal_next_direction(functions_stack[-1], result_type)
                 quadruples.increment_current()
         else:
             print("Type mismatch")
@@ -486,7 +489,7 @@ def p_expresion(p):
                     types_stack.append(result_type)
                     add_temp_func_size(functions_stack[-1], result_type)
                     operands_stack.append(address)
-                    function_table.move_next_direction(functions_stack[-1], result_type)
+                    function_table.move_temporal_next_direction(functions_stack[-1], result_type)
                     quadruples.increment_current()
                 else:
                     print("Type mismatch")
@@ -517,7 +520,7 @@ def p_exp(p):
                 types_stack.append(result_type)
                 add_temp_func_size(functions_stack[-1], result_type)
                 operands_stack.append(address)
-                function_table.move_next_direction(functions_stack[-1], result_type)
+                function_table.move_temporal_next_direction(functions_stack[-1], result_type)
                 quadruples.increment_current()
             else:
                 print("Type mismatch")
@@ -554,7 +557,7 @@ def p_termino(p):
                 types_stack.append(result_type)
                 add_temp_func_size(functions_stack[-1], result_type)
                 operands_stack.append(address)
-                function_table.move_next_direction(functions_stack[-1], result_type)
+                function_table.move_temporal_next_direction(functions_stack[-1], result_type)
                 quadruples.increment_current()
             else:
                 print("Type mismatch")
@@ -637,56 +640,6 @@ def validate_syntax(file: str):
     parser.parse(contents)
 
     return compile_status
-
-def add_local_variable(name_func, valor, type):
-    if type == DataType.INT:
-        if local_variables_segments[0] + 1 >= 10000:
-            print("Too many INT variables")
-            exit(-1)
-        else:
-            is_global = function_table.get_global_variable(valor)
-            if is_global:
-                print(f"Variable {valor} already defined")
-                exit(-1)
-            else:
-                added = function_table.add_variable(name_func, valor, type, local_variables_segments[0])
-                if added != None:
-                    local_variables_segments[0] += 1
-                else:
-                    print(f"Variable {valor} already defined")
-                    exit(-1)
-    elif type == DataType.FLOAT:
-        if local_variables_segments[1] + 1 >= 20000:
-            print("Too many FLOAT variables")
-            exit(-1)
-        else:
-            is_global = function_table.get_global_variable(valor)
-            if is_global:
-                print(f"Variable {valor} already defined")
-                exit(-1)
-            else:
-                added = function_table.add_variable(name_func, valor, type, local_variables_segments[1])
-                if added != None:
-                    local_variables_segments[1] += 1
-                else:
-                    print(f"Variable {valor} already defined")
-                    exit(-1)
-    elif type == DataType.CHAR:
-        if local_variables_segments[2] + 1 >= 30000:
-            print("Too many CHAR variables")
-            exit(-1)
-        else:
-            is_global = function_table.get_global_variable(valor)
-            if is_global:
-                print(f"Variable {valor} already defined")
-                exit(-1)
-            else:
-                added = function_table.add_variable(name_func, valor, type, local_variables_segments[2])
-                if added != None:
-                    local_variables_segments[2] += 1
-                else:
-                    print(f"Variable {valor} already defined")
-                    exit(-1)
     
 def add_param(name_func, type):
     function_table.get_method(name_func).add_param(type)
