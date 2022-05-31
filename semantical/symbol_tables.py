@@ -162,8 +162,6 @@ class ProcedureSymbol(metaclass=SingletonMeta):
     global_scope = 'global'
     def __init__(self): #name, data_type, scope, params = []):
         self.methods["global"] = Function(DataType.VOID)
-        self.global_memory = GlobalMemory()
-
     
 
         """ self.params = params
@@ -272,6 +270,12 @@ class ProcedureSymbol(metaclass=SingletonMeta):
 
     def get_initial_address(self, name_func):
         return self.get_method(name_func).initial_address
+
+    def get_size(self, name_func):
+        return self.get_method(name_func).size
+
+    def get_param_table(self, name_func):
+        return self.get_method(name_func).param_table
 
     def get_func_type(self, name_func):
         return self.get_method(name_func).data_type

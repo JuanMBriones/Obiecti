@@ -3,6 +3,7 @@
 from ast import operator
 from asyncio import constants
 from audioop import add
+from html.entities import name2codepoint
 from turtle import goto
 from typing import Set
 from unittest import result
@@ -44,13 +45,25 @@ def p_programa(p):
     global compile_status
     compile_status = "Apropiado"
 
-    for key, value in quadruples.get_quadruples().items():
-        print(f"{key}: {value}")
-    print('Uff✨')
+    with open("object.txt", "w") as object_file:
+        for key in function_table.get_methods_names():
+            name_func = key
+            initial_address = function_table.get_initial_address(name_func)
+            size = function_table.get_size(name_func)
+            param_table = function_table.get_param_table(name_func)
+            object_file.write(f"{name_func}, {initial_address}, ")
+            object_file.write(f"{size}, {param_table}\n")
+
+        object_file.write("%%\n")
+
+        for key, value in quadruples.get_quadruples().items():
+            object_file.write(f"{value}\n")
+    print("Archivo object (.txt) escrito. Listo para ejecutar")
+
 
 def p_aux_program(p):
     '''aux_program :'''
-    quadruple = Quadruple(operation=2100014, left_operand='Main', right_operand=None, result=None)
+    quadruple = Quadruple(operation=2100014, left_operand=2100022, right_operand=2100022, result=2100022)
     quadruples.add_quadruple(quadruple=quadruple)
 
 def p_class(p):
@@ -92,7 +105,7 @@ def p_elif(p):
 def p_aux_elif(p):
     '''aux_elif :'''
     false = jumps_stack.pop()
-    quadruple = Quadruple(operation=2100014, left_operand=None, right_operand=None, result=None)
+    quadruple = Quadruple(operation=2100014, left_operand=2100022, right_operand=2100022, result=2100022)
     quadruples.add_quadruple(quadruple=quadruple)
     jumps_stack.append(len(quadruples.quadruples) - 1)
     quadruples.quadruples[false].result = len(quadruples.quadruples)
@@ -102,7 +115,7 @@ def p_ciclo(p):
     '''ciclo : aux_ciclo WHILE LPAREN gotoF RPAREN bloque'''
     end = jumps_stack.pop()
     jump_index = jumps_stack.pop()
-    quadruple = Quadruple(operation=2100014, left_operand=None, right_operand=None, result=jump_index)
+    quadruple = Quadruple(operation=2100014, left_operand=2100022, right_operand=2100022, result=jump_index)
     quadruples.add_quadruple(quadruple=quadruple)
     quadruples.quadruples[end].result = len(quadruples.quadruples)
     
@@ -121,7 +134,7 @@ def p_funcion(p):
                 | scope VOID DEF id LPAREN param aux_param RPAREN contexto_func'''
     function_table.delete_table(functions_stack[-1])
     name_function = functions_stack.pop()
-    quadruple = Quadruple(operation=2100019, left_operand=None, right_operand=None, result=None)
+    quadruple = Quadruple(operation=2100019, left_operand=2100022, right_operand=2100022, result=2100022)
     quadruples.add_quadruple(quadruple=quadruple)
     if name_function == "main":
         address = function_table.get_initial_address(name_function)
@@ -201,7 +214,7 @@ def p_estatuto(p):
 def p_lectura(p):
     '''lectura : READ LPAREN aux4 RPAREN'''
     while operands_stack:
-        quadruple = Quadruple(operation=2100021, left_operand=None, right_operand=None, result=operands_stack.pop())
+        quadruple = Quadruple(operation=2100021, left_operand=2100022, right_operand=2100022, result=operands_stack.pop())
         quadruples.add_quadruple(quadruple=quadruple)
 
 def p_aux4(p):
@@ -217,7 +230,7 @@ def p_aux4(p):
 def p_escritura(p):
     '''escritura : PRINT LPAREN aux3 RPAREN'''
     while operands_stack:
-        quadruple = Quadruple(operation=2100020, left_operand=None, right_operand=None, result=operands_stack.pop())
+        quadruple = Quadruple(operation=2100020, left_operand=2100022, right_operand=2100022, result=operands_stack.pop())
         quadruples.add_quadruple(quadruple=quadruple)
 
 def p_aux3(p):
@@ -331,7 +344,7 @@ def p_asignacion(p):
                 left_operand = operands_stack.pop()
                 result_type = semantic_cube.validate(operator, types_stack.pop(), types_stack.pop())
                 if result_type != None:
-                    quadruple = Quadruple(operation=2100005, left_operand=left_operand, right_operand=None, result=right_operand)
+                    quadruple = Quadruple(operation=2100005, left_operand=left_operand, right_operand=2100022, result=right_operand)
                     quadruples.add_quadruple(quadruple=quadruple)
                 else:
                     print("Type mismatch")
@@ -345,7 +358,7 @@ def p_llamada_func(p):
     name_function = operands_stack.pop()
     address_function = function_table.get_variable_address("global", name_function)
     ip = function_table.get_initial_address(name_function)
-    quadruple = Quadruple(operation=2100018, left_operand=address_function, right_operand=None, result=ip)
+    quadruple = Quadruple(operation=2100018, left_operand=address_function, right_operand=2100022, result=ip)
     quadruples.add_quadruple(quadruple=quadruple)
     operands_stack.append(address_function)
     types_stack.append(function_table.get_func_data_type(name_function))
@@ -361,7 +374,7 @@ def p_llamada_lparen(p):
     '''llamada_lparen : LPAREN'''
     name_function = operands_stack[-1]
     address_function = function_table.get_variable_address("global", name_function)
-    quadruple = Quadruple(operation=2100016, left_operand=None, right_operand=None, result=address_function)
+    quadruple = Quadruple(operation=2100016, left_operand=2100022, right_operand=2100022, result=address_function)
     quadruples.add_quadruple(quadruple=quadruple)
     function_table.reset_counter(name_function)
     counter = function_table.get_counter(operands_stack[-1])
@@ -395,7 +408,7 @@ def p_aux_exp(p):
             exit(-1)
         name_function = operands_stack[-1]
         counter = function_table.get_counter(name_function)
-        quadruple = Quadruple(operation=2100017, left_operand=argument, right_operand=None, result=counter)
+        quadruple = Quadruple(operation=2100017, left_operand=argument, right_operand=2100022, result=counter)
         quadruples.add_quadruple(quadruple=quadruple)
 
 def p_aux_comma(p):
@@ -410,7 +423,7 @@ def p_gotoF(p):
     
     if len(p) >= 2:
         operand = operands_stack.pop()
-        quadruple = Quadruple(operation=2100015, left_operand=operand, right_operand=None, result=None)
+        quadruple = Quadruple(operation=2100015, left_operand=operand, right_operand=2100022, result=2100022)
         quadruples.add_quadruple(quadruple=quadruple)
         jumps_stack.append(len(quadruples.quadruples) - 1)
 

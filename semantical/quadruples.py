@@ -15,6 +15,18 @@ class Quadruple:
     def get_quadruples(self):
         return [self.operation, self.left_operand, self.right_operand, self.result]
 
+    def get_operation(self):
+        return self.operation
+
+    def get_left_operand(self):
+        return self.left_operand
+
+    def get_right_operand(self):
+        return self.right_operand
+
+    def get_result(self):
+        return self.result
+
 class Quadruples:
     def __init__(self):
         self.quadruples = []

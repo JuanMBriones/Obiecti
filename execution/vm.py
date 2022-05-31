@@ -1,3 +1,5 @@
+from ast import operator
+from turtle import right
 from execution.memory import Memory
 from semantical.quadruples import Quadruple, Quadruples
 
@@ -9,32 +11,36 @@ def add(left_operand, right_operand):
 
 def read_file(file):
     with open(file) as object_file:
-        line = object_file.read()
+        line = object_file.readlines()
 
-    text_quadruples = line.split('\n')
-    text_quadruples_stripped = []
-    for quadruple in text_quadruples:
-        text_quadruples_stripped.append(quadruple.strip())
+    print(line)
 
-    text_quadruples_wb = []
-    for quadruple in text_quadruples_stripped:
-        text_quadruples_wb.append(quadruple.strip('[]'))
+    """ quadruples_text = []
+    for quadruple in line:
+        quadruples_text.append(quadruple.strip('[]\n'))
 
-    text_quadruples_wc = []
-    for quadruple in text_quadruples_wb:
-        text_quadruples_wc.append(quadruple.split(','))
+    quadruples_good = []
+    for quadruple in quadruples_text:
+        quadruples_good.append(quadruple.split(','))
+
+    for quadruple in quadruples_good:
+        operator = int(quadruple[0])
+        left_operand = int(quadruple[1])
+        right_operand = int(quadruple[2])
+        result = int(quadruple[3])
+        q = Quadruple(operator, left_operand, right_operand, result)
+        quadruples.add_quadruple(q)
+        
+    for key, value in quadruples.get_quadruples().items():
+        print(f"{key}: {value}")
+    print('Uff✨')
     
-    for text_quadruple in text_quadruples_wc:
-        operator = text_quadruple[0]
-        left_operand = text_quadruple[1]
-        right_operand = text_quadruple[2]
-        result = text_quadruple[3]
-        quadruple = Quadruple(operation=operator, left_operand=left_operand, right_operand=right_operand, result=result)
-        quadruples.add_quadruple(quadruple)
-        quadruples.increment_current()
+    for ip in quadruples.get_quadruples():
+        operator = quadruples.quadruples[ip].get_operation()
+        if operator == 2100005:
+            print("Hola")
+        elif operator == 2100014:
+            print("Hola otra vez") """
+    
 
-
-
-    ip = 0
-    if quadruples.get_quadruple(ip)[0] == '*':
-        print("JALA")
+    
