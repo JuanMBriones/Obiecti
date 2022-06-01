@@ -6,11 +6,21 @@ from execution.memory import Memory
 from execution.tables import ConstantTable, Function, ProcedureSymbol
 from semantical.quadruples import Quadruple, Quadruples
 
-globalMemory = Memory()
 quadruples = Quadruples()
 
-def add(left_operand, right_operand):
-    print(left_operand + right_operand)
+def get_value(functions_table, constants_table, address):
+    if address >= 1600000:
+        value = constants_table.get(address)
+        if type(value) is str:
+            value = value.strip("\"")
+        return value
+    elif address < 500000:
+        return functions_table.get_value("global", address)
+
+def set_value(functions_table, address, value):
+    if address < 500000:
+        functions_table.set_value("global", address, value)
+
 
 def read_file(file):
     functions_text = []
@@ -71,9 +81,20 @@ def read_file(file):
         result = int(quadruple[3])
         q = Quadruple(operator, left_operand, right_operand, result)
         quadruples.add_quadruple(q)
-        
-    for key, value in quadruples.get_quadruples().items():
-        print(f"{key}: {value}")
-    print('Uff✨')
 
-    
+    for ip in range(1, len(quadruples.quadruples)):
+        cod_op = quadruples.quadruples[ip].get_operation()
+        if cod_op == 2100005:
+            left_operand = quadruples.quadruples[ip].get_left_operand()
+            left_operand_value = get_value(functions_table, constants_table, left_operand)
+            result = quadruples.quadruples[ip].get_result()
+            set_value(functions_table, result, left_operand_value)
+        elif cod_op == 2100020:
+            result = quadruples.quadruples[ip].get_result()
+            result_value = get_value(functions_table, constants_table, result)
+            print(result_value)
+
+        
+    """for key, value in quadruples.get_quadruples().items():
+        print(f"{key}: {value}")
+    print('Uff✨')"""

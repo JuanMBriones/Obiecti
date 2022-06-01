@@ -34,14 +34,10 @@ rel_op = set(['==', '!=', '>', '<', '>=', '<='])
 param_count = 1
 paramater = None
 
-#   Se usa esta tabla de simbolos para pruebas
-tabla_prueba = SymbolTable()
 
 def p_programa(p):
     '''programa : PROGRAM ID aux_program class context
                 | PROGRAM ID aux_program context'''
-    print("Apropiado")
-    
     global compile_status
     compile_status = "Apropiado"
 
@@ -66,7 +62,6 @@ def p_programa(p):
 
         for key, value in quadruples.get_quadruples().items():
             object_file.write(f"{value}\n")
-    print("Archivo object (.txt) escrito. Listo para ejecutar")
 
 
 def p_aux_program(p):
