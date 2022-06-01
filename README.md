@@ -8,7 +8,7 @@ Requirements:
 
 To run your file:
     
-    python3 compile.py YOUR_FILE_NAME.txt
+    python3 compile.py YOUR_FILE_NAME.txt YOUR_OBJECT_FILE_NAME.txt
 
 To run the tests: 🧪🧪🧪🧪
     

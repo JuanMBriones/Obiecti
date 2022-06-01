@@ -1,4 +1,5 @@
 import string
+from execution.memory import Memory, TemporalMemory
 from semantical.data_types import DataType
 
 class Function:
@@ -7,6 +8,50 @@ class Function:
         self.initial_address = initial_address
         self.size = size     #[int, float, char, temp_int, temp_float, temp_char]
         self.param_table = param_table
+        self.local_memory = Memory(self.size[0], self.size[1], self.size[2], 0, 0)
+        self.temp_memory = TemporalMemory(self.size[3], self.size[4], self.size[5], 0, 0)
+
+    def set_value(self, address, value):
+        if address < 500000:
+            if address >= 0 and address < 100000:
+                self.local_memory.assign_int(address, value)
+            elif address >= 100000 and address < 200000:
+                real_address = address - 100000
+                self.local_memory.assign_float(real_address, value)
+            elif address >= 200000 and address < 300000:
+                real_address = address - 200000
+                self.local_memory.assign_char(real_address, value)
+        elif address < 1000000:
+            if address >= 500000 and address < 600000:
+                real_address = address - 500000
+                self.local_memory.assign_int(real_address, value)
+            elif address >= 600000 and address < 700000:
+                real_address = address - 600000
+                self.local_memory.assign_float(real_address, value)
+            elif address >= 700000 and address < 800000:
+                real_address = address - 700000
+                self.local_memory.assign_char(real_address, value)
+        elif address < 1600000:
+            if address >= 1000000 and address < 1100000:
+                real_address = address - 1000000
+                self.temp_memory.assign_int(real_address, value)
+            elif address >= 1100000 and address < 1200000:
+                real_address = address - 1100000
+                self.temp_memory.assign_float(real_address, value)
+            elif address >= 1200000 and address < 1300000:
+                real_address = address - 1200000
+                self.temp_memory.assign_char(real_address, value)
+
+    def get_value(self, address):
+        if address < 500000:
+            if address >= 0 and address < 100000:
+                return self.local_memory.access_int(address)
+            elif address >= 100000 and address < 200000:
+                real_address = address - 100000
+                return self.local_memory.access_float(real_address)
+            elif address >= 200000 and address < 300000:
+                real_address = address - 200000
+                return self.local_memory.access_char(real_address)
 
 class ProcedureSymbol():
     methods = {}
@@ -58,22 +103,28 @@ class ProcedureSymbol():
                 elif type.strip() == '<DataType.CHAR: \'char\'>':
                     new_list.append(DataType.CHAR)
             return new_list
+    
+    def set_value(self, name_func, address, value):
+        self.methods[name_func].set_value(address, value)
+
+    def get_value(self, name_func, address):
+        return self.methods[name_func].get_value(address)
+
 
 class Constant:
     def __init__(self, value, address):
         self.value = value
         self.address = address
-        print(self.address)
 
 class ConstantTable(Constant):
     def __init__(self):
         self.constants = {}
         
     def add(self, value, address):
-        self.constants[value] = Constant(value, int(address))
+        self.constants[int(address)] = Constant(value, int(address))
 
     def get(self, value):
-        return self.constants.get(value)
+        return self.constants.get(value).value
 
     def get_all_constants(self):
         for key, value in self.constants.items():

@@ -42,9 +42,9 @@ class SingletonMeta(type):
         return cls._instances[cls]
 
 class SymbolTable(Symbol):
-    def __init__(self):
+    def __init__(self, name):
         self.symbols = {}
-        self.local_memory = LocalMemory()
+        self.local_memory = LocalMemory(name)
         self.temporal_memory = TemporalMemory()
 
     def add(self, name, data_type, scope):
@@ -98,11 +98,12 @@ class SymbolTable(Symbol):
         return response
 
 class Function:
-    def __init__(self, data_type):
+    def __init__(self, name, data_type):
+        self.name = name
         self.data_type = data_type
         self.initial_address = None
         self.size = [0, 0, 0, 0, 0, 0]      #[int, float, char, temp_int, temp_float, temp_char]
-        self.symbol_table = SymbolTable()
+        self.symbol_table = SymbolTable(name)
         self.param_table = []
         self.counter = 0
 
@@ -161,7 +162,7 @@ class ProcedureSymbol(metaclass=SingletonMeta):
     methods = {}
     global_scope = 'global'
     def __init__(self): #name, data_type, scope, params = []):
-        self.methods["global"] = Function(DataType.VOID)
+        self.methods["global"] = Function("global", DataType.VOID)
     
 
         """ self.params = params
@@ -181,7 +182,7 @@ class ProcedureSymbol(metaclass=SingletonMeta):
 
     def add_method(self, name, data_type):
         if not name in self.methods:
-            self.methods[name] = Function(data_type)
+            self.methods[name] = Function(name, data_type)
 
     def get_methods_names(self):
         return self.methods.keys()

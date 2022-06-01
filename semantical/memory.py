@@ -64,12 +64,19 @@ class GlobalMemory(Memory):
             self.bool_segment.move_next_direction()
             
 class LocalMemory(Memory):
-    def __init__(self):
-        self.int_segment = Segment(500000, 599999)
-        self.float_segment = Segment(600000, 699999)
-        self.char_segment = Segment(700000, 799999)
-        self.string_segment = Segment(800000, 899999)
-        self.bool_segment = Segment(900000, 999999)
+    def __init__(self, name):
+        if name == "global":
+            self.int_segment = Segment(0, 99999)
+            self.float_segment = Segment(100000, 199999)
+            self.char_segment = Segment(200000, 299999)
+            self.string_segment = Segment(300000, 399999)
+            self.bool_segment = Segment(400000, 499999)
+        else:
+            self.int_segment = Segment(500000, 599999)
+            self.float_segment = Segment(600000, 699999)
+            self.char_segment = Segment(700000, 799999)
+            self.string_segment = Segment(800000, 899999)
+            self.bool_segment = Segment(900000, 999999)
 
     def requestSpace(self, type):
         try:
