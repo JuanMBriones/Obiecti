@@ -92,6 +92,10 @@ class LexicalAnalyzer:
             address = self.function_table.get_initial_address(name_function)
             self.quadruples.quadruples[0].result = address
 
+    def return_var(self):
+        result = self.operands_stack.pop()
+        self.generate_quadruple(operation=2100023, left_operand=2100022, right_operand=2100022, result=result)
+
     def add_id(self, p):
         is_var_global = self.function_table.get_global_variable(p[1])
         is_func_global = self.function_table.get_method(p[1])
