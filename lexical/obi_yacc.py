@@ -100,10 +100,12 @@ def p_aux_contexto_func(p):
     '''aux_contexto_func :  vars
                             | estatuto
                             | ciclo
+                            | condicion
                             | RETURN exp_cond aux_return
                             | vars aux_contexto_func
                             | estatuto aux_contexto_func
                             | ciclo aux_contexto_func
+                            | condicion aux_contexto_func
                             | RETURN exp_cond aux_return aux_contexto_func'''
 
 def p_aux_return(p):
@@ -112,7 +114,9 @@ def p_aux_return(p):
 
 def p_aux5(p):
     '''aux5 : estatuto
-            | estatuto aux5'''
+            | RETURN exp_cond aux_return
+            | estatuto aux5
+            | RETURN exp_cond aux_return aux5'''
 
 def p_param(p):
     '''param : 
