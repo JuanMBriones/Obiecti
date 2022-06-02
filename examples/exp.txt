@@ -1,4 +1,10 @@
 program x2 
 private class x3 : x4 {
-    print("Hello world")
+    int def x3(int x4, int x10, int x11, int x12) {
+        var x5 : int
+        x5 = 10 + 10
+        return x5
+        x5 = 10 + 10
+        return x5
+    }
 }

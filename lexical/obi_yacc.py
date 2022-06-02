@@ -94,14 +94,24 @@ def p_type(p):
     lexical_analyzer.identify_type(p)
 
 def p_contexto_func(p):
-    '''contexto_func : LBRACE aux5 RBRACE
-                        | LBRACE aux5 RETURN ID RBRACE'''
+    '''contexto_func : LBRACE aux_contexto_func RBRACE'''
 
+def p_aux_contexto_func(p):
+    '''aux_contexto_func :  vars
+                            | estatuto
+                            | ciclo
+                            | RETURN exp_cond aux_return
+                            | vars aux_contexto_func
+                            | estatuto aux_contexto_func
+                            | ciclo aux_contexto_func
+                            | RETURN exp_cond aux_return aux_contexto_func'''
+
+def p_aux_return(p):
+    '''aux_return :'''
+    lexical_analyzer.return_var()
 
 def p_aux5(p):
-    '''aux5 : vars
-            | estatuto
-            | vars aux5
+    '''aux5 : estatuto
             | estatuto aux5'''
 
 def p_param(p):
@@ -286,7 +296,6 @@ def p_var(p):
             | cint
             | cfloat
             | cchar'''
-    
     lexical_analyzer.add_var(p)
 
 def p_cint(p):
