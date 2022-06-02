@@ -1,0 +1,5 @@
+program x2 
+private class x3 : x4 {
+
+    x3 = 6 * 8 + (5*9+6) / 3
+}
