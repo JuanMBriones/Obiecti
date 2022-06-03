@@ -1,10 +1,13 @@
 program x2 
 private class x3 : x4 {
-    int def x3() {
-        var x5 : int
-        x5 = 10
+    void def x3() {
+        print("Hola mundo")
     }
 
-    var x6, x7, x9, x10 : int
-    x6 = x3()
+    int def x4() {
+        print("Hola")
+    }
+
+    var x6 : int
+    x6 = x4()
 }

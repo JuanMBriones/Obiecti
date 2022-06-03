@@ -159,11 +159,9 @@ def p_escritura(p):
 
 def p_aux3(p):
     '''aux3 : expresion
-            | llamada_func
             | objeto_metodo
             | CSTRING
             | expresion COMMA aux3
-            | llamada_func COMMA aux3
             | objeto_metodo COMMA aux3
             | CSTRING COMMA aux3'''
     lexical_analyzer.add_expression_print(p)
@@ -195,22 +193,16 @@ def p_tipo_compuesto(p):
 
 def p_asignacion(p):
     '''asignacion : ID EQUALS expresion
-                    | ID EQUALS llamada_func
                     | ID EQUALS objeto_metodo
                     | objeto_aAcceso EQUALS expresion
-                    | objeto_aAcceso EQUALS llamada_func
                     | objeto_aAcceso EQUALS objeto_metodo
                     | ID LBRACKET exp RBRACKET EQUALS expresion
-                    | ID LBRACKET exp RBRACKET EQUALS llamada_func
                     | ID LBRACKET exp RBRACKET EQUALS objeto_metodo
                     | objeto_aAcceso LBRACKET exp RBRACKET EQUALS expresion
-                    | objeto_aAcceso LBRACKET exp RBRACKET EQUALS llamada_func
                     | objeto_aAcceso LBRACKET exp RBRACKET EQUALS objeto_metodo
                     | ID LBRACKET exp RBRACKET LBRACKET exp RBRACKET EQUALS expresion
-                    | ID LBRACKET exp RBRACKET LBRACKET exp RBRACKET EQUALS llamada_func
                     | ID LBRACKET exp RBRACKET LBRACKET exp RBRACKET EQUALS objeto_metodo
                     | objeto_aAcceso LBRACKET LBRACKET exp RBRACKET exp RBRACKET EQUALS expresion
-                    | objeto_aAcceso LBRACKET LBRACKET exp RBRACKET exp RBRACKET EQUALS llamada_func
                     | objeto_aAcceso LBRACKET LBRACKET exp RBRACKET exp RBRACKET EQUALS objeto_metodo'''
     lexical_analyzer.assign_operators(p)
 
@@ -294,7 +286,8 @@ def p_factor(p):
                 | PLUS var
                 | MINUS var
                 | var
-                | objeto_aAcceso'''
+                | objeto_aAcceso
+                | llamada_func'''
 
 def p_var(p):
     '''var : ID
@@ -323,6 +316,7 @@ def p_error(p):
     print("Syntax error in input!")
     global compile_status
     compile_status = "Syntax error in input!"
+    exit(-1)
 
 def validate_syntax(file: str):
     # Build the parser

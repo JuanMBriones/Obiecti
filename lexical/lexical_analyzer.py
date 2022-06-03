@@ -252,8 +252,19 @@ class LexicalAnalyzer:
         ip = self.function_table.get_initial_address(name_function)
         quadruple = Quadruple(operation=2100018, left_operand=address_function, right_operand=2100022, result=ip)
         self.quadruples.add_quadruple(quadruple=quadruple)
-        self.operands_stack.append(address_function)
-        self.types_stack.append(self.function_table.get_func_data_type(name_function))
+        type_function = self.function_table.get_func_data_type(name_function)
+        if type_function != DataType.VOID:
+            address = self.function_table.add_temporal_variable(self.functions_stack[-1], type_function)
+            quadruple = Quadruple(operation=2100005, left_operand=address_function, right_operand=2100022, result=address)
+            self.quadruples.add_quadruple(quadruple=quadruple)
+            self.types_stack.append(type_function)
+            self.add_temp_func_size(self.functions_stack[-1], type_function)
+            self.operands_stack.append(address)
+            self.function_table.move_temporal_next_direction(self.functions_stack[-1], type_function)
+            self.quadruples.increment_current()
+        else:
+            self.operands_stack.append(address_function)
+            self.types_stack.append(self.function_table.get_func_data_type(name_function)) 
     
     def function_call_id(self, p):
         if not self.function_table.get_method(p[1]):
