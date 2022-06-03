@@ -3,7 +3,8 @@ import ply.lex as lex
 reserved = {
     'if' : 'IF', 'elif' : 'ELIF',
     'public' : 'PUBLIC', 'private' : 'PRIVATE', 'protected' : 'PROTECTED',
-    'int' : 'INT', 'float' : 'FLOAT', 'var' : 'VAR', 'char' : 'CHAR',
+    'int' : 'INT', 'float' : 'FLOAT', 'var' : 'VAR', 'char' : 'CHAR', 
+    'bool' : 'BOOL', 'string' : 'STRING',
     'program' : 'PROGRAM', 'class' : 'CLASS', 'def' : 'DEF', 'void' : 'VOID',
     'return' : 'RETURN', 'and' : 'AND', 
     'or' : 'OR', 'while' : 'WHILE',

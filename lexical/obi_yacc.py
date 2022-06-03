@@ -90,7 +90,9 @@ def p_id(p):
 def p_type(p):
     '''type : INT
             | FLOAT
-            | CHAR'''
+            | CHAR
+            | STRING
+            | BOOL'''
     lexical_analyzer.identify_type(p)
 
 def p_contexto_func(p):
@@ -184,7 +186,8 @@ def p_aux2(p):
 def p_tipo_simple(p):
     '''tipo_simple : INT
                     | FLOAT
-                    | CHAR'''
+                    | CHAR
+                    | BOOL'''
     lexical_analyzer.identify_type(p)
 
 def p_tipo_compuesto(p):
@@ -192,17 +195,17 @@ def p_tipo_compuesto(p):
     lexical_analyzer.add_type(p, 1)
 
 def p_asignacion(p):
-    '''asignacion : ID EQUALS expresion
+    '''asignacion : ID EQUALS exp_cond
                     | ID EQUALS objeto_metodo
-                    | objeto_aAcceso EQUALS expresion
+                    | objeto_aAcceso EQUALS exp_cond
                     | objeto_aAcceso EQUALS objeto_metodo
-                    | ID LBRACKET exp RBRACKET EQUALS expresion
+                    | ID LBRACKET exp RBRACKET EQUALS exp_cond
                     | ID LBRACKET exp RBRACKET EQUALS objeto_metodo
-                    | objeto_aAcceso LBRACKET exp RBRACKET EQUALS expresion
+                    | objeto_aAcceso LBRACKET exp RBRACKET EQUALS exp_cond
                     | objeto_aAcceso LBRACKET exp RBRACKET EQUALS objeto_metodo
-                    | ID LBRACKET exp RBRACKET LBRACKET exp RBRACKET EQUALS expresion
+                    | ID LBRACKET exp RBRACKET LBRACKET exp RBRACKET EQUALS exp_cond
                     | ID LBRACKET exp RBRACKET LBRACKET exp RBRACKET EQUALS objeto_metodo
-                    | objeto_aAcceso LBRACKET LBRACKET exp RBRACKET exp RBRACKET EQUALS expresion
+                    | objeto_aAcceso LBRACKET LBRACKET exp RBRACKET exp RBRACKET EQUALS exp_cond
                     | objeto_aAcceso LBRACKET LBRACKET exp RBRACKET exp RBRACKET EQUALS objeto_metodo'''
     lexical_analyzer.assign_operators(p)
 

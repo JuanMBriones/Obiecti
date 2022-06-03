@@ -121,6 +121,10 @@ class LexicalAnalyzer:
             self.types_stack.append(DataType.FLOAT)
         elif p[1] == "char":
             self.types_stack.append(DataType.CHAR)
+        elif p[1] == "string":
+            self.types_stack.append(DataType.STRING)
+        elif p[1] == "bool":
+            self.types_stack.append(DataType.BOOL)
     
     def add_operand(self, p, index):
         if len(p) >= index + 1 and p[index]:
@@ -165,14 +169,22 @@ class LexicalAnalyzer:
             self.function_table.add_var_count(name_func, 1)
         elif type == DataType.CHAR:
             self.function_table.add_var_count(name_func, 2)
+        elif type == DataType.STRING:
+            self.function_table.add_var_count(name_func, 3)
+        elif type == DataType.BOOL:
+            self.function_table.add_var_count(name_func, 4)
 
     def add_temp_func_size(self, name_func, type):
         if type == DataType.INT:
-            self.function_table.add_var_count(name_func, 3)
-        elif type == DataType.FLOAT:
-            self.function_table.add_var_count(name_func, 4)
-        elif type == DataType.CHAR:
             self.function_table.add_var_count(name_func, 5)
+        elif type == DataType.FLOAT:
+            self.function_table.add_var_count(name_func, 6)
+        elif type == DataType.CHAR:
+            self.function_table.add_var_count(name_func, 7)
+        elif type == DataType.STRING:
+            self.function_table.add_var_count(name_func, 8)
+        elif type == DataType.BOOL:
+            self.function_table.add_var_count(name_func, 9)
 
     def declare_var(self, p):
         if len(p) == 5:
@@ -202,11 +214,7 @@ class LexicalAnalyzer:
 
     def add_exp_bool(self, p):
         if p[1]:
-            self.operands_stack.append(p[1])
-            #print(self.operands_stack)
-            
-            self.types_stack.append(DataType.BOOL)
-        # self.add_type([DataType.BOOL], 0)
+            self.add_constant(p, DataType.BOOL)
 
     def assign_operators(self, p):
         if len(p)==4:
@@ -482,3 +490,6 @@ class LexicalAnalyzer:
 
     def add_float_constant(self, p):
         self.add_constant(p, DataType.FLOAT)
+
+    def add_bool_constant(self, p):
+        self.add_constant(p, DataType.BOOL)

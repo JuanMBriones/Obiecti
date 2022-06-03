@@ -48,8 +48,8 @@ class Memory:
     def access_boolean(self, address):
         return self.booleans[address]
 
-    def assign_boolean(self, value):
-        self.booleans.append(value)
+    def assign_boolean(self, address, value):
+        self.booleans[address] = value
 
 class TemporalMemory(Memory):
     def __init__(self, int, float, char, string, boolean):

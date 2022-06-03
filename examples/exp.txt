@@ -1,6 +1,6 @@
 program x2 
 private class x3 : x4 {
-    var x : float
-    x = 6 * (5 / (4 + 7 * 12 - 4) * 3 + 11) / 12 + 4
+    var x : bool
+    x = 6 * (7 / (8 + 2 * 11 - 47) * 66 + 75) / 11 + 47 > 75 * (7 + 8) - 2
     print(x)
 }
