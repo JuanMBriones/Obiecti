@@ -1,6 +1,11 @@
 program x2 
 private class x3 : x4 {
-    var x : bool
-    x = 6 * (7 / (8 + 2 * 11 - 47) * 66 + 75) / 11 + 47 > 75 * (7 + 8) - 2
-    print(x)
+    var x2 : int
+    x2 = 0
+    while (x2 < 3) {
+        print("Hola")
+        x2 = x2 + 1
+    }
+
+    print("Adios")
 }
