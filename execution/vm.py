@@ -96,7 +96,7 @@ def read_file(file):
         q = Quadruple(operator, left_operand, right_operand, result)
         quadruples.add_quadruple(q)
 
-    ip = 1
+    ip = 0
     while ip < len(quadruples.quadruples):
         cod_op = quadruples.quadruples[ip].get_operation()
         if cod_op == 2100000:
@@ -237,6 +237,8 @@ def read_file(file):
                 ip = quadruples.quadruples[ip].get_result()
             else:
                 ip += 1
+        elif cod_op == 2100019:
+            ip += 1
         elif cod_op == 2100020:
             result = quadruples.quadruples[ip].get_result()
             result_value = get_value(functions_table, constants_table, result)
