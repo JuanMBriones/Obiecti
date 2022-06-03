@@ -13,12 +13,26 @@ def get_value(functions_table, constants_table, address):
         value = constants_table.get(address)
         if type(value) is str:
             value = value.strip("\"")
+
+        if address < 1700000:
+            value = int(value)
+        elif address < 1800000:
+            value = float(value)
+        elif address < 2100000:
+            if value == 'True':
+                value = True
+            elif value == 'False':
+                value = False
         return value
-    elif address < 500000:
+
+    elif address < 1600000:
         return functions_table.get_value("global", address)
+    
 
 def set_value(functions_table, address, value):
     if address < 500000:
+        functions_table.set_value("global", address, value)
+    elif address < 1600000:
         functions_table.set_value("global", address, value)
 
 
@@ -82,17 +96,152 @@ def read_file(file):
         q = Quadruple(operator, left_operand, right_operand, result)
         quadruples.add_quadruple(q)
 
-    for ip in range(1, len(quadruples.quadruples)):
+    ip = 1
+    while ip < len(quadruples.quadruples):
         cod_op = quadruples.quadruples[ip].get_operation()
-        if cod_op == 2100005:
+        if cod_op == 2100000:
+            left_operand = quadruples.quadruples[ip].get_left_operand()
+            right_operand = quadruples.quadruples[ip].get_right_operand()
+            result = quadruples.quadruples[ip].get_result()
+            left_operand_value = get_value(functions_table, constants_table, left_operand)
+            right_operand_value = get_value(functions_table, constants_table, right_operand)
+            result_value = left_operand_value + right_operand_value
+            set_value(functions_table, result, result_value)
+            ip += 1
+        elif cod_op == 2100001:
+            left_operand = quadruples.quadruples[ip].get_left_operand()
+            right_operand = quadruples.quadruples[ip].get_right_operand()
+            result = quadruples.quadruples[ip].get_result()
+            left_operand_value = get_value(functions_table, constants_table, left_operand)
+            right_operand_value = get_value(functions_table, constants_table, right_operand)
+            result_value = left_operand_value - right_operand_value
+            set_value(functions_table, result, result_value)
+            ip += 1
+        elif cod_op == 2100002:
+            left_operand = quadruples.quadruples[ip].get_left_operand()
+            right_operand = quadruples.quadruples[ip].get_right_operand()
+            result = quadruples.quadruples[ip].get_result()
+            left_operand_value = get_value(functions_table, constants_table, left_operand)
+            right_operand_value = get_value(functions_table, constants_table, right_operand)
+            result_value = left_operand_value * right_operand_value
+            set_value(functions_table, result, result_value)
+            ip += 1
+        elif cod_op == 2100003:
+            left_operand = quadruples.quadruples[ip].get_left_operand()
+            right_operand = quadruples.quadruples[ip].get_right_operand()
+            result = quadruples.quadruples[ip].get_result()
+            left_operand_value = get_value(functions_table, constants_table, left_operand)
+            right_operand_value = get_value(functions_table, constants_table, right_operand)
+            result_value = left_operand_value / right_operand_value
+            set_value(functions_table, result, result_value)
+            ip += 1
+        elif cod_op == 2100004:
+            left_operand = quadruples.quadruples[ip].get_left_operand()
+            right_operand = quadruples.quadruples[ip].get_right_operand()
+            result = quadruples.quadruples[ip].get_result()
+            left_operand_value = get_value(functions_table, constants_table, left_operand)
+            right_operand_value = get_value(functions_table, constants_table, right_operand)
+            result_value = left_operand_value % right_operand_value
+            set_value(functions_table, result, result_value)
+            ip += 1
+        elif cod_op == 2100005:
             left_operand = quadruples.quadruples[ip].get_left_operand()
             left_operand_value = get_value(functions_table, constants_table, left_operand)
             result = quadruples.quadruples[ip].get_result()
             set_value(functions_table, result, left_operand_value)
+            ip += 1
+        elif cod_op == 2100006:
+            left_operand = quadruples.quadruples[ip].get_left_operand()
+            right_operand = quadruples.quadruples[ip].get_right_operand()
+            result = quadruples.quadruples[ip].get_result()
+            left_operand_value = get_value(functions_table, constants_table, left_operand)
+            right_operand_value = get_value(functions_table, constants_table, right_operand)
+            result_value = left_operand_value < right_operand_value
+            set_value(functions_table, result, result_value)
+            ip += 1
+        elif cod_op == 2100007:
+            left_operand = quadruples.quadruples[ip].get_left_operand()
+            right_operand = quadruples.quadruples[ip].get_right_operand()
+            result = quadruples.quadruples[ip].get_result()
+            left_operand_value = get_value(functions_table, constants_table, left_operand)
+            right_operand_value = get_value(functions_table, constants_table, right_operand)
+            result_value = left_operand_value > right_operand_value
+            set_value(functions_table, result, result_value)
+            ip += 1
+        elif cod_op == 2100008:
+            left_operand = quadruples.quadruples[ip].get_left_operand()
+            right_operand = quadruples.quadruples[ip].get_right_operand()
+            result = quadruples.quadruples[ip].get_result()
+            left_operand_value = get_value(functions_table, constants_table, left_operand)
+            right_operand_value = get_value(functions_table, constants_table, right_operand)
+            result_value = left_operand_value <= right_operand_value
+            set_value(functions_table, result, result_value)
+            ip += 1
+        elif cod_op == 2100009:
+            left_operand = quadruples.quadruples[ip].get_left_operand()
+            right_operand = quadruples.quadruples[ip].get_right_operand()
+            result = quadruples.quadruples[ip].get_result()
+            left_operand_value = get_value(functions_table, constants_table, left_operand)
+            right_operand_value = get_value(functions_table, constants_table, right_operand)
+            result_value = left_operand_value >= right_operand_value
+            set_value(functions_table, result, result_value)
+            ip += 1
+        elif cod_op == 2100010:
+            left_operand = quadruples.quadruples[ip].get_left_operand()
+            right_operand = quadruples.quadruples[ip].get_right_operand()
+            result = quadruples.quadruples[ip].get_result()
+            left_operand_value = get_value(functions_table, constants_table, left_operand)
+            right_operand_value = get_value(functions_table, constants_table, right_operand)
+            result_value = left_operand_value == right_operand_value
+            set_value(functions_table, result, result_value)
+            ip += 1
+        elif cod_op == 2100011:
+            left_operand = quadruples.quadruples[ip].get_left_operand()
+            right_operand = quadruples.quadruples[ip].get_right_operand()
+            result = quadruples.quadruples[ip].get_result()
+            left_operand_value = get_value(functions_table, constants_table, left_operand)
+            right_operand_value = get_value(functions_table, constants_table, right_operand)
+            result_value = left_operand_value != right_operand_value
+            set_value(functions_table, result, result_value)
+            ip += 1
+        elif cod_op == 2100012:
+            left_operand = quadruples.quadruples[ip].get_left_operand()
+            right_operand = quadruples.quadruples[ip].get_right_operand()
+            result = quadruples.quadruples[ip].get_result()
+            left_operand_value = get_value(functions_table, constants_table, left_operand)
+            right_operand_value = get_value(functions_table, constants_table, right_operand)
+            if left_operand_value and right_operand_value:
+                result_value = True
+            else:
+                result_value = False
+            set_value(functions_table, result, result_value)
+            ip += 1
+        elif cod_op == 2100013:
+            left_operand = quadruples.quadruples[ip].get_left_operand()
+            right_operand = quadruples.quadruples[ip].get_right_operand()
+            result = quadruples.quadruples[ip].get_result()
+            left_operand_value = get_value(functions_table, constants_table, left_operand)
+            right_operand_value = get_value(functions_table, constants_table, right_operand)
+            if left_operand_value or right_operand_value:
+                result_value = True
+            else:
+                result_value = False
+            set_value(functions_table, result, result_value)
+            ip += 1
+        elif cod_op == 2100014:
+            ip = quadruples.quadruples[ip].get_result()
+        elif cod_op == 2100015:
+            left_operand = quadruples.quadruples[ip].get_left_operand()
+            left_operand_value = get_value(functions_table, constants_table, left_operand)
+            if left_operand_value == False:
+                ip = quadruples.quadruples[ip].get_result()
+            else:
+                ip += 1
         elif cod_op == 2100020:
             result = quadruples.quadruples[ip].get_result()
             result_value = get_value(functions_table, constants_table, result)
             print(result_value)
+            ip += 1
 
         
     """for key, value in quadruples.get_quadruples().items():

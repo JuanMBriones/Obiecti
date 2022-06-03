@@ -82,6 +82,14 @@ class LocalMemory(Memory):
         try:
             if type == DataType.INT:
                 return self.int_segment.requestSpace()
+            elif type == DataType.FLOAT:
+                return self.float_segment.requestSpace()
+            elif type == DataType.CHAR:
+                return self.char_segment.requestSpace()
+            elif type == DataType.STRING:
+                return self.string_segment.requestSpace()
+            elif type == DataType.BOOL:
+                return self.bool_segment.requestSpace()
         except:
             print("Too many variables")
 

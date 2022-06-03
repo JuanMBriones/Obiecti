@@ -102,7 +102,7 @@ class Function:
         self.name = name
         self.data_type = data_type
         self.initial_address = None
-        self.size = [0, 0, 0, 0, 0, 0]      #[int, float, char, temp_int, temp_float, temp_char]
+        self.size = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0]      #[int, float, char, string, bool, temp_int, temp_float, temp_char, temp_string, temp_bool]
         self.symbol_table = SymbolTable(name)
         self.param_table = []
         self.counter = 0

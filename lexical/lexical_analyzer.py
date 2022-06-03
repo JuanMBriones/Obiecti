@@ -1,3 +1,4 @@
+from audioop import add
 from pydoc import doc
 from semantical.data_types import DataType
 from semantical.quadruples import Quadruples, Quadruple
@@ -120,6 +121,10 @@ class LexicalAnalyzer:
             self.types_stack.append(DataType.FLOAT)
         elif p[1] == "char":
             self.types_stack.append(DataType.CHAR)
+        elif p[1] == "string":
+            self.types_stack.append(DataType.STRING)
+        elif p[1] == "bool":
+            self.types_stack.append(DataType.BOOL)
     
     def add_operand(self, p, index):
         if len(p) >= index + 1 and p[index]:
@@ -164,14 +169,22 @@ class LexicalAnalyzer:
             self.function_table.add_var_count(name_func, 1)
         elif type == DataType.CHAR:
             self.function_table.add_var_count(name_func, 2)
+        elif type == DataType.STRING:
+            self.function_table.add_var_count(name_func, 3)
+        elif type == DataType.BOOL:
+            self.function_table.add_var_count(name_func, 4)
 
     def add_temp_func_size(self, name_func, type):
         if type == DataType.INT:
-            self.function_table.add_var_count(name_func, 3)
-        elif type == DataType.FLOAT:
-            self.function_table.add_var_count(name_func, 4)
-        elif type == DataType.CHAR:
             self.function_table.add_var_count(name_func, 5)
+        elif type == DataType.FLOAT:
+            self.function_table.add_var_count(name_func, 6)
+        elif type == DataType.CHAR:
+            self.function_table.add_var_count(name_func, 7)
+        elif type == DataType.STRING:
+            self.function_table.add_var_count(name_func, 8)
+        elif type == DataType.BOOL:
+            self.function_table.add_var_count(name_func, 9)
 
     def declare_var(self, p):
         if len(p) == 5:
@@ -187,6 +200,7 @@ class LexicalAnalyzer:
                     self.function_table.add_global_variable(name_variable, type_variable)
                     self.add_var_func_size("global", type_variable)
                     address_variable = self.function_table.get_variable_address("global", name_variable)
+
                 #quadruple = Quadruple(operation='DECLARE_VAR', left_operand=None, right_operand=None, result=address_variable)
                 #quadruples.add_quadruple(quadruple=quadruple)
 
@@ -200,11 +214,7 @@ class LexicalAnalyzer:
 
     def add_exp_bool(self, p):
         if p[1]:
-            self.operands_stack.append(p[1])
-            #print(self.operands_stack)
-            
-            self.types_stack.append(DataType.BOOL)
-        # self.add_type([DataType.BOOL], 0)
+            self.add_constant(p, DataType.BOOL)
 
     def assign_operators(self, p):
         if len(p)==4:
@@ -252,8 +262,19 @@ class LexicalAnalyzer:
         ip = self.function_table.get_initial_address(name_function)
         quadruple = Quadruple(operation=2100018, left_operand=address_function, right_operand=2100022, result=ip)
         self.quadruples.add_quadruple(quadruple=quadruple)
-        self.operands_stack.append(address_function)
-        self.types_stack.append(self.function_table.get_func_data_type(name_function))
+        type_function = self.function_table.get_func_data_type(name_function)
+        if type_function != DataType.VOID:
+            address = self.function_table.add_temporal_variable(self.functions_stack[-1], type_function)
+            quadruple = Quadruple(operation=2100005, left_operand=address_function, right_operand=2100022, result=address)
+            self.quadruples.add_quadruple(quadruple=quadruple)
+            self.types_stack.append(type_function)
+            self.add_temp_func_size(self.functions_stack[-1], type_function)
+            self.operands_stack.append(address)
+            self.function_table.move_temporal_next_direction(self.functions_stack[-1], type_function)
+            self.quadruples.increment_current()
+        else:
+            self.operands_stack.append(address_function)
+            self.types_stack.append(self.function_table.get_func_data_type(name_function)) 
     
     def function_call_id(self, p):
         if not self.function_table.get_method(p[1]):
@@ -271,13 +292,19 @@ class LexicalAnalyzer:
         self.params_stack.append(self.function_table.get_param(name_function, counter))
         #print(paramater)
     
-    def function_call_neural_point_arg_end(self):
+    def function_call_neural_point_arg_end(self, p):
         name_function = self.operands_stack[-1]
         counter = self.function_table.get_counter(name_function)
         length_param = self.function_table.get_len_param(name_function)
-        if counter + 1 > length_param:
-            print(f"Expected {length_param} arguments but instead {counter + 1} were given")
-            exit(-1)
+        if len(p) > 2:
+            if counter + 1 != length_param:
+                print(f"Expected {length_param} arguments but instead {counter + 1} were given")
+                exit(-1)
+        else:
+            if counter != length_param:
+                print(f"Expected {length_param} arguments but instead {counter} were given")
+                exit(-1)
+
     
     def function_args_neural_point(self):
         argument = self.operands_stack.pop()
@@ -463,3 +490,6 @@ class LexicalAnalyzer:
 
     def add_float_constant(self, p):
         self.add_constant(p, DataType.FLOAT)
+
+    def add_bool_constant(self, p):
+        self.add_constant(p, DataType.BOOL)

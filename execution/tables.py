@@ -8,8 +8,8 @@ class Function:
         self.initial_address = initial_address
         self.size = size     #[int, float, char, temp_int, temp_float, temp_char]
         self.param_table = param_table
-        self.local_memory = Memory(self.size[0], self.size[1], self.size[2], 0, 0)
-        self.temp_memory = TemporalMemory(self.size[3], self.size[4], self.size[5], 0, 0)
+        self.local_memory = Memory(self.size[0], self.size[1], self.size[2], self.size[3], self.size[4])
+        self.temp_memory = TemporalMemory(self.size[5], self.size[6], self.size[7], self.size[8], self.size[9])
 
     def set_value(self, address, value):
         if address < 500000:
@@ -21,6 +21,9 @@ class Function:
             elif address >= 200000 and address < 300000:
                 real_address = address - 200000
                 self.local_memory.assign_char(real_address, value)
+            elif address >= 400000 and address < 500000:
+                real_address = address - 400000
+                self.local_memory.assign_boolean(real_address, value)
         elif address < 1000000:
             if address >= 500000 and address < 600000:
                 real_address = address - 500000
@@ -31,6 +34,9 @@ class Function:
             elif address >= 700000 and address < 800000:
                 real_address = address - 700000
                 self.local_memory.assign_char(real_address, value)
+            elif address >= 900000 and address < 1000000:
+                real_address = address - 900000
+                self.local_memory.assign_boolean(real_address, value)
         elif address < 1600000:
             if address >= 1000000 and address < 1100000:
                 real_address = address - 1000000
@@ -41,6 +47,9 @@ class Function:
             elif address >= 1200000 and address < 1300000:
                 real_address = address - 1200000
                 self.temp_memory.assign_char(real_address, value)
+            elif address >= 1400000 and address < 1500000:
+                real_address = address - 1400000
+                self.temp_memory.assign_boolean(real_address, value)
 
     def get_value(self, address):
         if address < 500000:
@@ -52,6 +61,22 @@ class Function:
             elif address >= 200000 and address < 300000:
                 real_address = address - 200000
                 return self.local_memory.access_char(real_address)
+            elif address >= 400000 and address < 500000:
+                real_address = address - 400000
+                return self.local_memory.access_boolean(real_address)
+        elif address < 1600000:
+            if address >= 1000000 and address < 1100000:
+                real_address = address - 1000000
+                return self.temp_memory.access_int(real_address)
+            elif address >= 1100000 and address < 1200000:
+                real_address = address - 1100000
+                return self.temp_memory.access_float(real_address)
+            elif address >= 1200000 and address < 1300000:
+                real_address = address - 1200000
+                return self.temp_memory.access_char(real_address)
+            elif address >= 1400000 and address < 1500000:
+                real_address = address - 1400000
+                return self.temp_memory.access_boolean(real_address)
 
 class ProcedureSymbol():
     methods = {}
@@ -88,6 +113,10 @@ class ProcedureSymbol():
             return DataType.INT
         elif string_stripped == 'DataType.CHAR':
             return DataType.CHAR
+        elif string_stripped == 'DataType.STRING':
+            return DataType.STRING
+        elif string_stripped == 'DataType.BOOL':
+            return DataType.BOOL
     
     def string_to_param_table(self, string):
         string_split = string.strip().strip('[]').split(',')
@@ -102,6 +131,11 @@ class ProcedureSymbol():
                     new_list.append(DataType.FLOAT)
                 elif type.strip() == '<DataType.CHAR: \'char\'>':
                     new_list.append(DataType.CHAR)
+                elif type.strip() == '<DataType.STRING: \'string\'>':
+                    new_list.append(DataType.STRING)
+                elif type.strip() == '<DataType.BOOL: \'bool\'>':
+                    new_list.append(DataType.BOOL)
+                
             return new_list
     
     def set_value(self, name_func, address, value):
