@@ -1,13 +1,6 @@
 program x2 
 private class x3 : x4 {
-    void def x3() {
-        print("Hola mundo")
-    }
-
-    int def x4() {
-        print("Hola")
-    }
-
-    var x6 : int
-    x6 = x4()
+    var x : float
+    x = 6 * (5 / (4 + 7 * 12 - 4) * 3 + 11) / 12 + 4
+    print(x)
 }

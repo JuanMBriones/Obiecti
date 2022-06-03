@@ -52,6 +52,16 @@ class Function:
             elif address >= 200000 and address < 300000:
                 real_address = address - 200000
                 return self.local_memory.access_char(real_address)
+        elif address < 1600000:
+            if address >= 1000000 and address < 1100000:
+                real_address = address - 1000000
+                return self.temp_memory.access_int(real_address)
+            elif address >= 1100000 and address < 1200000:
+                real_address = address - 1100000
+                return self.temp_memory.access_float(real_address)
+            elif address >= 1200000 and address < 1300000:
+                real_address = address - 1200000
+                return self.temp_memory.access_char(real_address)
 
 class ProcedureSymbol():
     methods = {}

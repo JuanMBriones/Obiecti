@@ -27,6 +27,10 @@ class SemanticCube:
             (DataType.FLOAT, DataType.INT): DataType.FLOAT,
             (DataType.FLOAT, DataType.FLOAT): DataType.FLOAT
         },
+        '%': {
+            (DataType.INT, DataType.INT): DataType.INT,
+            (DataType.FLOAT, DataType.FLOAT): DataType.FLOAT
+        },
         '=': {
             (DataType.INT, DataType.INT): DataType.INT,
             (DataType.FLOAT, DataType.FLOAT): DataType.FLOAT,

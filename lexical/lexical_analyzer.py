@@ -1,3 +1,4 @@
+from audioop import add
 from pydoc import doc
 from semantical.data_types import DataType
 from semantical.quadruples import Quadruples, Quadruple
@@ -187,6 +188,7 @@ class LexicalAnalyzer:
                     self.function_table.add_global_variable(name_variable, type_variable)
                     self.add_var_func_size("global", type_variable)
                     address_variable = self.function_table.get_variable_address("global", name_variable)
+
                 #quadruple = Quadruple(operation='DECLARE_VAR', left_operand=None, right_operand=None, result=address_variable)
                 #quadruples.add_quadruple(quadruple=quadruple)
 
