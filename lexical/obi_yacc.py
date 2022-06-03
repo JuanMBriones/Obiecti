@@ -218,7 +218,7 @@ def p_objeto_metodo(p):
     '''objeto_metodo : ID PERIOD llamada_func'''
 
 def p_llamada_func(p):
-    '''llamada_func : llamada_id llamada_lparen aux llamada_rparen'''
+    '''llamada_func : llamada_id llamada_lparen llamada_rparen'''
     lexical_analyzer.function_calling()
     
 def p_llamada_id(p):
@@ -231,8 +231,9 @@ def p_llamada_lparen(p):
 
 
 def p_llamada_rparen(p):
-    '''llamada_rparen : RPAREN'''
-    lexical_analyzer.function_call_neural_point_arg_end()
+    '''llamada_rparen : aux RPAREN
+                        | RPAREN'''
+    lexical_analyzer.function_call_neural_point_arg_end(p)
 
 def p_aux(p):
     '''aux : exp aux_exp

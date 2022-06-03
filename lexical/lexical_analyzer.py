@@ -271,13 +271,19 @@ class LexicalAnalyzer:
         self.params_stack.append(self.function_table.get_param(name_function, counter))
         #print(paramater)
     
-    def function_call_neural_point_arg_end(self):
+    def function_call_neural_point_arg_end(self, p):
         name_function = self.operands_stack[-1]
         counter = self.function_table.get_counter(name_function)
         length_param = self.function_table.get_len_param(name_function)
-        if counter + 1 > length_param:
-            print(f"Expected {length_param} arguments but instead {counter + 1} were given")
-            exit(-1)
+        if len(p) > 2:
+            if counter + 1 != length_param:
+                print(f"Expected {length_param} arguments but instead {counter + 1} were given")
+                exit(-1)
+        else:
+            if counter != length_param:
+                print(f"Expected {length_param} arguments but instead {counter} were given")
+                exit(-1)
+
     
     def function_args_neural_point(self):
         argument = self.operands_stack.pop()
