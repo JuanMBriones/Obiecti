@@ -127,7 +127,7 @@ class LexicalAnalyzer:
             else:
                 self.function_table.add_method(p[1], DataType.VOID)
             self.operands_stack.append(p[1])
-            self.human_operators_stack.append(p[1])
+            self.human_operands_stack.append(p[1])
             self.functions_stack.append(p[1])
     
     def identify_type(self, p):
