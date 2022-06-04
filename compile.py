@@ -17,9 +17,14 @@ def main():
         return
     
     file_name = arguments[1]   
-    validate_syntax(file_name)
-    file_name = arguments[2]
-    read_file(file_name)
+
+    if len(arguments) >= 3:
+        object_file_name = arguments[2]
+        validate_syntax(file_name, object_file_name)
+        read_file(object_file_name)
+    else:
+        validate_syntax(file_name)
+        read_file()
 
 if __name__=="__main__":
     main()

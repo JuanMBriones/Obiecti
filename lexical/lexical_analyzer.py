@@ -7,7 +7,7 @@ from semantical.symbol_tables import ConstantTable, ProcedureSymbol, SymbolTable
 from semantical.operations_codes import OperationCodes
 
 class LexicalAnalyzer:
-    def __init__(self):
+    def __init__(self, object_file_name="object.txt"):
         self.compile_status = ''
         self.operands_stack = []
         self.operators_stack = []
@@ -24,13 +24,15 @@ class LexicalAnalyzer:
         self.rel_op = set(['==', '!=', '>', '<', '>=', '<='])
         self.param_count = 1
         self.paramater = None
+        self.object_file_name = object_file_name
 
         self.human_quadruples = Quadruples()
         self.human_operands_stack = []
         self.human_operators_stack = []
 
     def generate_object_file(self):
-        with open("object.txt", "w") as object_file:
+        print(self.object_file_name)
+        with open(self.object_file_name, "w") as object_file:
             for key in self.function_table.get_methods_names():
                 name_func = key
                 initial_address = self.function_table.get_initial_address(name_func)

@@ -331,8 +331,11 @@ def p_error(p):
     compile_status = "Syntax error in input!"
     exit(-1)
 
-def validate_syntax(file: str):
+def validate_syntax(file: str, object_file = "object.txt"):
     # Build the parser
+    global lexical_analyzer
+    lexical_analyzer = LexicalAnalyzer(object_file)
+
     parser = yacc.yacc()
     
     with open(file) as f:
