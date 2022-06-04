@@ -5,6 +5,7 @@ from turtle import right
 from execution.memory import Memory
 from execution.tables import ConstantTable, Function, ProcedureSymbol
 from semantical.quadruples import Quadruple, Quadruples
+from semantical.operations_codes import OperationCodes
 
 quadruples = Quadruples()
 
@@ -18,7 +19,7 @@ def get_value(functions_table, constants_table, address):
             value = int(value)
         elif address < 1800000:
             value = float(value)
-        elif address < 2100000:
+        elif address < OperationCodes.SUM: # 2100000
             if value == 'True':
                 value = True
             elif value == 'False':
@@ -99,7 +100,7 @@ def read_file(file):
     ip = 1
     while ip < len(quadruples.quadruples):
         cod_op = quadruples.quadruples[ip].get_operation()
-        if cod_op == 2100000:
+        if cod_op == OperationCodes.SUM:
             left_operand = quadruples.quadruples[ip].get_left_operand()
             right_operand = quadruples.quadruples[ip].get_right_operand()
             result = quadruples.quadruples[ip].get_result()
@@ -108,7 +109,7 @@ def read_file(file):
             result_value = left_operand_value + right_operand_value
             set_value(functions_table, result, result_value)
             ip += 1
-        elif cod_op == 2100001:
+        elif cod_op == OperationCodes.MINUS:
             left_operand = quadruples.quadruples[ip].get_left_operand()
             right_operand = quadruples.quadruples[ip].get_right_operand()
             result = quadruples.quadruples[ip].get_result()
@@ -117,7 +118,7 @@ def read_file(file):
             result_value = left_operand_value - right_operand_value
             set_value(functions_table, result, result_value)
             ip += 1
-        elif cod_op == 2100002:
+        elif cod_op == OperationCodes.MULT:
             left_operand = quadruples.quadruples[ip].get_left_operand()
             right_operand = quadruples.quadruples[ip].get_right_operand()
             result = quadruples.quadruples[ip].get_result()
@@ -126,7 +127,7 @@ def read_file(file):
             result_value = left_operand_value * right_operand_value
             set_value(functions_table, result, result_value)
             ip += 1
-        elif cod_op == 2100003:
+        elif cod_op == OperationCodes.DIV:
             left_operand = quadruples.quadruples[ip].get_left_operand()
             right_operand = quadruples.quadruples[ip].get_right_operand()
             result = quadruples.quadruples[ip].get_result()
@@ -135,7 +136,7 @@ def read_file(file):
             result_value = left_operand_value / right_operand_value
             set_value(functions_table, result, result_value)
             ip += 1
-        elif cod_op == 2100004:
+        elif cod_op == OperationCodes.MOD:
             left_operand = quadruples.quadruples[ip].get_left_operand()
             right_operand = quadruples.quadruples[ip].get_right_operand()
             result = quadruples.quadruples[ip].get_result()
