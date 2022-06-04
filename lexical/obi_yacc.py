@@ -24,6 +24,7 @@ def p_programa(p):
     compile_status = "Apropiado"
 
     lexical_analyzer.generate_object_file()
+    #lexical_analyzer.print_func_all_variables()
 
     print(lexical_analyzer.human_quadruples.get_quadruples())
 
@@ -84,12 +85,16 @@ def p_bloque(p):
 
 def p_funcion(p):
     '''funcion : scope type DEF id LPAREN param aux_param RPAREN contexto_func
-                | scope VOID DEF id LPAREN param aux_param RPAREN contexto_func'''
+                | scope VOID DEF id_void LPAREN param aux_param RPAREN contexto_func'''
     lexical_analyzer.create_function(p)
 
 def p_id(p):
     '''id : ID'''
     lexical_analyzer.add_id(p)
+
+def p_id_void(p):
+    '''id_void : ID'''
+    lexical_analyzer.add_id_void(p)
     
 def p_type(p):
     '''type : INT

@@ -70,7 +70,7 @@ class LexicalAnalyzer:
         return len(self.quadruples.quadruples)
 
     def calculate_if_jumps(self):
-        print(self.jumps_stack[:])
+        #print(self.jumps_stack[:])
         end = self.jumps_stack.pop()
         self.quadruples.quadruples[end].result = self.quadruples_size()
         while self.jumps_stack:
@@ -119,16 +119,25 @@ class LexicalAnalyzer:
             print(f'{p[1]} is already defined')
             exit(-1)
         else:
-            if len(self.types_stack) > 0:
-                name_method = p[1]
-                type_method = self.types_stack.pop()
-                self.function_table.add_method(name_method, type_method)
-                self.function_table.add_global_variable(name_method, type_method)
-            else:
-                self.function_table.add_method(p[1], DataType.VOID)
+            name_method = p[1]
+            type_method = self.types_stack.pop()
+            self.function_table.add_method(name_method, type_method)
+            self.function_table.add_global_variable(name_method, type_method)
+            self.operands_stack.append(p[1])
+            self.functions_stack.append(p[1])
+
+    def add_id_void(self, p):
+        is_var_global = self.function_table.get_global_variable(p[1])
+        is_func_global = self.function_table.get_method(p[1])
+        if is_var_global or is_func_global:
+            print(f'{p[1]} is already defined')
+            exit(-1)
+        else:
+            self.function_table.add_method(p[1], DataType.VOID)
             self.operands_stack.append(p[1])
             self.human_operands_stack.append(p[1])
             self.functions_stack.append(p[1])
+
     
     def identify_type(self, p):
         if p[1] == "int":
@@ -141,6 +150,8 @@ class LexicalAnalyzer:
             self.types_stack.append(DataType.STRING)
         elif p[1] == "bool":
             self.types_stack.append(DataType.BOOL)
+        #print("Identify type operands stack:", self.operands_stack)
+        #print("Identify type types stack:", self.types_stack)
     
     def add_operand(self, p, index):
         if len(p) >= index + 1 and p[index]:
@@ -581,3 +592,6 @@ class LexicalAnalyzer:
 
     def add_bool_constant(self, p):
         self.add_constant(p, DataType.BOOL)
+
+    def print_func_all_variables(self):
+        print(self.function_table.get_all_variables("global"))

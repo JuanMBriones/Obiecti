@@ -12,6 +12,7 @@ class Function:
         self.temp_memory = TemporalMemory(self.size[5], self.size[6], self.size[7], self.size[8], self.size[9])
 
     def set_value(self, address, value):
+        #print("Set value:", address, value)
         if address < 500000:
             if address >= 0 and address < 100000:
                 self.local_memory.assign_int(address, value)
@@ -52,6 +53,9 @@ class Function:
                 self.temp_memory.assign_boolean(real_address, value)
 
     def get_value(self, address):
+        '''Obtiene el valor de una dirección virtual dentro de una función
+        o dentro de la memoria global'''
+        #print("Get value address:", address)
         if address < 500000:
             if address >= 0 and address < 100000:
                 return self.local_memory.access_int(address)
@@ -67,6 +71,7 @@ class Function:
         elif address < 1000000:
             if address >= 500000 and address < 600000:
                 real_address = address - 500000
+                #print("Real address:", real_address)
                 return self.local_memory.access_int(real_address)
             elif address >= 600000 and address < 700000:
                 real_address = address - 600000
@@ -90,6 +95,22 @@ class Function:
             elif address >= 1400000 and address < 1500000:
                 real_address = address - 1400000
                 return self.temp_memory.access_boolean(real_address)
+
+    def is_var_global(self, address):
+        '''Auxiliar para las funciones que busca si una variable existe en la
+        memoria global'''
+        if address >= 0 and address < 100000:
+            return self.local_memory.access_int(address)
+        elif address >= 100000 and address < 200000:
+            real_address = address - 100000
+            return self.local_memory.access_float(real_address)
+        elif address >= 200000 and address < 300000:
+            real_address = address - 200000
+            return self.local_memory.access_char(real_address)
+        elif address >= 400000 and address < 500000:
+            real_address = address - 400000
+            return self.local_memory.access_boolean(real_address)
+        return None
 
 class ProcedureSymbol():
     methods = {}
@@ -171,6 +192,9 @@ class ProcedureSymbol():
 
     def get_value(self, name_func, address):
         return self.methods[name_func].get_value(address)
+
+    def is_var_global(self, address):
+        return self.methods["global"].is_var_global(address)
 
 
 class Constant:

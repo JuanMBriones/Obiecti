@@ -1,10 +1,3 @@
-from ast import operator
-from asyncio import constants
-from ipaddress import ip_address
-from socket import IP_DROP_MEMBERSHIP
-from stat import FILE_ATTRIBUTE_REPARSE_POINT
-from turtle import right
-from unicodedata import name
 from execution.memory import Memory
 from execution.tables import ConstantTable, Function, ProcedureSymbol
 from semantical.quadruples import Quadruple, Quadruples
@@ -31,19 +24,33 @@ def get_value(functions_table, constants_table, address, func_address):
     if func_address == None:
         return functions_table.get_value("global", address)
     else:
-        name_func = functions_table.get_name_func(func_address)
-        return functions_table.get_value(name_func, address)
+        is_global = functions_table.is_var_global(address)
+        if is_global != None:
+            return is_global
+        else:
+            name_func = functions_table.get_name_func(func_address)
+            return functions_table.get_value(name_func, address)
     
 
 def set_value(functions_table, address, value, func_address):
+    #print("Func address:", func_address)
     if func_address == None:
         if address < 500000:
             functions_table.set_value("global", address, value)
         elif address < 1600000:
             functions_table.set_value("global", address, value)
     else:
-        name_func = functions_table.get_name_func(func_address)
-        functions_table.set_value(name_func, address, value)
+        '''Busca si una variable es global cuando estamos dentro de una función y 
+        le asigna un valor. Si no es global, busca en memoria local y le asigna un
+        valor'''
+        #print("Set value address:", address)
+        is_global = functions_table.is_var_global(address)
+        #print("Is global:", is_global, address)
+        if is_global != None:
+            functions_table.set_value("global", address, value)
+        else:
+            name_func = functions_table.get_name_func(func_address)
+            functions_table.set_value(name_func, address, value)
 
 
 
@@ -109,14 +116,20 @@ def read_file(file):
         quadruples.add_quadruple(q)
 
 
-    functions_stack = functions_table.get_all_func_directions()
+    functions_stack = [None]
 
     ip = 1
     while ip < len(quadruples.quadruples):
         name_func = functions_table.get_name_func(ip)
+        #print(name_func, ip)
+        #print(ip)
+        #print(functions_stack)
         if name_func != "global":
+            #print(name_func)
             if functions_stack.count(ip) < 1:
                 functions_stack.append(ip)
+        #print(functions_stack)
+
         cod_op = quadruples.quadruples[ip].get_operation()
         if cod_op == int(OperationCodes.SUM):
             left_operand = quadruples.quadruples[ip].get_left_operand()
@@ -164,7 +177,9 @@ def read_file(file):
             set_value(functions_table, result, result_value, functions_stack[-1])
             ip += 1
         elif cod_op == int(OperationCodes.ASSIGN):
+            #print(ip)
             left_operand = quadruples.quadruples[ip].get_left_operand()
+            #print(left_operand)
             left_operand_value = get_value(functions_table, constants_table, left_operand, functions_stack[-1])
             result = quadruples.quadruples[ip].get_result()
             set_value(functions_table, result, left_operand_value, functions_stack[-1])

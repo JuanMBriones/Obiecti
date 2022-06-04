@@ -7,30 +7,13 @@ class Memory:
         self.string = [None for i in range(string)]
         self.booleans = [None for i in range(boolean)]
 
-    """def init_ints(self, num):
-        for i in range(num):
-            self.ints.append(None)
-
-    def init_floats(self, num):
-        for i in range(num):
-            self.floats.append(None)
-
-    def init_chars(self, num):
-        for i in range(num):
-            self.chars.append(None)
-
-    def init_strings(self, num):
-        for i in range(num):
-            self.strings.append(None)
-
-    def init_booleans(self, num):
-        for i in range(num):
-            self.booleans.append(None)"""
-
     def access_int(self, address):
+        #print("Access int:", address)
+        #print("Access int self.ints[address]:", self.ints[address])
         return self.ints[address]
 
     def assign_int(self, address, value):
+        #print("Assign int self.ints[address]:", self.ints[address])
         self.ints[address] = value
 
     def access_float(self, address):
