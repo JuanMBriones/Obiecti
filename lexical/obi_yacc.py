@@ -25,6 +25,9 @@ def p_programa(p):
 
     lexical_analyzer.generate_object_file()
 
+    print(lexical_analyzer.human_quadruples.get_quadruples())
+
+
 def p_aux_program(p):
     '''aux_program :'''
     lexical_analyzer.generate_quadruple(operation=int(OperationCodes.GOTO), left_operand=int(OperationCodes.NONE), right_operand=int(OperationCodes.NONE), result=int(OperationCodes.NONE))

@@ -35,6 +35,15 @@ class OperationCodes(Enum):
 
     def __int__(self):
         return self.value
+    
+    @classmethod
+    def name(cls, val):
+        res = [e for e in OperationCodes if e.value == int(val)]
+        if res:
+            print(res[0].name)
+            return res[0]
+        else:
+            return None
 
 class OperationCodesX:
     @abstractmethod
