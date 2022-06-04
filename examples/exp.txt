@@ -4,7 +4,7 @@ private class x3 : x4 {
     x4 = 10
     print(x4)
 
-    void def x3() {
+    int def x3() {
         var x2 : int
         x2 = 0
         while (x2 < 50) {
@@ -17,6 +17,7 @@ private class x3 : x4 {
         } elif (x2 >= 50){
             print("Adios")
         }
+        return 3
     }
 
     var x2 : int
@@ -27,11 +28,12 @@ private class x3 : x4 {
         print("Hola")
         x2 = x2 + 10
     }
-
+    x3()
     if (x2 < 50) {
         print("Hola otra vez")
     } elif (x2 >= 50){
         print("Adios")
         print(x2)
     }
+    
 }

@@ -40,7 +40,6 @@ class OperationCodes(Enum):
     def name(cls, val):
         res = [e for e in OperationCodes if e.value == int(val)]
         if res:
-            print(res[0].name)
             return res[0]
         else:
             return None
