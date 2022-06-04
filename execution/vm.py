@@ -58,7 +58,7 @@ def read_file(file="object.txt"):
     functions_text = []
     constants_text = []
     quadruples_text = []
-    print(file)
+    #print(file)
     with open(file) as object_file:
         line = object_file.readlines()
         first_separator = line.index('%%\n')
@@ -276,6 +276,11 @@ def read_file(file="object.txt"):
             functions_stack.pop()
             ip += 1
         elif cod_op == 2100020:             # PRINT
+            result = quadruples.quadruples[ip].get_result()
+            result_value = get_value(functions_table, constants_table, result, functions_stack[-1])
+            print(result_value)
+            ip += 1
+        elif cod_op == int(OperationCodes.RETURN):
             result = quadruples.quadruples[ip].get_result()
             result_value = get_value(functions_table, constants_table, result, functions_stack[-1])
             print(result_value)

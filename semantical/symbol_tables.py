@@ -72,7 +72,10 @@ class SymbolTable(Symbol):
             return self.symbols[name]
 
     def get_address(self, name):
-        return self.get(name).get()[3]
+        try:
+            return self.get(name).get()[3]
+        except:
+            return None
 
     def get_type(self, name):
         return self.get(name).data_type
