@@ -58,7 +58,7 @@ def read_file(file="object.txt"):
     functions_text = []
     constants_text = []
     quadruples_text = []
-    print(file)
+
     with open(file) as object_file:
         line = object_file.readlines()
         first_separator = line.index('%%\n')
@@ -280,6 +280,11 @@ def read_file(file="object.txt"):
             result_value = get_value(functions_table, constants_table, result, functions_stack[-1])
             print(result_value)
             ip += 1
+        elif cod_op == 2100016:            # ERA
+            name_func = quadruples.quadruples[ip].get_left_operand()
+            functions_stack.append(name_func)
+            ip += 1
+        
 
         
     """for key, value in quadruples.get_quadruples().items():

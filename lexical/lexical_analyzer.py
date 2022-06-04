@@ -110,7 +110,7 @@ class LexicalAnalyzer:
 
     def return_var(self):
         result = self.operands_stack.pop()
-        result_human = self.human_operators_stack.pop()
+        result_human = self.human_operands_stack.pop()
         self.generate_quadruple(operation=int(OperationCodes.RETURN), left_operand=int(OperationCodes.NONE), right_operand=int(OperationCodes.NONE), result=result)
         self.generate_quadruple(operation="RETURN", left_operand="", right_operand="", result=result_human, type=True)
 
@@ -126,6 +126,7 @@ class LexicalAnalyzer:
             self.function_table.add_method(name_method, type_method)
             self.function_table.add_global_variable(name_method, type_method)
             self.operands_stack.append(p[1])
+            self.human_operands_stack.append(p[1])
             self.functions_stack.append(p[1])
 
     def add_id_void(self, p):
@@ -186,7 +187,6 @@ class LexicalAnalyzer:
     def generate_multiple_quadruples(self, operation):
         while self.operands_stack:
             self.generate_quadruple(operation=operation, left_operand=int(OperationCodes.NONE), right_operand=int(OperationCodes.NONE), result=self.operands_stack.pop())
-            print('xdxd', int(operation))
             self.generate_quadruple(operation=OperationCodes.name(int(operation)), left_operand="", right_operand="", result=self.human_operands_stack.pop(), type=True)
 
     def add_expression_print(self, p):
