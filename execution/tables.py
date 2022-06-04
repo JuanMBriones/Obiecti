@@ -64,6 +64,19 @@ class Function:
             elif address >= 400000 and address < 500000:
                 real_address = address - 400000
                 return self.local_memory.access_boolean(real_address)
+        elif address < 1000000:
+            if address >= 500000 and address < 600000:
+                real_address = address - 500000
+                return self.local_memory.access_int(real_address)
+            elif address >= 600000 and address < 700000:
+                real_address = address - 600000
+                return self.local_memory.access_float(real_address)
+            elif address >= 700000 and address < 800000:
+                real_address = address - 700000
+                return self.local_memory.access_char(real_address)
+            elif address >= 900000 and address < 1000000:
+                real_address = address - 900000
+                return self.local_memory.access_boolean(real_address)
         elif address < 1600000:
             if address >= 1000000 and address < 1100000:
                 real_address = address - 1000000
@@ -97,6 +110,21 @@ class ProcedureSymbol():
     def get_all_methods(self):
         for key, value in self.methods.items():
             print(f"{key}: {value}")
+
+    def get_all_func_directions(self):
+        directions_list = []
+        for key in self.methods.keys():
+            directions_list.append(self.methods[key].initial_address)
+        return directions_list
+
+    def get_name_func(self, address):
+        for key in self.methods.keys():
+            if self.methods[key].initial_address == None:
+                continue
+            if address == self.methods[key].initial_address:
+                return key
+        return "global"
+
 
     def string_to_int_list(self, string):
         string_split = string.strip().strip('[]').split(',')
