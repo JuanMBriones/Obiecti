@@ -10,6 +10,7 @@ from unittest import result
 from xml.etree.ElementPath import get_parent_map
 import ply.yacc as yacc
 from lexical.lexical_analyzer import LexicalAnalyzer
+from semantical.operations_codes import OperationCodes
  
 # Get the token map from the lexer.  This is required.
 from .obi_lex import tokens
@@ -22,11 +23,14 @@ def p_programa(p):
     global compile_status
     compile_status = "Apropiado"
 
-    lexical_analyzer.generate_object_file()
+    #lexical_analyzer.generate_object_file()
+
+    for key, value in lexical_analyzer.quadruples.get_quadruples().items():
+        print(f"{value}\n")
 
 def p_aux_program(p):
     '''aux_program :'''
-    lexical_analyzer.generate_quadruple(operation=2100014, left_operand=2100022, right_operand=2100022, result=2100022)
+    lexical_analyzer.generate_quadruple(operation=int(OperationCodes.GOTO), left_operand=int(OperationCodes.NONE), right_operand=int(OperationCodes.NONE), result=int(OperationCodes.NONE))
 
 def p_class(p):
     '''class : scope CLASS ID
@@ -145,7 +149,7 @@ def p_estatuto(p):
 
 def p_lectura(p):
     '''lectura : READ LPAREN aux4 RPAREN'''
-    lexical_analyzer.generate_multiple_quadruples(operation=2100021)
+    lexical_analyzer.generate_multiple_quadruples(operation=int(OperationCodes.READ))
 
 def p_aux4(p):
     '''aux4 : ID
@@ -157,7 +161,7 @@ def p_aux4(p):
 
 def p_escritura(p):
     '''escritura : PRINT LPAREN aux3 RPAREN'''
-    lexical_analyzer.generate_multiple_quadruples(operation=2100020)
+    lexical_analyzer.generate_multiple_quadruples(operation=int(OperationCodes.PRINT))
 
 def p_aux3(p):
     '''aux3 : expresion

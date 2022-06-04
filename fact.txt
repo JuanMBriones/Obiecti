@@ -1,0 +1,17 @@
+program x2 
+private class x3 : x4 {
+    void def main() {
+        var n, res : int
+        n = 4
+        res = 1
+
+        while(n > 0) {
+            res = res * n
+
+            n = n - 1
+        }
+
+        print(res)
+
+    }
+}

@@ -238,9 +238,9 @@ def read_file(file):
                 ip = quadruples.quadruples[ip].get_result()
             else:
                 ip += 1
-        elif cod_op == 2100019:
+        elif cod_op == int(OperationCodes.ENDFUNC):
             ip += 1
-        elif cod_op == 2100020:
+        elif cod_op == int(OperationCodes.PRINT):
             result = quadruples.quadruples[ip].get_result()
             result_value = get_value(functions_table, constants_table, result)
             print(result_value)

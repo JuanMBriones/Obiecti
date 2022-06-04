@@ -18,12 +18,17 @@ class LexicalAnalyzer:
         self.local_variables_segments = [0, 10000, 20000]
         self.constants_segments = [30000, 35000, 40000, 45000]
         self.quadruples = Quadruples()
+        
         self.function_table = ProcedureSymbol()
         self.constants_table = ConstantTable()
         self.semantic_cube = SemanticCube()
         self.rel_op = set(['==', '!=', '>', '<', '>=', '<='])
         self.param_count = 1
         self.paramater = None
+
+        self.human_quadruples = Quadruples()
+        self.human_operators_stack = []
+        self.human_operands_stack = []
 
     def generate_object_file(self):
         with open("object.txt", "w") as object_file:
@@ -48,10 +53,14 @@ class LexicalAnalyzer:
             for key, value in self.quadruples.get_quadruples().items():
                 object_file.write(f"{value}\n")
             
-    def generate_quadruple(self, operation, left_operand, right_operand, result):
+    def generate_quadruple(self, operation, left_operand, right_operand, result, quadruple_list = None):
         quadruple = Quadruple(operation=operation, left_operand=left_operand, right_operand=right_operand, result=result)
-        self.quadruples.add_quadruple(quadruple=quadruple)
-    
+
+        if quadruple_list:
+            self.quadruples.add_quadruple(quadruple=quadruple)
+        else:
+            self.human_quadruples.add_quadruple(quadruple=quadruple)
+
     def functions_stack_pop(self, index=None):
         if index:
             self.functions_stack.pop(index)
@@ -65,6 +74,7 @@ class LexicalAnalyzer:
         print(self.jumps_stack[:])
         end = self.jumps_stack.pop()
         self.quadruples.quadruples[end].result = self.quadruples_size()
+        self.human_quadruples.quadruples[end].result = self.quadruples_size()
         while self.jumps_stack:
             end = self.jumps_stack.pop()
             self.quadruples.quadruples[end].result = self.quadruples_size()
@@ -72,6 +82,7 @@ class LexicalAnalyzer:
     def calculate_if_false_jumps(self):
         false = self.jumps_stack.pop()
         self.generate_quadruple(operation=int(OperationCodes.GOTO), left_operand=int(OperationCodes.NONE), right_operand=int(OperationCodes.NONE), result=int(OperationCodes.NONE))        
+        self.generate_quadruple(operation="GOTO", left_operand=None, right_operand=None, result=None, quadruple_list=True)        
         self.jumps_stack.append(self.quadruples_size() - 1)
         self.quadruples.quadruples[false].result = self.quadruples_size()
     
@@ -86,6 +97,7 @@ class LexicalAnalyzer:
 
     def create_function(self, p):
         self.generate_quadruple(operation=int(OperationCodes.ENDFUNC), left_operand=int(OperationCodes.NONE), right_operand=int(OperationCodes.NONE), result=int(OperationCodes.NONE))
+        self.generate_quadruple(operation="ENDFUNC", left_operand=None, right_operand=None, result=None, quadruple_list=True)
 
         self.function_table.delete_table(self.functions_stack[-1])
         name_function = self.functions_stack.pop()
@@ -93,10 +105,12 @@ class LexicalAnalyzer:
         if name_function == "main":
             address = self.function_table.get_initial_address(name_function)
             self.quadruples.quadruples[0].result = address
+            self.human_quadruples.quadruples[0].result = "main"
 
     def return_var(self):
         result = self.operands_stack.pop()
         self.generate_quadruple(operation=int(OperationCodes.RETURN), left_operand=int(OperationCodes.NONE), right_operand=int(OperationCodes.NONE), result=result)
+        self.generate_quadruple(operation="RETURN", left_operand=None, right_operand=None, result=result, quadruple_list=True)
 
     def add_id(self, p):
         is_var_global = self.function_table.get_global_variable(p[1])
@@ -114,6 +128,8 @@ class LexicalAnalyzer:
                 self.function_table.add_method(p[1], DataType.VOID)
             self.operands_stack.append(p[1])
             self.functions_stack.append(p[1])
+
+            self.human_operands_stack.append(p[1])
     
     def identify_type(self, p):
         if p[1] == "int":
@@ -261,8 +277,9 @@ class LexicalAnalyzer:
         name_function = self.operands_stack.pop()
         address_function = self.function_table.get_variable_address("global", name_function)
         ip = self.function_table.get_initial_address(name_function)
-        quadruple = Quadruple(operation=int(OperationCodes.GOSUB), left_operand=address_function, right_operand=int(OperationCodes.NONE), result=ip)
-        self.quadruples.add_quadruple(quadruple=quadruple)
+        
+        self.generate_quadruple(operation=int(OperationCodes.GOSUB), left_operand=address_function, right_operand=int(OperationCodes.NONE), result=ip)
+        
         type_function = self.function_table.get_func_data_type(name_function)
         if type_function != DataType.VOID:
             address = self.function_table.add_temporal_variable(self.functions_stack[-1], type_function)            
@@ -330,8 +347,8 @@ class LexicalAnalyzer:
     def calculate_goto_false(self, p):
         if len(p) >= 2:
             operand = self.operands_stack.pop()
-            quadruple = Quadruple(operation=int(OperationCodes.GOTOF), left_operand=operand, right_operand=int(OperationCodes.NONE), result=int(OperationCodes.NONE))
-            self.quadruples.add_quadruple(quadruple=quadruple)
+            self.generate_quadruple(operation=int(OperationCodes.GOTOF), left_operand=operand, right_operand=int(OperationCodes.NONE), result=int(OperationCodes.NONE))
+
             self.jumps_stack.append(len(self.quadruples.quadruples) - 1)
     
     def generate_bool_expression(self, p):
@@ -384,8 +401,7 @@ class LexicalAnalyzer:
                     result_type = self.semantic_cube.validate(operator, self.types_stack.pop(), self.types_stack.pop())
                     if result_type != None:
                         address = self.function_table.add_temporal_variable(self.functions_stack[-1], result_type)
-                        quadruple = Quadruple(operation=address_operator, left_operand=left_operand, right_operand=right_operand, result=address)
-                        self.quadruples.add_quadruple(quadruple=quadruple)
+                        self.generate_quadruple(operation=address_operator, left_operand=left_operand, right_operand=right_operand, result=address)
                         self.types_stack.append(result_type)
                         self.add_temp_func_size(self.functions_stack[-1], result_type)
                         self.operands_stack.append(address)
@@ -413,8 +429,8 @@ class LexicalAnalyzer:
                 result_type = self.semantic_cube.validate(operator, self.types_stack.pop(), self.types_stack.pop())
                 if result_type != None:
                     address = self.function_table.add_temporal_variable(self.functions_stack[-1], result_type)
-                    quadruple = Quadruple(operation=address_operator, left_operand=left_operand, right_operand=right_operand, result=address)
-                    self.quadruples.add_quadruple(quadruple=quadruple)
+                    self.generate_quadruple(operation=address_operator, left_operand=left_operand, right_operand=right_operand, result=address)
+
                     self.types_stack.append(result_type)
                     self.add_temp_func_size(self.functions_stack[-1], result_type)
                     self.operands_stack.append(address)
@@ -444,8 +460,7 @@ class LexicalAnalyzer:
                 result_type = self.semantic_cube.validate(operator, self.types_stack.pop(), self.types_stack.pop())
                 if result_type != None:
                     address = self.function_table.add_temporal_variable(self.functions_stack[-1], result_type)
-                    quadruple = Quadruple(operation=address_operator, left_operand=left_operand, right_operand=right_operand, result=address)
-                    self.quadruples.add_quadruple(quadruple=quadruple)
+                    self.generate_quadruple(operation=address_operator, left_operand=left_operand, right_operand=right_operand, result=address)
                     self.types_stack.append(result_type)
                     self.add_temp_func_size(self.functions_stack[-1], result_type)
                     self.operands_stack.append(address)

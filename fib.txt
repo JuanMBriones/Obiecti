@@ -1,0 +1,21 @@
+program x2 
+private class x3 : x4 {
+    void def main() {
+        var curr, past, past_past, temp, max : int
+        
+        max = 34
+        curr = 0
+        past = 1
+        past_past = 0
+
+        while(curr < max) {
+            temp = curr
+            curr = past + past_past 
+            print(curr)
+
+            past = temp
+            past_past = past
+        }
+    }
+
+}
