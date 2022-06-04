@@ -54,10 +54,11 @@ def set_value(functions_table, address, value, func_address):
 
 
 
-def read_file(file):
+def read_file(file="object.txt"):
     functions_text = []
     constants_text = []
     quadruples_text = []
+    print(file)
     with open(file) as object_file:
         line = object_file.readlines()
         first_separator = line.index('%%\n')
