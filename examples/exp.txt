@@ -1,9 +1,6 @@
 program x2 
 private class x3 : x4 {
-    var x2 : int
-    void def main() {
-        print("Hola")
-        x2 = 10
-        print(x2)
-    }
+    var x4 : int
+    x4 = 0
+    print(x4, "Hola", (2 + 3), "Adios")
 }
