@@ -1,0 +1,10 @@
+program x2 
+private class x3 : x4 {
+    var x2, x6 : int
+    x2 = 3
+    
+    x6 = 6
+
+    print("hola", "pomodoro", x6)
+    print(x2 + 67)
+}

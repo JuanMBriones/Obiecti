@@ -4,7 +4,7 @@ from semantical.data_types import DataType
 from semantical.quadruples import Quadruples, Quadruple
 from semantical.semantic_cube import SemanticCube
 from semantical.symbol_tables import ConstantTable, ProcedureSymbol, SymbolTable
-
+from semantical.operations_codes import OperationCodes
 
 class LexicalAnalyzer:
     def __init__(self):
@@ -62,6 +62,7 @@ class LexicalAnalyzer:
         return len(self.quadruples.quadruples)
 
     def calculate_if_jumps(self):
+        print(self.jumps_stack[:])
         end = self.jumps_stack.pop()
         self.quadruples.quadruples[end].result = self.quadruples_size()
         while self.jumps_stack:
@@ -70,21 +71,21 @@ class LexicalAnalyzer:
     
     def calculate_if_false_jumps(self):
         false = self.jumps_stack.pop()
-        self.generate_quadruple(operation=2100014, left_operand=2100022, right_operand=2100022, result=2100022)        
+        self.generate_quadruple(operation=int(OperationCodes.GOTO), left_operand=int(OperationCodes.NONE), right_operand=int(OperationCodes.NONE), result=int(OperationCodes.NONE))        
         self.jumps_stack.append(self.quadruples_size() - 1)
         self.quadruples.quadruples[false].result = self.quadruples_size()
     
     def calculate_while_jump(self):
         end = self.jumps_stack.pop()
         jump_index = self.jumps_stack.pop()
-        self.generate_quadruple(operation=2100014, left_operand=2100022, right_operand=2100022, result=jump_index)
+        self.generate_quadruple(operation=int(OperationCodes.GOTO), left_operand=int(OperationCodes.NONE), right_operand=int(OperationCodes.NONE), result=jump_index)
         self.quadruples.quadruples[end].result = self.quadruples_size()
     
     def jumps_stack_add(self):
         self.jumps_stack.append(len(self.quadruples.quadruples))
 
     def create_function(self, p):
-        self.generate_quadruple(operation=2100019, left_operand=2100022, right_operand=2100022, result=2100022)
+        self.generate_quadruple(operation=int(OperationCodes.ENDFUNC), left_operand=int(OperationCodes.NONE), right_operand=int(OperationCodes.NONE), result=int(OperationCodes.NONE))
 
         self.function_table.delete_table(self.functions_stack[-1])
         name_function = self.functions_stack.pop()
@@ -95,7 +96,7 @@ class LexicalAnalyzer:
 
     def return_var(self):
         result = self.operands_stack.pop()
-        self.generate_quadruple(operation=2100023, left_operand=2100022, right_operand=2100022, result=result)
+        self.generate_quadruple(operation=int(OperationCodes.RETURN), left_operand=int(OperationCodes.NONE), right_operand=int(OperationCodes.NONE), result=result)
 
     def add_id(self, p):
         is_var_global = self.function_table.get_global_variable(p[1])
@@ -152,7 +153,7 @@ class LexicalAnalyzer:
 
     def generate_multiple_quadruples(self, operation):
         while self.operands_stack:
-            self.generate_quadruple(operation=operation, left_operand=2100022, right_operand=2100022, result=self.operands_stack.pop())
+            self.generate_quadruple(operation=operation, left_operand=int(OperationCodes.NONE), right_operand=int(OperationCodes.NONE), result=self.operands_stack.pop())
 
     def add_expression_print(self, p):
         if p[1]:
@@ -248,7 +249,7 @@ class LexicalAnalyzer:
                     left_operand = self.operands_stack.pop()
                     result_type = self.semantic_cube.validate(operator, self.types_stack.pop(), self.types_stack.pop())
                     if result_type != None:
-                        self.generate_quadruple(operation=2100005, left_operand=left_operand, right_operand=2100022, result=right_operand)                        
+                        self.generate_quadruple(operation=int(OperationCodes.ASSIGN), left_operand=left_operand, right_operand=int(OperationCodes.NONE), result=right_operand)                        
                     else:
                         print("Type mismatch")
                         exit(-1)
@@ -260,13 +261,13 @@ class LexicalAnalyzer:
         name_function = self.operands_stack.pop()
         address_function = self.function_table.get_variable_address("global", name_function)
         ip = self.function_table.get_initial_address(name_function)
-        quadruple = Quadruple(operation=2100018, left_operand=address_function, right_operand=2100022, result=ip)
+        quadruple = Quadruple(operation=int(OperationCodes.GOSUB), left_operand=address_function, right_operand=int(OperationCodes.NONE), result=ip)
         self.quadruples.add_quadruple(quadruple=quadruple)
         type_function = self.function_table.get_func_data_type(name_function)
         if type_function != DataType.VOID:
-            address = self.function_table.add_temporal_variable(self.functions_stack[-1], type_function)
-            quadruple = Quadruple(operation=2100005, left_operand=address_function, right_operand=2100022, result=address)
-            self.quadruples.add_quadruple(quadruple=quadruple)
+            address = self.function_table.add_temporal_variable(self.functions_stack[-1], type_function)            
+            self.generate_quadruple(operation=int(OperationCodes.ASSIGN), left_operand=address_function, right_operand=int(OperationCodes.NONE), result=address)
+
             self.types_stack.append(type_function)
             self.add_temp_func_size(self.functions_stack[-1], type_function)
             self.operands_stack.append(address)
@@ -285,7 +286,7 @@ class LexicalAnalyzer:
     def function_call_neural_point_arg(self):
         name_function = self.operands_stack[-1]
         address_function = self.function_table.get_variable_address("global", name_function)
-        self.generate_quadruple(operation=2100016, left_operand=2100022, right_operand=2100022, result=address_function)
+        self.generate_quadruple(operation=int(OperationCodes.ERA), left_operand=int(OperationCodes.NONE), right_operand=int(OperationCodes.NONE), result=address_function)
 
         self.function_table.reset_counter(name_function)
         counter = self.function_table.get_counter(self.operands_stack[-1])
@@ -318,7 +319,7 @@ class LexicalAnalyzer:
                 exit(-1)
             name_function = self.operands_stack[-1]
             counter = self.function_table.get_counter(name_function)
-            self.generate_quadruple(operation=2100017, left_operand=argument, right_operand=2100022, result=counter)
+            self.generate_quadruple(operation=int(OperationCodes.PARAM), left_operand=argument, right_operand=int(OperationCodes.NONE), result=counter)
     
     def add_extra_arguments(self):
         name_function = self.operands_stack[-1]
@@ -329,7 +330,7 @@ class LexicalAnalyzer:
     def calculate_goto_false(self, p):
         if len(p) >= 2:
             operand = self.operands_stack.pop()
-            quadruple = Quadruple(operation=2100015, left_operand=operand, right_operand=2100022, result=2100022)
+            quadruple = Quadruple(operation=int(OperationCodes.GOTOF), left_operand=operand, right_operand=int(OperationCodes.NONE), result=int(OperationCodes.NONE))
             self.quadruples.add_quadruple(quadruple=quadruple)
             self.jumps_stack.append(len(self.quadruples.quadruples) - 1)
     
@@ -340,9 +341,9 @@ class LexicalAnalyzer:
                 operator = self.operators_stack.pop()
                 address_operator = 0
                 if operator == 'and':
-                    address_operator = 2100012
+                    address_operator = int(OperationCodes.AND)
                 elif operator == 'or':
-                    address_operator = 2100013
+                    address_operator = int(OperationCodes.OR)
 
                 right_operand = self.operands_stack.pop()
                 left_operand = self.operands_stack.pop()
@@ -369,12 +370,12 @@ class LexicalAnalyzer:
                     address_operator = 0
                     
                     operation_relation = {
-                        '<':  2100006,
-                        '>':  2100007,
-                        '<=': 2100008,
-                        '>=': 2100009,
-                        '==': 2100010,
-                        '!=': 2100011
+                        '<':  int(OperationCodes.LT),
+                        '>':  int(OperationCodes.GT),
+                        '<=': int(OperationCodes.LE),
+                        '>=': int(OperationCodes.GE),
+                        '==': int(OperationCodes.EQ),
+                        '!=': int(OperationCodes.NE)
                     }
 
                     address_operator = operation_relation[operator]
@@ -403,9 +404,9 @@ class LexicalAnalyzer:
                 operator = self.operators_stack.pop()
                 address_operator = 0
                 if operator == "+":
-                    address_operator = 2100000
+                    address_operator = int(OperationCodes.SUM)
                 elif operator == "-":
-                    address_operator = 2100001
+                    address_operator = int(OperationCodes.MINUS)
 
                 right_operand = self.operands_stack.pop()
                 left_operand = self.operands_stack.pop()
@@ -431,11 +432,11 @@ class LexicalAnalyzer:
                 operator = self.operators_stack.pop()
                 address_operator = 0
                 if operator == "*":
-                    address_operator = 2100002
+                    address_operator = int(OperationCodes.MULT)
                 elif operator == "/":
-                    address_operator = 2100003
+                    address_operator = int(OperationCodes.DIV)
                 elif operator == "%":
-                    address_operator = 2100004
+                    address_operator = int(OperationCodes.MOD)
 
 
                 right_operand = self.operands_stack.pop()
