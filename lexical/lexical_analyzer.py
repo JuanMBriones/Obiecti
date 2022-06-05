@@ -31,7 +31,6 @@ class LexicalAnalyzer:
         self.human_operators_stack = []
 
     def generate_object_file(self):
-        print(self.object_file_name)
         with open(self.object_file_name, "w") as object_file:
             for key in self.function_table.get_methods_names():
                 name_func = key
@@ -109,10 +108,11 @@ class LexicalAnalyzer:
             self.human_quadruples.quadruples[0].result = "main"
 
     def return_var(self):
+        func_address = self.function_table.get_variable_address("global", self.functions_stack[-1])
         result = self.operands_stack.pop()
         result_human = self.human_operands_stack.pop()
-        self.generate_quadruple(operation=int(OperationCodes.RETURN), left_operand=int(OperationCodes.NONE), right_operand=int(OperationCodes.NONE), result=result)
-        self.generate_quadruple(operation="RETURN", left_operand="", right_operand="", result=result_human, type=True)
+        self.generate_quadruple(operation=int(OperationCodes.RETURN), left_operand=func_address, right_operand=int(OperationCodes.NONE), result=result)
+        self.generate_quadruple(operation="RETURN", left_operand=func_address, right_operand="", result=result_human, type=True)
 
     def add_id(self, p):
         is_var_global = self.function_table.get_global_variable(p[1])
@@ -125,9 +125,11 @@ class LexicalAnalyzer:
             type_method = self.types_stack.pop()
             self.function_table.add_method(name_method, type_method)
             self.function_table.add_global_variable(name_method, type_method)
+            self.add_var_func_size("global", type_method)
             self.operands_stack.append(p[1])
             self.human_operands_stack.append(p[1])
             self.functions_stack.append(p[1])
+
 
     def add_id_void(self, p):
         is_var_global = self.function_table.get_global_variable(p[1])

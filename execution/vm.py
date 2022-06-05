@@ -284,6 +284,15 @@ def read_file(file="object.txt"):
             name_func = quadruples.quadruples[ip].get_left_operand()
             functions_stack.append(name_func)
             ip += 1
+        elif cod_op == int(OperationCodes.RETURN):            # ERA
+            left_operand = quadruples.quadruples[ip].get_left_operand()    
+            result = quadruples.quadruples[ip].get_result()
+            result_value = get_value(functions_table, constants_table, result, functions_stack[-1])
+            set_value(functions_table, left_operand, result_value, None)
+            ip += 1
+        elif cod_op == int(OperationCodes.GOSUB):
+            ip += 1
+
         
 
         

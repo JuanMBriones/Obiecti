@@ -138,6 +138,9 @@ class ProcedureSymbol():
             directions_list.append(self.methods[key].initial_address)
         return directions_list
 
+    #def get_func_type_address(self, name_func):
+        
+
     def get_name_func(self, address):
         for key in self.methods.keys():
             if self.methods[key].initial_address == None:
