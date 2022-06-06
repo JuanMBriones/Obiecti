@@ -1,7 +1,9 @@
 from abc import abstractmethod
 from semantical.data_types import DataType
 
-
+"""
+This file contains the memory methods and the segments that are used in the semnatical part of the compiler.
+"""
 class Segment:
     def __init__(self, lower_bound, upper_bound):
         self.segment = [lower_bound, upper_bound]

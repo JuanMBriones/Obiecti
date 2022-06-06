@@ -1,6 +1,8 @@
 from abc import abstractmethod
 from enum import Enum
 
+# This file helps to translate the operations codes to the corresponding ones for the virtual machine
+
 class OperationCodes(Enum):
     SUM = 2100000
     MINUS = 2100001

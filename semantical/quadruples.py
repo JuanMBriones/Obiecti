@@ -1,4 +1,6 @@
 
+# This class represents all the methods for generating the quadruples on the semantial phase
+# As well as generating the list of quadruples
 class Quadruple:
     def __init__(self, operation, left_operand, right_operand, result):
         self.operation = operation
