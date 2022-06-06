@@ -6,6 +6,11 @@ from semantical.errors_exceptions import TypeMismatchError
 from semantical.memory import ConstantsMemory, GlobalMemory, LocalMemory, TemporalMemory
 from semantical.semantic_cube import SemanticCube
 
+
+"""
+This file and methods are responsible for the symbol tables as well as managing them properly (like adding, removing, etc)
+"""
+
 class Symbol:
     def __init__(self, name, data_type, scope, address):
         self.name = name

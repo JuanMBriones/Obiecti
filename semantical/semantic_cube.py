@@ -1,5 +1,5 @@
 from semantical.data_types import DataType
-
+# This class helps to match every data type with the corresponding operation
 class SemanticCube:
     semantic_cube = {
         '+': {

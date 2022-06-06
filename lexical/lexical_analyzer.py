@@ -30,6 +30,11 @@ class LexicalAnalyzer:
         self.human_operands_stack = []
         self.human_operators_stack = []
 
+
+    """
+    The following methods helps to generate the pbject file
+    """
+
     def generate_object_file(self):
         with open(self.object_file_name, "w") as object_file:
             for key in self.function_table.get_methods_names():
@@ -53,6 +58,10 @@ class LexicalAnalyzer:
             for key, value in self.quadruples.get_quadruples().items():
                 object_file.write(f"{value}\n")
             
+    
+    """
+    The following methods helps to generate the quadruples
+    """
     def generate_quadruple(self, operation, left_operand, right_operand, result, type=None):
         quadruple = Quadruple(operation=operation, left_operand=left_operand, right_operand=right_operand, result=result)
 
@@ -61,14 +70,13 @@ class LexicalAnalyzer:
         else:
             self.quadruples.add_quadruple(quadruple=quadruple)
     
-    def functions_stack_pop(self, index=None):
-        if index:
-            self.functions_stack.pop(index)
-        else:
-            self.functions_stack.pop()
-
     def quadruples_size(self):
         return len(self.quadruples.quadruples)
+
+    """
+    The following methods helps to controll the flow of the non linear instructions, suc as if and while
+    Like the jumps and the GOTO statements
+    """
 
     def calculate_if_jumps(self):
         #print(self.jumps_stack[:])
@@ -95,25 +103,8 @@ class LexicalAnalyzer:
     def jumps_stack_add(self):
         self.jumps_stack.append(len(self.quadruples.quadruples))
 
-    def create_function(self, p):
-        self.generate_quadruple(operation=int(OperationCodes.ENDFUNC), left_operand=int(OperationCodes.NONE), right_operand=int(OperationCodes.NONE), result=int(OperationCodes.NONE))
-        self.generate_quadruple(operation="ENDFUNC", left_operand="", right_operand="", result="", type=True)
 
-        self.function_table.delete_table(self.functions_stack[-1])
-        name_function = self.functions_stack.pop()
-
-        if name_function == "main":
-            address = self.function_table.get_initial_address(name_function)
-            self.quadruples.quadruples[0].result = address
-            self.human_quadruples.quadruples[0].result = "main"
-
-    def return_var(self):
-        func_address = self.function_table.get_variable_address("global", self.functions_stack[-1])
-        result = self.operands_stack.pop()
-        result_human = self.human_operands_stack.pop()
-        self.generate_quadruple(operation=int(OperationCodes.RETURN), left_operand=func_address, right_operand=int(OperationCodes.NONE), result=result)
-        self.generate_quadruple(operation="RETURN", left_operand=func_address, right_operand="", result=result_human, type=True)
-
+    
     def add_id(self, p):
         is_var_global = self.function_table.get_global_variable(p[1])
         is_func_global = self.function_table.get_method(p[1])
@@ -163,29 +154,6 @@ class LexicalAnalyzer:
             self.operands_stack.append(p[index]) 
             self.human_operands_stack.append(p[index])
 
-    def add_param(self, name_func, type):
-        self.function_table.get_method(name_func).add_param(type)
-
-        # array with index to refactor this
-        if type == DataType.INT:
-            self.function_table.add_param_count(name_func, 0)
-        elif type == DataType.FLOAT:
-            self.function_table.add_param_count(name_func, 1)
-        elif type == DataType.CHAR:
-            self.function_table.add_param_count(name_func, 2)
-
-    def add_function_parameters(self):
-        while len(self.operands_stack) > 1:
-            name_func = self.operands_stack[0]
-            name_var = self.operands_stack.pop()
-            self.human_operands_stack.pop() # human
-            data_type = self.types_stack.pop()
-            self.function_table.add_variable(name_func, name_var, data_type)
-            self.add_param(name_func, data_type)
-        
-        self.human_operands_stack.pop() # human
-        self.function_table.set_initial_address(self.operands_stack.pop(), self.quadruples_size())
-
     def generate_multiple_quadruples(self, operation):
         while self.operands_stack:
             self.generate_quadruple(operation=operation, left_operand=int(OperationCodes.NONE), right_operand=int(OperationCodes.NONE), result=self.operands_stack.pop())
@@ -200,29 +168,6 @@ class LexicalAnalyzer:
     def declare_array(self, p):
         pass
 
-    def add_var_func_size(self, name_func, type):
-        if type == DataType.INT:
-            self.function_table.add_var_count(name_func, 0)
-        elif type == DataType.FLOAT:
-            self.function_table.add_var_count(name_func, 1)
-        elif type == DataType.CHAR:
-            self.function_table.add_var_count(name_func, 2)
-        elif type == DataType.STRING:
-            self.function_table.add_var_count(name_func, 3)
-        elif type == DataType.BOOL:
-            self.function_table.add_var_count(name_func, 4)
-
-    def add_temp_func_size(self, name_func, type):
-        if type == DataType.INT:
-            self.function_table.add_var_count(name_func, 5)
-        elif type == DataType.FLOAT:
-            self.function_table.add_var_count(name_func, 6)
-        elif type == DataType.CHAR:
-            self.function_table.add_var_count(name_func, 7)
-        elif type == DataType.STRING:
-            self.function_table.add_var_count(name_func, 8)
-        elif type == DataType.BOOL:
-            self.function_table.add_var_count(name_func, 9)
 
     def declare_var(self, p):
         if len(p) == 5:
@@ -254,6 +199,11 @@ class LexicalAnalyzer:
     def add_exp_bool(self, p):
         if p[1]:
             self.add_constant(p, DataType.BOOL)
+
+    
+    """
+    The following methods helps to assign all the expression to a certain variable
+    """
 
     def assign_operators(self, p):
         if len(p)==4:
@@ -305,6 +255,37 @@ class LexicalAnalyzer:
             # arrays
             pass 
     
+
+    """
+    The following methods helps to the function section and its neural points
+    """
+    def functions_stack_pop(self, index=None):
+        if index:
+            self.functions_stack.pop(index)
+        else:
+            self.functions_stack.pop()
+
+    
+    def create_function(self, p):
+        self.generate_quadruple(operation=int(OperationCodes.ENDFUNC), left_operand=int(OperationCodes.NONE), right_operand=int(OperationCodes.NONE), result=int(OperationCodes.NONE))
+        self.generate_quadruple(operation="ENDFUNC", left_operand="", right_operand="", result="", type=True)
+
+        self.function_table.delete_table(self.functions_stack[-1])
+        name_function = self.functions_stack.pop()
+
+        if name_function == "main":
+            address = self.function_table.get_initial_address(name_function)
+            self.quadruples.quadruples[0].result = address
+            self.human_quadruples.quadruples[0].result = "main"
+
+    def return_var(self):
+        func_address = self.function_table.get_variable_address("global", self.functions_stack[-1])
+        result = self.operands_stack.pop()
+        result_human = self.human_operands_stack.pop()
+        self.generate_quadruple(operation=int(OperationCodes.RETURN), left_operand=func_address, right_operand=int(OperationCodes.NONE), result=result)
+        self.generate_quadruple(operation="RETURN", left_operand=func_address, right_operand="", result=result_human, type=True)
+
+
     def function_calling(self):
         name_function = self.operands_stack.pop()
         self.human_operands_stack.pop()
@@ -363,6 +344,29 @@ class LexicalAnalyzer:
                 print(f"Expected {length_param} arguments but instead {counter} were given")
                 exit(-1)
 
+    def add_param(self, name_func, type):
+        self.function_table.get_method(name_func).add_param(type)
+
+        # array with index to refactor this
+        if type == DataType.INT:
+            self.function_table.add_param_count(name_func, 0)
+        elif type == DataType.FLOAT:
+            self.function_table.add_param_count(name_func, 1)
+        elif type == DataType.CHAR:
+            self.function_table.add_param_count(name_func, 2)
+
+    def add_function_parameters(self):
+        while len(self.operands_stack) > 1:
+            name_func = self.operands_stack[0]
+            name_var = self.operands_stack.pop()
+            self.human_operands_stack.pop() # human
+            data_type = self.types_stack.pop()
+            self.function_table.add_variable(name_func, name_var, data_type)
+            self.add_param(name_func, data_type)
+        
+        self.human_operands_stack.pop() # human
+        self.function_table.set_initial_address(self.operands_stack.pop(), self.quadruples_size())
+
     
     def function_args_neural_point(self):
         argument = self.operands_stack.pop()
@@ -386,6 +390,35 @@ class LexicalAnalyzer:
         self.function_table.set_counter(name_function, counter + 1)
         self.params_stack.append(self.function_table.get_param(name_function, counter))
 
+    # Function size assignation
+    def add_var_func_size(self, name_func, type):
+        if type == DataType.INT:
+            self.function_table.add_var_count(name_func, 0)
+        elif type == DataType.FLOAT:
+            self.function_table.add_var_count(name_func, 1)
+        elif type == DataType.CHAR:
+            self.function_table.add_var_count(name_func, 2)
+        elif type == DataType.STRING:
+            self.function_table.add_var_count(name_func, 3)
+        elif type == DataType.BOOL:
+            self.function_table.add_var_count(name_func, 4)
+
+    def add_temp_func_size(self, name_func, type):
+        if type == DataType.INT:
+            self.function_table.add_var_count(name_func, 5)
+        elif type == DataType.FLOAT:
+            self.function_table.add_var_count(name_func, 6)
+        elif type == DataType.CHAR:
+            self.function_table.add_var_count(name_func, 7)
+        elif type == DataType.STRING:
+            self.function_table.add_var_count(name_func, 8)
+        elif type == DataType.BOOL:
+            self.function_table.add_var_count(name_func, 9)
+
+    """
+    The following methods helps to the GOTOF nerual point
+    """
+
     def calculate_goto_false(self, p):
         if len(p) >= 2:
             operand = self.operands_stack.pop()
@@ -396,6 +429,11 @@ class LexicalAnalyzer:
 
             self.jumps_stack.append(len(self.quadruples.quadruples) - 1)
     
+
+    """
+    The following methods helps to solve expressions using the stack of operands and operators and generate its quadruples
+    """
+
     def generate_bool_expression(self, p):
         if len(p) >= 3 and p[2]:
             self.operators_stack.append(p[2])
@@ -552,6 +590,10 @@ class LexicalAnalyzer:
                 else:
                     print("Type mismatch")
                     exit(-1) 
+
+    """
+    The following methods helps to push the operands to the stack as well as the constants
+    """
 
     def add_var(self, p):
         if p[1]:
