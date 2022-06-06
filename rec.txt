@@ -1,0 +1,19 @@
+program x2 
+private class x3 : x4 {
+
+    int def prin(int s) {
+        if(s == 0) {
+            prin(1)
+        }
+        else {
+            print("uno")
+        }
+
+        return 1
+    }
+
+    void def main() {
+        prin(0)
+
+    }
+}

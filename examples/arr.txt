@@ -1,0 +1,14 @@
+program x2 
+private class x3 : x4 {
+
+
+    void def main() {
+        var x[3][4] : int
+        var y[3] : int
+        print(7698585)
+
+        x[3*4][5*6] = 1
+
+        y[9*4] = 3
+    }
+}

@@ -1,3 +1,4 @@
+from webbrowser import Opera
 from execution.memory import Memory
 from execution.tables import ConstantTable, Function, ProcedureSymbol
 from semantical.quadruples import Quadruple, Quadruples
@@ -43,21 +44,28 @@ def set_value(functions_table, address, value, func_address):
         '''Busca si una variable es global cuando estamos dentro de una función y 
         le asigna un valor. Si no es global, busca en memoria local y le asigna un
         valor'''
-        #print("Set value address:", address)
+        print("Set value address:", address)
         is_global = functions_table.is_var_global(address)
-        #print("Is global:", is_global, address)
+
+        print("Is global:", is_global)
         if is_global != None:
             functions_table.set_value("global", address, value)
         else:
+            #functions_table.get_all_methods()
+            #print("Set value:", address, value, func_address)
             name_func = functions_table.get_name_func(func_address)
-            functions_table.set_value(name_func, address, value)
+            print("Name func:", name_func)
 
+            print("Set value:", value)
+            functions_table.set_value(name_func, address, value)
+            
 
 
 def read_file(file="object.txt"):
     functions_text = []
     constants_text = []
     quadruples_text = []
+    jump_stack = []
 
     with open(file) as object_file:
         line = object_file.readlines()
@@ -83,9 +91,14 @@ def read_file(file="object.txt"):
 
     functions_table = ProcedureSymbol(functions_good[0][3])
     functions_good.pop(0)
-
+    functions_stack = [None]
     for function in functions_good:
-        functions_table.add_method(function[0], function[1], function[2], function[3], function[4])
+        #print(function[0])
+        if function[0] == "main":
+            functions_table.add_method(function[0], function[1], function[2], function[3], function[4])
+            functions_stack.append(int(function[2]))
+            break
+        #functions_table.add_method(function[0], function[1], function[2], function[3], function[4])
 
 
     constants_good = []
@@ -117,20 +130,21 @@ def read_file(file="object.txt"):
         quadruples.add_quadruple(q)
 
 
-    functions_stack = [None]
+    
 
-    ip = 1
+    ip = 0
     while ip < len(quadruples.quadruples):
+        #print('IP: ', ip)
         name_func = functions_table.get_name_func(ip)
         #print(name_func, ip)
         #print(ip)
         #print(functions_stack)
-        if name_func != "global":
+        """if name_func != "global":
             #print(name_func)
             if functions_stack.count(ip) < 1:
-                functions_stack.append(ip)
+                print('ENTRO')
+                functions_stack.append(ip)""" # DE MIENTRAS ESTA COMENTADO BY THE MOMENT
         #print(functions_stack)
-
         cod_op = quadruples.quadruples[ip].get_operation()
         if cod_op == int(OperationCodes.SUM):
             left_operand = quadruples.quadruples[ip].get_left_operand()
@@ -178,10 +192,10 @@ def read_file(file="object.txt"):
             set_value(functions_table, result, result_value, functions_stack[-1])
             ip += 1
         elif cod_op == int(OperationCodes.ASSIGN):
-            #print(ip)
             left_operand = quadruples.quadruples[ip].get_left_operand()
             #print(left_operand)
             left_operand_value = get_value(functions_table, constants_table, left_operand, functions_stack[-1])
+            print("Left operand value:", left_operand_value)
             result = quadruples.quadruples[ip].get_result()
             set_value(functions_table, result, left_operand_value, functions_stack[-1])
             ip += 1
@@ -272,25 +286,66 @@ def read_file(file="object.txt"):
                 ip = quadruples.quadruples[ip].get_result()
             else:
                 ip += 1
-        elif cod_op == 2100019:             # ENDFUNC
+        elif cod_op == int(OperationCodes.ENDFUNC):             # ENDFUNC
+            #functions_stack.pop()
+            main_address = functions_table.get_method('main').initial_address
+            if functions_stack[-1] != main_address: # main
+                ip = jump_stack.pop() # += 1
+            else:
+                ip += 1 
             functions_stack.pop()
-            ip += 1
-        elif cod_op == 2100020:             # PRINT
+        elif cod_op == int(OperationCodes.PRINT):             # PRINT
             result = quadruples.quadruples[ip].get_result()
             result_value = get_value(functions_table, constants_table, result, functions_stack[-1])
             print(result_value)
             ip += 1
-        elif cod_op == 2100016:            # ERA
-            name_func = quadruples.quadruples[ip].get_left_operand()
-            functions_stack.append(name_func)
+        elif cod_op == int(OperationCodes.ERA):            # ERA
+            name_func_address = quadruples.quadruples[ip].get_result()
+            print("Name func address", name_func_address)
+            functions_stack.append(name_func_address)
+            
+            print("FUNC_STACK:", functions_stack[:])
+            #print('=========')
+            """functions_table
+                ['fib', ' DataType.INT', ' 1', ' [6, 0, 0, 0, 0, 1, 0, 0, 0, 1]', " [<DataType.INT: 'int'>]"]
+                fib 0 -> 0+1 = 1 which is the initial_address of fib
+            """
+
+
+
+            for function in functions_good:
+                #print(function[:])
+                #print(function[2], name_func_address)
+                if int(function[2]) == int(name_func_address):
+                    #print("OP")
+                    functions_table.add_method(function[0], function[1], function[2], function[3], function[4])
+                    break
+            print(functions_table.get_all_func_directions())
+
             ip += 1
-        elif cod_op == int(OperationCodes.RETURN):            # ERA
+        elif cod_op == int(OperationCodes.RETURN):            # ER
             left_operand = quadruples.quadruples[ip].get_left_operand()    
             result = quadruples.quadruples[ip].get_result()
             result_value = get_value(functions_table, constants_table, result, functions_stack[-1])
             set_value(functions_table, left_operand, result_value, None)
             ip += 1
         elif cod_op == int(OperationCodes.GOSUB):
+            #ip += 1
+            jump_stack.append(ip + 1)
+            #print('PPPPPP', jump_stack[:])
+            ip = functions_stack[-1] #quadruples.quadruples[ip].get_left_operand() + 1
+
+        elif cod_op == int(OperationCodes.PARAM):
+            #print(ip, quadruples.quadruples[ip])
+            # function_table, address, value, function_address
+            #15: ['PARAM', '5', '', 0]
+            #16 [2100017, 1600003, 2100022, 0]
+            initial_address = functions_stack[-1] #functions_table.get_initial_address(func_name
+            print(initial_address)
+            value = get_value(functions_table, constants_table, quadruples.quadruples[ip].get_left_operand(), functions_stack[-1])
+            print("Value:", value)
+            set_value(functions_table, quadruples.quadruples[ip].result, value, initial_address)
+
             ip += 1
 
         

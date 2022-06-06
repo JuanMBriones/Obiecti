@@ -1,0 +1,19 @@
+program x2 
+private class x3 : x4 {
+
+    int def fib(int a) {
+        if(a == 0) {
+            return 0
+        }
+        return 56 * 9
+    }
+
+    void def main() {
+        var x : int
+        x = fib(4)
+        print(x)
+
+        print("es", 5*6, "SHUHOFEOWIH")
+
+    }
+}

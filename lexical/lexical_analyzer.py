@@ -5,6 +5,7 @@ from semantical.quadruples import Quadruples, Quadruple
 from semantical.semantic_cube import SemanticCube
 from semantical.symbol_tables import ConstantTable, ProcedureSymbol, SymbolTable
 from semantical.operations_codes import OperationCodes
+from lexical.arrays import Array, ArrayList
 
 class LexicalAnalyzer:
     def __init__(self, object_file_name="object.txt"):
@@ -159,14 +160,41 @@ class LexicalAnalyzer:
             self.generate_quadruple(operation=operation, left_operand=int(OperationCodes.NONE), right_operand=int(OperationCodes.NONE), result=self.operands_stack.pop())
             self.generate_quadruple(operation=OperationCodes.name(int(operation)), left_operand="", right_operand="", result=self.human_operands_stack.pop(), type=True)
 
-    def add_expression_print(self, p):
+    def add_expression_print(self, p): 
         if p[1]:
             self.constants_table.add(p[1], DataType.STRING)
             self.operands_stack.append(self.constants_table.get_address(p[1]))
             self.human_operands_stack.append(p[1])
     
     def declare_array(self, p):
-        pass
+        """| VAR ID LBRACKET cint RBRACKET COLON tipo_simple
+            | VAR ID LBRACKET cint RBRACKET COLON tipo_compuesto
+            | VAR ID LBRACKET cint RBRACKET LBRACKET cint RBRACKET COLON tipo_simple
+            | VAR ID LBRACKET cint RBRACKET LBRACKET cint RBRACKET COLON tipo_compuesto'''"""
+        #print(self.human_operators_stack[:])
+        if len(p) == 8:
+            # 1D
+            name_var = p[2]
+            
+            type_var = self.types_stack.pop() #p[7]
+            dim_1 = self.operands_stack.pop() #p[4]
+            dim_1_h = self.human_operands_stack.pop()
+
+            #print(name_var, type_var, dim_1)
+            #print(name_var, type_var, dim_1_h)
+        else:
+            #2D
+            name_var = p[2]
+            #print('4', self.human_operands_stack.pop())
+            type_var = self.types_stack.pop() #p[10]
+            dim_1 = self.operands_stack.pop() #p[4]
+            dim_2 = self.operands_stack.pop() #p[7]
+
+            dim_1_h = self.human_operands_stack.pop()
+            dim_2_h = self.human_operands_stack.pop()
+
+            #print(name_var, type_var, dim_1, dim_2)
+
 
 
     def declare_var(self, p):
@@ -253,7 +281,38 @@ class LexicalAnalyzer:
                         exit(-1)
         elif len(p) > 4:
             # arrays
-            pass 
+            """
+            | ID LBRACKET exp RBRACKET EQUALS exp_cond
+            | ID LBRACKET exp RBRACKET EQUALS objeto_metodo
+            | objeto_aAcceso LBRACKET exp RBRACKET EQUALS exp_cond
+            | objeto_aAcceso LBRACKET exp RBRACKET EQUALS objeto_metodo
+            | ID LBRACKET exp RBRACKET LBRACKET exp RBRACKET EQUALS exp_cond
+            | ID LBRACKET exp RBRACKET LBRACKET exp RBRACKET EQUALS objeto_metodo
+            | objeto_aAcceso LBRACKET exp RBRACKET LBRACKET exp RBRACKET EQUALS exp_cond
+            | objeto_aAcceso LBRACKET exp RBRACKET LBRACKET exp RBRACKET EQUALS objeto_metodo'''
+            """
+            if len(p) == 7:
+                print(f"{p[1]}[{self.human_operands_stack[-2]}] = {self.human_operands_stack[-1]}")
+                self.generate_quadruple(operation="VER", left_operand=self.human_operands_stack[-2], right_operand=0, result="SIZE-1", type=True)
+                self.generate_quadruple(operation="+", left_operand=self.human_operands_stack[-2], right_operand="DIRB", result=self.quadruples.get_current(), type=True)
+                self.generate_quadruple(operation="=", left_operand=self.human_operands_stack[-1], right_operand="", result=f"({self.quadruples.get_current()})", type=True)
+                self.quadruples.increment_current()
+            else:
+                print(f"{p[1]}[{self.human_operands_stack[-3]}][{self.human_operands_stack[-2]}] = {self.human_operands_stack[-1]}")
+                dim_1 = self.human_operands_stack[-3]
+                dim_2 = self.human_operands_stack[-2]
+                self.generate_quadruple(operation="VER", left_operand=dim_1, right_operand=0, result="SIZE-1", type=True)
+                self.generate_quadruple(operation="*", left_operand=dim_1, right_operand="M1", result=self.quadruples.get_current(), type=True)
+                quadruple_sum = self.quadruples.get_current()
+                self.quadruples.increment_current()
+                self.generate_quadruple(operation="VER", left_operand=dim_2, right_operand=0, result="SIZE-1", type=True)
+                self.generate_quadruple(operation="+", left_operand=quadruple_sum, right_operand=dim_2, result=self.quadruples.get_current(), type=True)
+                current_dir = self.quadruples.get_current()
+                self.quadruples.increment_current()
+                self.generate_quadruple(operation="+", left_operand=current_dir, right_operand="DIRB", result=self.quadruples.get_current(), type=True)
+                self.generate_quadruple(operation="=", left_operand=self.human_operands_stack[-1], right_operand="", result=f"({self.quadruples.get_current()})", type=True)
+            print('s',self.human_operands_stack[:])
+            
     
 
     """
@@ -322,7 +381,7 @@ class LexicalAnalyzer:
 
     def function_call_neural_point_arg(self):
         name_function = self.operands_stack[-1]
-        address_function = self.function_table.get_variable_address("global", name_function)
+        address_function = self.function_table.get_initial_address(name_function)
         self.generate_quadruple(operation=int(OperationCodes.ERA), left_operand=int(OperationCodes.NONE), right_operand=int(OperationCodes.NONE), result=address_function)
         self.generate_quadruple(operation="ERA", left_operand="", right_operand="", result=name_function, type=True)
 
