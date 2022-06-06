@@ -26,6 +26,7 @@ class OperationCodes(Enum):
     READ = 2100021
     NONE = 2100022
     RETURN = 2100023
+    VER = 2100024
 
     def __new__(cls, value):
         member = object.__new__(cls)

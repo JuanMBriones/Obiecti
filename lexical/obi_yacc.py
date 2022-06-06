@@ -215,8 +215,8 @@ def p_asignacion(p):
                     | objeto_aAcceso LBRACKET exp RBRACKET EQUALS objeto_metodo
                     | ID LBRACKET exp RBRACKET LBRACKET exp RBRACKET EQUALS exp_cond
                     | ID LBRACKET exp RBRACKET LBRACKET exp RBRACKET EQUALS objeto_metodo
-                    | objeto_aAcceso LBRACKET LBRACKET exp RBRACKET exp RBRACKET EQUALS exp_cond
-                    | objeto_aAcceso LBRACKET LBRACKET exp RBRACKET exp RBRACKET EQUALS objeto_metodo'''
+                    | objeto_aAcceso LBRACKET exp RBRACKET LBRACKET exp RBRACKET EQUALS exp_cond
+                    | objeto_aAcceso LBRACKET exp RBRACKET LBRACKET exp RBRACKET EQUALS objeto_metodo'''
     lexical_analyzer.assign_operators(p)
 
 def p_objeto_metodo(p):

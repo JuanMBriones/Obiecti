@@ -331,7 +331,38 @@ class LexicalAnalyzer:
                         exit(-1)
         elif len(p) > 4:
             # arrays
-            pass 
+            """
+            | ID LBRACKET exp RBRACKET EQUALS exp_cond
+            | ID LBRACKET exp RBRACKET EQUALS objeto_metodo
+            | objeto_aAcceso LBRACKET exp RBRACKET EQUALS exp_cond
+            | objeto_aAcceso LBRACKET exp RBRACKET EQUALS objeto_metodo
+            | ID LBRACKET exp RBRACKET LBRACKET exp RBRACKET EQUALS exp_cond
+            | ID LBRACKET exp RBRACKET LBRACKET exp RBRACKET EQUALS objeto_metodo
+            | objeto_aAcceso LBRACKET exp RBRACKET LBRACKET exp RBRACKET EQUALS exp_cond
+            | objeto_aAcceso LBRACKET exp RBRACKET LBRACKET exp RBRACKET EQUALS objeto_metodo'''
+            """
+            if len(p) == 7:
+                print(f"{p[1]}[{self.human_operands_stack[-2]}] = {self.human_operands_stack[-1]}")
+                self.generate_quadruple(operation="VER", left_operand=self.human_operands_stack[-2], right_operand=0, result="SIZE-1", type=True)
+                self.generate_quadruple(operation="+", left_operand=self.human_operands_stack[-2], right_operand="DIRB", result=self.quadruples.get_current(), type=True)
+                self.generate_quadruple(operation="=", left_operand=self.human_operands_stack[-1], right_operand="", result=f"({self.quadruples.get_current()})", type=True)
+                self.quadruples.increment_current()
+            else:
+                print(f"{p[1]}[{self.human_operands_stack[-3]}][{self.human_operands_stack[-2]}] = {self.human_operands_stack[-1]}")
+                dim_1 = self.human_operands_stack[-3]
+                dim_2 = self.human_operands_stack[-2]
+                self.generate_quadruple(operation="VER", left_operand=dim_1, right_operand=0, result="SIZE-1", type=True)
+                self.generate_quadruple(operation="*", left_operand=dim_1, right_operand="M1", result=self.quadruples.get_current(), type=True)
+                quadruple_sum = self.quadruples.get_current()
+                self.quadruples.increment_current()
+                self.generate_quadruple(operation="VER", left_operand=dim_2, right_operand=0, result="SIZE-1", type=True)
+                self.generate_quadruple(operation="+", left_operand=quadruple_sum, right_operand=dim_2, result=self.quadruples.get_current(), type=True)
+                current_dir = self.quadruples.get_current()
+                self.quadruples.increment_current()
+                self.generate_quadruple(operation="+", left_operand=current_dir, right_operand="DIRB", result=self.quadruples.get_current(), type=True)
+                self.generate_quadruple(operation="=", left_operand=self.human_operands_stack[-1], right_operand="", result=f"({self.quadruples.get_current()})", type=True)
+            print('s',self.human_operands_stack[:])
+            
     
     def function_calling(self):
         name_function = self.operands_stack.pop()
