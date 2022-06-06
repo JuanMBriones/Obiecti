@@ -5,6 +5,7 @@ from semantical.quadruples import Quadruples, Quadruple
 from semantical.semantic_cube import SemanticCube
 from semantical.symbol_tables import ConstantTable, ProcedureSymbol, SymbolTable
 from semantical.operations_codes import OperationCodes
+from lexical.arrays import Array, ArrayList
 
 class LexicalAnalyzer:
     def __init__(self, object_file_name="object.txt"):
@@ -191,14 +192,41 @@ class LexicalAnalyzer:
             self.generate_quadruple(operation=operation, left_operand=int(OperationCodes.NONE), right_operand=int(OperationCodes.NONE), result=self.operands_stack.pop())
             self.generate_quadruple(operation=OperationCodes.name(int(operation)), left_operand="", right_operand="", result=self.human_operands_stack.pop(), type=True)
 
-    def add_expression_print(self, p):
+    def add_expression_print(self, p): 
         if p[1]:
             self.constants_table.add(p[1], DataType.STRING)
             self.operands_stack.append(self.constants_table.get_address(p[1]))
             self.human_operands_stack.append(p[1])
     
     def declare_array(self, p):
-        pass
+        """| VAR ID LBRACKET cint RBRACKET COLON tipo_simple
+            | VAR ID LBRACKET cint RBRACKET COLON tipo_compuesto
+            | VAR ID LBRACKET cint RBRACKET LBRACKET cint RBRACKET COLON tipo_simple
+            | VAR ID LBRACKET cint RBRACKET LBRACKET cint RBRACKET COLON tipo_compuesto'''"""
+        #print(self.human_operators_stack[:])
+        if len(p) == 8:
+            # 1D
+            name_var = p[2]
+            
+            type_var = self.types_stack.pop() #p[7]
+            dim_1 = self.operands_stack.pop() #p[4]
+            dim_1_h = self.human_operands_stack.pop()
+
+            #print(name_var, type_var, dim_1)
+            #print(name_var, type_var, dim_1_h)
+        else:
+            #2D
+            name_var = p[2]
+            #print('4', self.human_operands_stack.pop())
+            type_var = self.types_stack.pop() #p[10]
+            dim_1 = self.operands_stack.pop() #p[4]
+            dim_2 = self.operands_stack.pop() #p[7]
+
+            dim_1_h = self.human_operands_stack.pop()
+            dim_2_h = self.human_operands_stack.pop()
+
+            #print(name_var, type_var, dim_1, dim_2)
+
 
     def add_var_func_size(self, name_func, type):
         if type == DataType.INT:
