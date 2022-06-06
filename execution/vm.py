@@ -44,19 +44,19 @@ def set_value(functions_table, address, value, func_address):
         '''Busca si una variable es global cuando estamos dentro de una función y 
         le asigna un valor. Si no es global, busca en memoria local y le asigna un
         valor'''
-        print("Set value address:", address)
+        #print("Set value address:", address)
         is_global = functions_table.is_var_global(address)
 
-        print("Is global:", is_global)
+        #print("Is global:", is_global)
         if is_global != None:
             functions_table.set_value("global", address, value)
         else:
             #functions_table.get_all_methods()
             #print("Set value:", address, value, func_address)
             name_func = functions_table.get_name_func(func_address)
-            print("Name func:", name_func)
+            #print("Name func:", name_func)
 
-            print("Set value:", value)
+            #print("Set value:", value)
             functions_table.set_value(name_func, address, value)
             
 
@@ -195,7 +195,7 @@ def read_file(file="object.txt"):
             left_operand = quadruples.quadruples[ip].get_left_operand()
             #print(left_operand)
             left_operand_value = get_value(functions_table, constants_table, left_operand, functions_stack[-1])
-            print("Left operand value:", left_operand_value)
+            #print("Left operand value:", left_operand_value)
             result = quadruples.quadruples[ip].get_result()
             set_value(functions_table, result, left_operand_value, functions_stack[-1])
             ip += 1
@@ -301,10 +301,10 @@ def read_file(file="object.txt"):
             ip += 1
         elif cod_op == int(OperationCodes.ERA):            # ERA
             name_func_address = quadruples.quadruples[ip].get_result()
-            print("Name func address", name_func_address)
+            #print("Name func address", name_func_address)
             functions_stack.append(name_func_address)
             
-            print("FUNC_STACK:", functions_stack[:])
+            #print("FUNC_STACK:", functions_stack[:])
             #print('=========')
             """functions_table
                 ['fib', ' DataType.INT', ' 1', ' [6, 0, 0, 0, 0, 1, 0, 0, 0, 1]', " [<DataType.INT: 'int'>]"]
@@ -320,7 +320,7 @@ def read_file(file="object.txt"):
                     #print("OP")
                     functions_table.add_method(function[0], function[1], function[2], function[3], function[4])
                     break
-            print(functions_table.get_all_func_directions())
+            #print(functions_table.get_all_func_directions())
 
             ip += 1
         elif cod_op == int(OperationCodes.RETURN):            # ER
@@ -341,9 +341,9 @@ def read_file(file="object.txt"):
             #15: ['PARAM', '5', '', 0]
             #16 [2100017, 1600003, 2100022, 0]
             initial_address = functions_stack[-1] #functions_table.get_initial_address(func_name
-            print(initial_address)
+            #print(initial_address)
             value = get_value(functions_table, constants_table, quadruples.quadruples[ip].get_left_operand(), functions_stack[-1])
-            print("Value:", value)
+            #print("Value:", value)
             set_value(functions_table, quadruples.quadruples[ip].result, value, initial_address)
 
             ip += 1

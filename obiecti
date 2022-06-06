@@ -14,7 +14,8 @@
 #####
 
 # set DIRNAME to this scripts parent directory
-DIRNAME="$(dirname "$(readlink -f "${BASH_SOURCE[0]}")")"
+#DIRNAME="$(dirname "$(readlink -f "${BASH_SOURCE[0]}")")"
+DIRNAME="$(dirname "$(readlink "${BASH_SOURCE[0]}")")"
 
 # run make (unless $NOREMAKE is non-empty)
 [[ -z "$NOREMAKE" ]] && [[ -e "$DIRNAME/Makefile" ]] && make -C "$DIRNAME" >/dev/null

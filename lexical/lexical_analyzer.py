@@ -432,6 +432,7 @@ class LexicalAnalyzer:
             if argument_type != current_param:
                 expected = current_param.value
                 argument = argument_type.value
+                print(argument_type, current_param)
                 print(f"Expected argument of type {expected.upper()} but instead {argument.upper()} were given")
                 exit(-1)
             name_function = self.operands_stack[-1]

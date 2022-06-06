@@ -1,22 +1,24 @@
 program x2 
 private class x3 : x4 {
 
-    int def fib(int a) {
-        return a   
-    }
+    int def fib(int max) {
+        var past, past_past, curr : int
 
-    int def fibr(int b) {
-        return b
+        
+        past = 1    
+        past_past = 0
+        curr = 0
+        while(curr < max) {
+            print(curr)
+            curr = past + past_past
+            past_past = past
+            past = curr
+        }
+
+        return 1
     }
 
     void def main() {
-        var x : int
-        x = fib(4)
-        print(x)
-
-        var y : int
-        y = fibr(4)
-        print(y)
-
+        fib(39)
     }
 }
