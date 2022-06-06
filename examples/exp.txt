@@ -1,11 +1,9 @@
 program x2 
 private class x3 : x4 {
-    var x4 : int
-    x4 = 10
-    print(x4)
-
-    int def x3() {
-        
+    
+    var x : int
+    x = 7
+    int def x3() {   
         var x2 : int
         x2 = 0
         while (x2 < 50) {
@@ -21,6 +19,12 @@ private class x3 : x4 {
         return 3
     }
 
-    x4 = x3()
-    print(x4)
+    void def main() {
+        var x4 : int
+        x4 = 10
+        print(x4)
+        x4 = x3()
+        print(x4)
+    }
+    
 }

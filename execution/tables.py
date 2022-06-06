@@ -95,6 +95,7 @@ class Function:
             elif address >= 1400000 and address < 1500000:
                 real_address = address - 1400000
                 return self.temp_memory.access_boolean(real_address)
+    
 
     def is_var_global(self, address):
         '''Auxiliar para las funciones que busca si una variable existe en la
@@ -120,6 +121,8 @@ class ProcedureSymbol():
         self.param_table = []
         self.methods['global'] = Function(DataType.VOID, None, self.size_good, self.param_table)
 
+    def get_method(self, name):
+        return self.methods[name]
     
     def add_method(self, name, data_type, initial_address, size, param_table):
         data_type_good = self.string_to_data_type(data_type)

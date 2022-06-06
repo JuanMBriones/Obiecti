@@ -341,7 +341,7 @@ class LexicalAnalyzer:
 
     def function_call_neural_point_arg(self):
         name_function = self.operands_stack[-1]
-        address_function = self.function_table.get_variable_address("global", name_function)
+        address_function = self.function_table.get_initial_address(name_function)
         self.generate_quadruple(operation=int(OperationCodes.ERA), left_operand=int(OperationCodes.NONE), right_operand=int(OperationCodes.NONE), result=address_function)
         self.generate_quadruple(operation="ERA", left_operand="", right_operand="", result=name_function, type=True)
 
