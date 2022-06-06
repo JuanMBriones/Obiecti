@@ -70,3 +70,38 @@ Semantical Proposal:
         float OP string
         float OP char
 
+
+The structure of a program look like this:
+
+    program x2
+    private class x3 : x4 {
+        print("Hello world")
+    }
+
+To declare variables you can use something like this:
+    
+    var x2, x3 : int
+    x2 = 10
+
+You can't declare variables inside a while
+
+To define a function you can use something like this:
+    
+    int def x3() {
+        return 3
+    }
+    
+For conditionals, you can only use if and elif. Else doesn't exist here
+
+    if (x2 < 3) {
+        print("Hi")
+    }
+    elif (x2 < 5) {
+        print("Goodbye")
+    }
+    
+The only loop that exists here is while
+
+    while (x2 < 3) {
+        print("Hi")
+    }
