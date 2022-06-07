@@ -53,6 +53,9 @@ class LexicalAnalyzer:
 
             for key, value in self.quadruples.get_quadruples().items():
                 object_file.write(f"{value}\n")
+        
+        self.function_table.debug()
+        self.constants_table.debug()
             
             
     def generate_quadruple(self, operation, left_operand, right_operand, result, type=None):
@@ -231,12 +234,21 @@ class LexicalAnalyzer:
             name_var = p[2]
             #print('4', self.human_operands_stack.pop())
             type_var = self.types_stack.pop() #p[10]
-            dim_1 = self.operands_stack.pop() #p[4]
             dim_2 = self.operands_stack.pop() #p[7]
+            dim_1 = self.operands_stack.pop() #p[4]
+            
 
-            dim_1_h = self.human_operands_stack.pop()
-            dim_2_h = self.human_operands_stack.pop()
+            dim_1_h = int(self.human_operands_stack.pop())
+            dim_2_h = int(self.human_operands_stack.pop())
+            m1 = int(dim_2_h)
+            size = int(dim_1_h) * int(dim_2_h)
+            print('diimm', dim_1_h, dim_2_h)
+            print("size", size)
+            print("m1", m1)
 
+            #def add_variable(self, name_func, name_var, data_type, d1=None, d2=None, m1=None, size=None):
+
+            self.function_table.add_variable(self.functions_stack[-1], name_var, type_var, dim_1_h, dim_2_h, m1, size)
             #print(name_var, type_var, dim_1, dim_2)
 
 
@@ -349,6 +361,7 @@ class LexicalAnalyzer:
                 print(var, self.function_table.get_method(self.functions_stack[-1]).find_variable(var).get()) #get(var))"""
 
             self.function_table.debug()
+            self.constants_table.debug()
         elif len(p) > 4:
             # arrays
             """

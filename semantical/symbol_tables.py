@@ -46,6 +46,7 @@ class SymbolTable(Symbol):
         self.symbols = {}
         self.local_memory = LocalMemory(name)
         self.temporal_memory = TemporalMemory()
+        self.temporal_addresses = []
 
     def add(self, name, data_type, scope, d1=None, d2=None, m1=None, size=None):
         try:
@@ -64,7 +65,9 @@ class SymbolTable(Symbol):
             return None
 
     def add_temporal_variable(self, data_type):
-        return self.temporal_memory.requestSpace(data_type)
+        temporal_address = self.temporal_memory.requestSpace(data_type)
+        self.temporal_addresses.append({"type": data_type, "address": temporal_address})
+        return temporal_address #self.temporal_memory.requestSpace(data_type)
 
     def move_temporal_next_direction(self, data_type):
         self.temporal_memory.move_next_direction(data_type)
@@ -154,11 +157,15 @@ class Function:
     def get_initial_address(self):
         return self.initial_address
 
+    def get_temporal_address(self):
+        return self.symbol_table.temporal_addresses
+
     def get_all_variables(self):
         return self.symbol_table.get_all_variables_names()
 
     def delete_table(self):
-        del self.symbol_table
+        #del self.symbol_table
+        #print('ya se borro')
         gc.collect()
 
 class ProcedureSymbol():
@@ -317,7 +324,12 @@ class ProcedureSymbol():
             print(f"SCOPE: {method_name}")
             print('\tVARS')
             for variable in self.get_method(method_name).get_all_variables():
-                print(f"\t{variable} -> {self.get_method(method_name).find_variable(variable).get(description=True)}")
+                print(f"\t\t{variable} -> {self.get_method(method_name).find_variable(variable).get(description=True)}")
+            print(f"\tTEMP")
+            #print(f"\t\t{self.get_method(method_name).get_temporal_address()}")
+            for temporal_variable in self.get_method(method_name).get_temporal_address():
+                print(f"\t\t{temporal_variable}, ")
+
         print('----END DEBUG-----')
 
 class Constant:
@@ -325,7 +337,9 @@ class Constant:
         self.value = value
         self.address = address
     
-    def get(self):
+    def get(self, description=None):
+        if description:
+            return {"value": self.value, "address": self.address}
         return (self.value, self.address)
 
     def __eq__(self, __o) -> bool:
@@ -362,3 +376,10 @@ class ConstantTable(Constant):
     
     def get_all_constants_values(self):
         return self.constants.keys()
+    
+    def debug(self):
+        print('----DEBUG-----')
+        print(f"\tCONSTANTS")
+        for constant in self.constants:
+            print(f"\t{constant} -> {self.constants[constant].get(description=True)}")
+        print('----END DEBUG-----')
