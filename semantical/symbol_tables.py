@@ -7,13 +7,21 @@ from semantical.memory import ConstantsMemory, GlobalMemory, LocalMemory, Tempor
 from semantical.semantic_cube import SemanticCube
 
 class Symbol:
-    def __init__(self, name, data_type, scope, address):
+    def __init__(self, name, data_type, scope, address, d1=None, d2=None, m1=None, size=None):
         self.name = name
         self.data_type = data_type
         self.scope = scope
         self.address = address
+        self.d1 = d1
+        self.d2 = d2
+        self.m1 = m1
+        self.size = size
     
     def get(self):
+        if self.d2:
+            return (self.name, self.data_type, self.scope, self.address, self.d1, self.d2, self.m1, self.size)
+        if self.d1:
+            return (self.name, self.data_type, self.scope, self.address, self.d1, self.size)
         return (self.name, self.data_type, self.scope, self.address)
 
     def __eq__(self, __o) -> bool:
@@ -27,34 +35,25 @@ class Symbol:
         return not self.__eq__(__o)
 
 
-
-class SingletonMeta(type):
-    _instances = {}
-
-    def __call__(cls, *args, **kwargs):
-        """
-        Possible changes to the value of the `__init__` argument do not affect
-        the returned instance.
-        """
-        if cls not in cls._instances:
-            instance = super().__call__(*args, **kwargs)
-            cls._instances[cls] = instance
-        return cls._instances[cls]
-
 class SymbolTable(Symbol):
     def __init__(self, name):
         self.symbols = {}
         self.local_memory = LocalMemory(name)
         self.temporal_memory = TemporalMemory()
 
-    def add(self, name, data_type, scope):
+    def add(self, name, data_type, scope, d1=None, d2=None, m1=None, size=None):
         try:
             if name in self.symbols:
                 raise Exception("Symbol already exists")
             else:
-                address = self.local_memory.requestSpace(data_type)
-                self.symbols[name] = Symbol(name, data_type, scope, address)
-                return True
+                if not d1: # not an array
+                    address = self.local_memory.requestSpace(data_type)
+                    self.symbols[name] = Symbol(name, data_type, scope, address)
+                    return True
+                else:
+                    address = self.local_memory.requestSpace(data_type)
+                    self.symbols[name] = Symbol(name, data_type, scope, address, d1, d2, m1, size)
+                    return True
         except:
             return None
 
@@ -64,8 +63,8 @@ class SymbolTable(Symbol):
     def move_temporal_next_direction(self, data_type):
         self.temporal_memory.move_next_direction(data_type)
 
-    def move_local_next_direction(self, data_type):
-        self.local_memory.move_next_direction(data_type)
+    def move_local_next_direction(self, data_type, jump=1):
+        self.local_memory.move_next_direction(data_type, jump)
 
     def get(self, name):
         if name in self.symbols:
@@ -125,8 +124,8 @@ class Function:
     def set_address(self, address):
         self.initial_address = address
 
-    def add_variable(self, name, data_type, scope):
-        return self.symbol_table.add(name, data_type, scope)
+    def add_variable(self, name, data_type, scope, d1=None, d2=None, m1=None, size=None):
+        return self.symbol_table.add(name, data_type, scope, d1, d2, m1, size)
 
     def add_temporal_variable(self, data_type):
         return self.symbol_table.add_temporal_variable(data_type)
@@ -134,8 +133,8 @@ class Function:
     def move_temporal_next_direction(self, data_type):
         self.symbol_table.move_temporal_next_direction(data_type)
 
-    def move_local_next_direction(self, data_type):
-        self.symbol_table.move_local_next_direction(data_type)
+    def move_local_next_direction(self, data_type, jump=1):
+        self.symbol_table.move_local_next_direction(data_type, jump)
 
     def find_variable(self, name):
         return self.symbol_table.find_variable(name)
@@ -156,8 +155,7 @@ class Function:
         del self.symbol_table
         gc.collect()
 
-class ProcedureSymbol(metaclass=SingletonMeta):
-    # __metaclass__ = SingletonMeta
+class ProcedureSymbol():
 
     methods = {}
     global_scope = 'global'
@@ -204,15 +202,21 @@ class ProcedureSymbol(metaclass=SingletonMeta):
             print(f"Variable {name} already defined")
             exit(-1)
 
-    def add_variable(self, name_func, name_var, data_type):
+    def add_variable(self, name_func, name_var, data_type, d1=None, d2=None, m1=None, size=None):
         is_global = self.get_global_variable(name_var)
         if is_global:
             print(f"Variable {name_var} already defined")
             exit(-1)
         else:
-            added = self.get_method(name_func).add_variable(name_var, data_type, "local")
+            added = self.get_method(name_func).add_variable(name_var, data_type, "local", d1, d2, m1, size)
             if added != None:
-                self.move_local_next_direction(name_func, data_type)
+                jump = int(1)
+                if d1:
+                    jump *= d1
+                if d2:
+                    jump *= d2
+                print("ddwefe", type(jump))
+                self.move_local_next_direction(name_func, data_type, int(jump))
             else:
                 print(f"Variable {name_var} already defined")
                 exit(-1)
@@ -224,8 +228,8 @@ class ProcedureSymbol(metaclass=SingletonMeta):
     def move_temporal_next_direction(self, name_func, data_type):
         self.get_method(name_func).move_temporal_next_direction(data_type)
 
-    def move_local_next_direction(self, name_func, data_type):
-        self.get_method(name_func).move_local_next_direction(data_type)
+    def move_local_next_direction(self, name_func, data_type, jump=1):
+        self.get_method(name_func).move_local_next_direction(data_type, jump)
 
     def get_param(self, name_func, position):
         try:

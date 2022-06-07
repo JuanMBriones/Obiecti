@@ -54,6 +54,7 @@ class LexicalAnalyzer:
             for key, value in self.quadruples.get_quadruples().items():
                 object_file.write(f"{value}\n")
             
+            
     def generate_quadruple(self, operation, left_operand, right_operand, result, type=None):
         quadruple = Quadruple(operation=operation, left_operand=left_operand, right_operand=right_operand, result=result)
 
@@ -212,6 +213,17 @@ class LexicalAnalyzer:
             dim_1 = self.operands_stack.pop() #p[4]
             dim_1_h = self.human_operands_stack.pop()
 
+            #print()
+
+            #d1=None, d2=None, m1=None, size=None
+            #def add_variable(self, name_func, name_var, data_type, d1=None, d2=None, m1=None, size=None):
+            print('diimm', dim_1)
+
+            self.function_table.add_variable(self.functions_stack[-1], name_var, type_var, dim_1_h, None, None, dim_1_h)
+            print('ffff', self.function_table.get_method(self.functions_stack[-1]).get_all_variables())
+
+            for var in self.function_table.get_method(self.functions_stack[-1]).get_all_variables():
+                print(var, self.function_table.get_method(self.functions_stack[-1]).find_variable(var).get()) #get(var))
             #print(name_var, type_var, dim_1)
             #print(name_var, type_var, dim_1_h)
         else:
@@ -329,6 +341,12 @@ class LexicalAnalyzer:
                     else:
                         print("Type mismatch")
                         exit(-1)
+            
+            print('ffff', self.function_table.get_method(self.functions_stack[-1]).get_all_variables())
+            print('methods names', self.function_table.get_methods_names())
+            print('currently in method', self.functions_stack[-1])
+            for var in self.function_table.get_method(self.functions_stack[-1]).get_all_variables():
+                print(var, self.function_table.get_method(self.functions_stack[-1]).find_variable(var).get()) #get(var))
         elif len(p) > 4:
             # arrays
             """
@@ -342,7 +360,16 @@ class LexicalAnalyzer:
             | objeto_aAcceso LBRACKET exp RBRACKET LBRACKET exp RBRACKET EQUALS objeto_metodo'''
             """
             if len(p) == 7:
-                print(f"{p[1]}[{self.human_operands_stack[-2]}] = {self.human_operands_stack[-1]}")
+                value = self.operands_stack.pop()
+                index = self.operands_stack.pop()
+                value_human = self.human_operands_stack.pop()
+                index_human = self.human_operands_stack.pop()
+
+                
+
+                #self.function_table.add_variable(self.functions_stack[-1], p[1], self.types_stack[-1], 28)
+                #self.function_table.add_variable(self.functions_stack[-1], p[1]+'3', self.types_stack[-1])
+
                 self.generate_quadruple(operation="VER", left_operand=self.human_operands_stack[-2], right_operand=0, result="SIZE-1", type=True)
                 self.generate_quadruple(operation="+", left_operand=self.human_operands_stack[-2], right_operand="DIRB", result=self.quadruples.get_current(), type=True)
                 self.generate_quadruple(operation="=", left_operand=self.human_operands_stack[-1], right_operand="", result=f"({self.quadruples.get_current()})", type=True)
@@ -351,6 +378,26 @@ class LexicalAnalyzer:
                 print(f"{p[1]}[{self.human_operands_stack[-3]}][{self.human_operands_stack[-2]}] = {self.human_operands_stack[-1]}")
                 dim_1 = self.human_operands_stack[-3]
                 dim_2 = self.human_operands_stack[-2]
+
+                #def __init__(self, dim, limits: list):
+                #array = ArrayList(2, [dim_1, dim_2])
+                #array.calculate()
+                #print('array=', array.)
+
+                """                                
+                right_operand = self.operands_stack.pop()
+                left_operand = self.operands_stack.pop()
+                right_operand_human = self.human_operands_stack.pop()
+                left_operand_human = self.human_operands_stack.pop()
+                
+                result_type = self.semantic_cube.validate(operator, self.types_stack.pop(), self.types_stack.pop())
+                if result_type != None:
+                    address = self.function_table.add_temporal_variable(self.functions_stack[-1], result_type)
+                    
+                    self.generate_quadruple(operation=address_operator, left_operand=left_operand, right_operand=right_operand, result=address)
+                    self.generate_quadruple(operation=operator, left_operand=left_operand_human, right_operand=right_operand_human, result=f"t{self.quadruples.get_current()}", type=True)
+                """
+
                 self.generate_quadruple(operation="VER", left_operand=dim_1, right_operand=0, result="SIZE-1", type=True)
                 self.generate_quadruple(operation="*", left_operand=dim_1, right_operand="M1", result=self.quadruples.get_current(), type=True)
                 quadruple_sum = self.quadruples.get_current()
