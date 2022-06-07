@@ -342,11 +342,13 @@ class LexicalAnalyzer:
                         print("Type mismatch")
                         exit(-1)
             
-            print('ffff', self.function_table.get_method(self.functions_stack[-1]).get_all_variables())
+            """print('ffff', self.function_table.get_method(self.functions_stack[-1]).get_all_variables())
             print('methods names', self.function_table.get_methods_names())
             print('currently in method', self.functions_stack[-1])
             for var in self.function_table.get_method(self.functions_stack[-1]).get_all_variables():
-                print(var, self.function_table.get_method(self.functions_stack[-1]).find_variable(var).get()) #get(var))
+                print(var, self.function_table.get_method(self.functions_stack[-1]).find_variable(var).get()) #get(var))"""
+
+            self.function_table.debug()
         elif len(p) > 4:
             # arrays
             """

@@ -17,7 +17,13 @@ class Symbol:
         self.m1 = m1
         self.size = size
     
-    def get(self):
+    def get(self, description=None):
+        if description:
+            if self.d2:
+                return {"name": self.name, "data_type": self.data_type, "scope": self.scope, "address": self.address, "dim1": self.d1, "dim2": self.d2, "m1": self.m1, "size": self.size}
+            if self.d1:
+                return {"name": self.name, "data_type": self.data_type, "scope": self.scope, "address": self.address, "dim1": self.d1, "size": self.size}
+            return {"name": self.name, "data_type": self.data_type, "scope": self.scope, "address": self.address}
         if self.d2:
             return (self.name, self.data_type, self.scope, self.address, self.d1, self.d2, self.m1, self.size)
         if self.d1:
@@ -296,6 +302,23 @@ class ProcedureSymbol():
         for key, value in self.methods.items():
             print(f"{key}: {value.get_status()}")
     
+    def debug(self):
+        """
+         print('ffff', self.function_table.get_method(self.functions_stack[-1]).get_all_variables())
+            print('methods names', self.function_table.get_methods_names())
+            print('currently in method', self.functions_stack[-1])
+            for var in self.function_table.get_method(self.functions_stack[-1]).get_all_variables():
+                print(var, self.function_table.get_method(self.functions_stack[-1]).find_variable(var).get()) #get(var))
+
+        
+        """
+        print('----DEBUG-----')
+        for method_name in self.methods:
+            print(f"SCOPE: {method_name}")
+            print('\tVARS')
+            for variable in self.get_method(method_name).get_all_variables():
+                print(f"\t{variable} -> {self.get_method(method_name).find_variable(variable).get(description=True)}")
+        print('----END DEBUG-----')
 
 class Constant:
     def __init__(self, value, address):
