@@ -347,7 +347,8 @@ def read_file(file="object.txt"):
             set_value(functions_table, quadruples.quadruples[ip].result, value, initial_address)
 
             ip += 1
-
+        else:
+            ip += 1
         
 
         

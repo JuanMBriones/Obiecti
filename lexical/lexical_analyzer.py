@@ -224,6 +224,7 @@ class LexicalAnalyzer:
             #print('diimm', dim_1)
 
             self.function_table.add_variable(self.functions_stack[-1], name_var, type_var, dim_1_h, None, None, dim_1_h)
+            self.add_var_func_size(self.functions_stack[-1], type_var, slots=int(dim_1_h))
             #print('ffff', self.function_table.get_method(self.functions_stack[-1]).get_all_variables())
 
             #for var in self.function_table.get_method(self.functions_stack[-1]).get_all_variables():
@@ -243,6 +244,8 @@ class LexicalAnalyzer:
 
             m1 = int(dim_2_h)
             size = int(dim_1_h) * int(dim_2_h)
+
+            self.add_var_func_size(self.functions_stack[-1], type_var, slots=size)
             
             #print('diimm', dim_1_h, dim_2_h)
             #print("size", size)
@@ -251,17 +254,17 @@ class LexicalAnalyzer:
             self.function_table.add_variable(self.functions_stack[-1], name_var, type_var, dim_1_h, dim_2_h, m1, size)
             
 
-    def add_var_func_size(self, name_func, type):
+    def add_var_func_size(self, name_func, type, slots=1):
         if type == DataType.INT:
-            self.function_table.add_var_count(name_func, 0)
+            self.function_table.add_var_count(name_func, 0, slots)
         elif type == DataType.FLOAT:
-            self.function_table.add_var_count(name_func, 1)
+            self.function_table.add_var_count(name_func, 1, slots)
         elif type == DataType.CHAR:
-            self.function_table.add_var_count(name_func, 2)
+            self.function_table.add_var_count(name_func, 2, slots)
         elif type == DataType.STRING:
-            self.function_table.add_var_count(name_func, 3)
+            self.function_table.add_var_count(name_func, 3, slots)
         elif type == DataType.BOOL:
-            self.function_table.add_var_count(name_func, 4)
+            self.function_table.add_var_count(name_func, 4, slots)
 
     def add_temp_func_size(self, name_func, type):
         if type == DataType.INT:
@@ -434,7 +437,7 @@ class LexicalAnalyzer:
                 final_address = self.function_table.add_temporal_variable(self.functions_stack[-1], DataType.INT)
                 self.function_table.move_temporal_next_direction(self.functions_stack[-1], DataType.INT)
                 self.add_temp_func_size(self.functions_stack[-1], DataType.INT)
-                
+
                 self.generate_quadruple(operation=int(OperationCodes.SUMDIR), left_operand=address_sum, right_operand=int(array_info['address']), result=final_address)
 
                 self.generate_quadruple(operation=int(OperationCodes.ASSIGNDIR), left_operand=int(value_human), right_operand=int(OperationCodes.NONE), result=final_address)
