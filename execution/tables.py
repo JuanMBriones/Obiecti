@@ -238,4 +238,4 @@ class ConstantTable(Constant):
             print(f"{key}: {value}")
     
     def debug(self):
-        return [value.get() for key, value in self.constants.items()]
+        return { key: value.get() for key, value in self.constants.items()}

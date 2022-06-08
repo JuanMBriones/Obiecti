@@ -59,7 +59,8 @@ def set_value(functions_table, address, value, func_address):
             #print("Set value:", value)
             functions_table.set_value(name_func, address, value)
 
-def debug(functions_table):
+def debug(functions_table, constants_table):
+
     print(f"===Functions====")
     for key, value in functions_table.debug().items():
         print(f"\t{key}")
@@ -67,11 +68,19 @@ def debug(functions_table):
         print(f"\t\tdirBase: {value['initial_address']}")
         print(f"\t\tsize: {value['size']}")
         print(f"\t\tparams: {value['params']}")
-        print(f"\t\tLOCAL MEMORY")
-        for type, list_type in value['local_memory'].items():
-            print(f"\t\t\t{type}")
-            for info_var in list_type:
-                print(f"\t\t\t\t{info_var['index']}(index): {info_var['value']}")
+        #print(f"\t\tLOCAL MEMORY")
+
+        for memory_type, memory_list in value.items():
+            if memory_type not in {'initial_address', 'size', 'params'}:
+                print(f"\t\t{memory_type} ")
+                for type, list_type in memory_list.items(): #value['local_memory'].items():
+                    print(f"\t\t\t{type}")
+                    for info_var in list_type:
+                        print(f"\t\t\t\t{info_var['index']}(index): {info_var['value']}")
+
+    print(f"===Constants====")
+    for key, value in constants_table.debug().items():
+        print(f"\tAddress: {value['address']}    Value: {value['value']}")
                 
         
 
@@ -365,7 +374,7 @@ def read_file(file="object.txt"):
     except Exception as e:
         print(f"FAILED on Instruction Pointer {ip}")
         print(quadruples.quadruples[ip])
-        debug(functions_table)
+        debug(functions_table, constants_table)
         print(f"Stack trace")
         print(f"\t\t{e}")
         
