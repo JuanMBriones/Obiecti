@@ -124,8 +124,8 @@ class Function:
     def add_param(self, param):
         self.param_table.append(param)
         
-    def add_var_count(self, position):
-        self.size[position] += 1
+    def add_var_count(self, position, slots=1):
+        self.size[position] += slots
 
     def add_param_count(self, position):
         self.size[position] += 1
@@ -268,8 +268,8 @@ class ProcedureSymbol():
     def add_param_count(self, name_func, position):
         self.get_method(name_func).add_param_count(position)
 
-    def add_var_count(self, name_func, position):
-        self.get_method(name_func).add_var_count(position)
+    def add_var_count(self, name_func, position, slots=1):
+        self.get_method(name_func).add_var_count(position, slots)
 
     def get_variable_address(self, name_function, name_variable):
         return self.get_method(name_function).get_virtual_address(name_variable)

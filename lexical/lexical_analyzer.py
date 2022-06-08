@@ -249,7 +249,7 @@ class LexicalAnalyzer:
             #print("m1", m1)
 
             self.function_table.add_variable(self.functions_stack[-1], name_var, type_var, dim_1_h, dim_2_h, m1, size)
-
+            
 
     def add_var_func_size(self, name_func, type):
         if type == DataType.INT:
@@ -393,10 +393,11 @@ class LexicalAnalyzer:
 
                 address = self.function_table.add_temporal_variable(self.functions_stack[-1], DataType.INT)
                 self.function_table.move_temporal_next_direction(self.functions_stack[-1], DataType.INT)
+                self.add_temp_func_size(self.functions_stack[-1], DataType.INT)
+
                 self.generate_quadruple(operation=int(OperationCodes.VER), left_operand=index, right_operand=0, result=int(array_info['size']))
                 self.generate_quadruple(operation=int(OperationCodes.SUMDIR), left_operand=index, right_operand=array_info['address'], result=address)
                 self.generate_quadruple(operation=int(OperationCodes.ASSIGNDIR), left_operand=int(value_human), right_operand=int(OperationCodes.NONE), result=address)
-                
                 
             else:
                 value = self.operands_stack.pop()
@@ -415,6 +416,7 @@ class LexicalAnalyzer:
                 
                 address_temp = self.function_table.add_temporal_variable(self.functions_stack[-1], DataType.INT)
                 self.function_table.move_temporal_next_direction(self.functions_stack[-1], DataType.INT)
+                self.add_temp_func_size(self.functions_stack[-1], DataType.INT)
                 """def move_temporal_next_direction(self, data_type):
                     self.symbol_table.move_temporal_next_direction(data_type)"""
 
@@ -424,11 +426,15 @@ class LexicalAnalyzer:
                 
                 address_sum = self.function_table.add_temporal_variable(self.functions_stack[-1], DataType.INT)
                 self.function_table.move_temporal_next_direction(self.functions_stack[-1], DataType.INT)
+                self.add_temp_func_size(self.functions_stack[-1], DataType.INT)
+
                 print('address sum', address_sum)
                 self.generate_quadruple(operation=int(OperationCodes.SUM), left_operand=address_temp, right_operand=index2, result=address_sum)
                 
                 final_address = self.function_table.add_temporal_variable(self.functions_stack[-1], DataType.INT)
                 self.function_table.move_temporal_next_direction(self.functions_stack[-1], DataType.INT)
+                self.add_temp_func_size(self.functions_stack[-1], DataType.INT)
+                
                 self.generate_quadruple(operation=int(OperationCodes.SUMDIR), left_operand=address_sum, right_operand=int(array_info['address']), result=final_address)
 
                 self.generate_quadruple(operation=int(OperationCodes.ASSIGNDIR), left_operand=int(value_human), right_operand=int(OperationCodes.NONE), result=final_address)
