@@ -16,8 +16,8 @@ class Segment:
             address = self.segment[0]
             return address
 
-    def move_next_direction(self):
-        self.segment[0] += 1
+    def move_next_direction(self, jump=1): # move + JUMP
+        self.segment[0] += jump
 
 class Memory:
     @abstractmethod
@@ -53,17 +53,17 @@ class GlobalMemory(Memory):
         except:
             print("Too many variables") 
 
-    def move_next_direction(self, type):
+    def move_next_direction(self, type, jump=1):
         if type == DataType.INT:
-            self.int_segment.move_next_direction()
+            self.int_segment.move_next_direction(jump)
         elif type == DataType.FLOAT:
-            self.float_segment.move_next_direction()
+            self.float_segment.move_next_direction(jump)
         elif type == DataType.CHAR:
-            self.char_segment.move_next_direction()
+            self.char_segment.move_next_direction(jump)
         elif type == DataType.STRING:
-            self.string_segment.move_next_direction()
+            self.string_segment.move_next_direction(jump)
         elif type == DataType.BOOL:
-            self.bool_segment.move_next_direction()
+            self.bool_segment.move_next_direction(jump)
             
 class LocalMemory(Memory):
     def __init__(self, name):
@@ -95,17 +95,17 @@ class LocalMemory(Memory):
         except:
             print("Too many variables")
 
-    def move_next_direction(self, type):
+    def move_next_direction(self, type, jump=1):
         if type == DataType.INT:
-            self.int_segment.move_next_direction()
+            self.int_segment.move_next_direction(jump)
         elif type == DataType.FLOAT:
-            self.float_segment.move_next_direction()
+            self.float_segment.move_next_direction(jump)
         elif type == DataType.CHAR:
-            self.char_segment.move_next_direction()
+            self.char_segment.move_next_direction(jump)
         elif type == DataType.STRING:
-            self.string_segment.move_next_direction()
+            self.string_segment.move_next_direction(jump)
         elif type == DataType.BOOL:
-            self.bool_segment.move_next_direction()
+            self.bool_segment.move_next_direction(jump)
 
 class TemporalMemory(Memory):
     def __init__(self):
@@ -134,19 +134,19 @@ class TemporalMemory(Memory):
         except:
             print("Too many variables or type doesn't exist")
 
-    def move_next_direction(self, type):
+    def move_next_direction(self, type, jump=1):
         if type == DataType.INT:
-            self.int_segment.move_next_direction()
+            self.int_segment.move_next_direction(jump)
         elif type == DataType.FLOAT:
-            self.float_segment.move_next_direction()
+            self.float_segment.move_next_direction(jump)
         elif type == DataType.CHAR:
-            self.char_segment.move_next_direction()
+            self.char_segment.move_next_direction(jump)
         elif type == DataType.STRING:
-            self.string_segment.move_next_direction()
+            self.string_segment.move_next_direction(jump)
         elif type == DataType.BOOL:
-            self.bool_segment.move_next_direction()
+            self.bool_segment.move_next_direction(jump)
         elif type == DataType.POINTER:
-            self.pointer_segment.move_next_direction()
+            self.pointer_segment.move_next_direction(jump)
 
 class ConstantsMemory(Memory):
     def __init__(self):
@@ -172,14 +172,14 @@ class ConstantsMemory(Memory):
         except:
             print("Too many variables or type doesn't exist")
 
-    def move_next_direction(self, type):
+    def move_next_direction(self, type, jump=1):
         if type == DataType.INT:
-            self.int_segment.move_next_direction()
+            self.int_segment.move_next_direction(jump)
         elif type == DataType.FLOAT:
-            self.float_segment.move_next_direction()
+            self.float_segment.move_next_direction(jump)
         elif type == DataType.CHAR:
-            self.char_segment.move_next_direction()
+            self.char_segment.move_next_direction(jump)
         elif type == DataType.STRING:
-            self.string_segment.move_next_direction()
+            self.string_segment.move_next_direction(jump)
         elif type == DataType.BOOL:
-            self.bool_segment.move_next_direction()
+            self.bool_segment.move_next_direction(jump)

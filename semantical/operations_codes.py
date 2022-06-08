@@ -29,6 +29,9 @@ class OperationCodes(Enum):
     NONE = 2100022
     RETURN = 2100023
     VER = 2100024
+    SUMDIR = 2100025
+    ASSIGNDIR = 2100026
+    MULTDIR = 2100027
 
     def __new__(cls, value):
         member = object.__new__(cls)

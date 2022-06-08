@@ -1,0 +1,13 @@
+program patito
+public class x {
+    void def main() {
+        var max, i : int
+        max = 100
+        i = 0
+
+        while(i<=max) {
+            print(i)
+            i = i + 5
+        }
+    }
+} 

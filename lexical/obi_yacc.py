@@ -207,6 +207,8 @@ def p_tipo_compuesto(p):
 def p_asignacion(p):
     '''asignacion : ID EQUALS exp_cond
                     | ID EQUALS objeto_metodo
+                    | ID EQUALS ID LBRACKET exp RBRACKET
+                    | ID EQUALS ID LBRACKET exp RBRACKET LBRACKET exp RBRACKET
                     | objeto_aAcceso EQUALS exp_cond
                     | objeto_aAcceso EQUALS objeto_metodo
                     | ID LBRACKET exp RBRACKET EQUALS exp_cond

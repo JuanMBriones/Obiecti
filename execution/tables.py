@@ -10,47 +10,56 @@ class Function:
         self.param_table = param_table
         self.local_memory = Memory(self.size[0], self.size[1], self.size[2], self.size[3], self.size[4])
         self.temp_memory = TemporalMemory(self.size[5], self.size[6], self.size[7], self.size[8], self.size[9])
+    
+    def debug(self):
+        return {
+            'initial_address': self.initial_address,
+            'size': self.size,
+            'params': self.param_table,
+            'local_memory': self.local_memory.debug(),
+            'temp_memory': self.temp_memory.debug()
+        }
 
     def set_value(self, address, value):
         #print("Set value:", address, value)
         if address < 500000:
             if address >= 0 and address < 100000:
-                self.local_memory.assign_int(address, value)
+                self.local_memory.assign_int(address, value, address)
             elif address >= 100000 and address < 200000:
                 real_address = address - 100000
-                self.local_memory.assign_float(real_address, value)
+                self.local_memory.assign_float(real_address, value, address)
             elif address >= 200000 and address < 300000:
                 real_address = address - 200000
-                self.local_memory.assign_char(real_address, value)
+                self.local_memory.assign_char(real_address, value, address)
             elif address >= 400000 and address < 500000:
                 real_address = address - 400000
-                self.local_memory.assign_boolean(real_address, value)
+                self.local_memory.assign_boolean(real_address, value, address)
         elif address < 1000000:
             if address >= 500000 and address < 600000:
                 real_address = address - 500000
-                self.local_memory.assign_int(real_address, value)
+                self.local_memory.assign_int(real_address, value, address)
             elif address >= 600000 and address < 700000:
                 real_address = address - 600000
-                self.local_memory.assign_float(real_address, value)
+                self.local_memory.assign_float(real_address, value, address)
             elif address >= 700000 and address < 800000:
                 real_address = address - 700000
-                self.local_memory.assign_char(real_address, value)
+                self.local_memory.assign_char(real_address, value, address)
             elif address >= 900000 and address < 1000000:
                 real_address = address - 900000
-                self.local_memory.assign_boolean(real_address, value)
+                self.local_memory.assign_boolean(real_address, value, address)
         elif address < 1600000:
             if address >= 1000000 and address < 1100000:
                 real_address = address - 1000000
-                self.temp_memory.assign_int(real_address, value)
+                self.temp_memory.assign_int(real_address, value, address)
             elif address >= 1100000 and address < 1200000:
                 real_address = address - 1100000
-                self.temp_memory.assign_float(real_address, value)
+                self.temp_memory.assign_float(real_address, value, address)
             elif address >= 1200000 and address < 1300000:
                 real_address = address - 1200000
-                self.temp_memory.assign_char(real_address, value)
+                self.temp_memory.assign_char(real_address, value, address)
             elif address >= 1400000 and address < 1500000:
                 real_address = address - 1400000
-                self.temp_memory.assign_boolean(real_address, value)
+                self.temp_memory.assign_boolean(real_address, value, address)
 
     def get_value(self, address):
         '''Obtiene el valor de una dirección virtual dentro de una función
@@ -135,6 +144,9 @@ class ProcedureSymbol():
         for key, value in self.methods.items():
             print(f"{key}: {value}")
 
+    def debug(self):
+        return { key: value.debug() for key, value in self.methods.items()}
+
     def get_all_func_directions(self):
         directions_list = []
         for key in self.methods.keys():
@@ -207,6 +219,9 @@ class Constant:
     def __init__(self, value, address):
         self.value = value
         self.address = address
+    
+    def get(self):
+        return {"address": self.address, "value": self.value}
 
 class ConstantTable(Constant):
     def __init__(self):
@@ -221,3 +236,6 @@ class ConstantTable(Constant):
     def get_all_constants(self):
         for key, value in self.constants.items():
             print(f"{key}: {value}")
+    
+    def debug(self):
+        return { key: value.get() for key, value in self.constants.items()}

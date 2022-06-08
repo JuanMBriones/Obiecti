@@ -12,13 +12,27 @@ This file and methods are responsible for the symbol tables as well as managing 
 """
 
 class Symbol:
-    def __init__(self, name, data_type, scope, address):
+    def __init__(self, name, data_type, scope, address, d1=None, d2=None, m1=None, size=None):
         self.name = name
         self.data_type = data_type
         self.scope = scope
         self.address = address
+        self.d1 = d1
+        self.d2 = d2
+        self.m1 = m1
+        self.size = size
     
-    def get(self):
+    def get(self, description=None):
+        if description:
+            if self.d2:
+                return {"name": self.name, "data_type": self.data_type, "scope": self.scope, "address": self.address, "dim1": self.d1, "dim2": self.d2, "m1": self.m1, "size": self.size}
+            if self.d1:
+                return {"name": self.name, "data_type": self.data_type, "scope": self.scope, "address": self.address, "dim1": self.d1, "size": self.size}
+            return {"name": self.name, "data_type": self.data_type, "scope": self.scope, "address": self.address}
+        if self.d2:
+            return (self.name, self.data_type, self.scope, self.address, self.d1, self.d2, self.m1, self.size)
+        if self.d1:
+            return (self.name, self.data_type, self.scope, self.address, self.d1, self.size)
         return (self.name, self.data_type, self.scope, self.address)
 
     def __eq__(self, __o) -> bool:
@@ -32,45 +46,39 @@ class Symbol:
         return not self.__eq__(__o)
 
 
-
-class SingletonMeta(type):
-    _instances = {}
-
-    def __call__(cls, *args, **kwargs):
-        """
-        Possible changes to the value of the `__init__` argument do not affect
-        the returned instance.
-        """
-        if cls not in cls._instances:
-            instance = super().__call__(*args, **kwargs)
-            cls._instances[cls] = instance
-        return cls._instances[cls]
-
 class SymbolTable(Symbol):
     def __init__(self, name):
         self.symbols = {}
         self.local_memory = LocalMemory(name)
         self.temporal_memory = TemporalMemory()
+        self.temporal_addresses = []
 
-    def add(self, name, data_type, scope):
+    def add(self, name, data_type, scope, d1=None, d2=None, m1=None, size=None):
         try:
             if name in self.symbols:
                 raise Exception("Symbol already exists")
             else:
-                address = self.local_memory.requestSpace(data_type)
-                self.symbols[name] = Symbol(name, data_type, scope, address)
-                return True
+                if not d1: # not an array
+                    address = self.local_memory.requestSpace(data_type)
+                    self.symbols[name] = Symbol(name, data_type, scope, address)
+                    return True
+                else:
+                    address = self.local_memory.requestSpace(data_type)
+                    self.symbols[name] = Symbol(name, data_type, scope, address, d1, d2, m1, size)
+                    return True
         except:
             return None
 
     def add_temporal_variable(self, data_type):
-        return self.temporal_memory.requestSpace(data_type)
+        temporal_address = self.temporal_memory.requestSpace(data_type)
+        self.temporal_addresses.append({"type": data_type, "address": temporal_address})
+        return temporal_address #self.temporal_memory.requestSpace(data_type)
 
     def move_temporal_next_direction(self, data_type):
         self.temporal_memory.move_next_direction(data_type)
 
-    def move_local_next_direction(self, data_type):
-        self.local_memory.move_next_direction(data_type)
+    def move_local_next_direction(self, data_type, jump=1):
+        self.local_memory.move_next_direction(data_type, jump)
 
     def get(self, name):
         if name in self.symbols:
@@ -121,8 +129,8 @@ class Function:
     def add_param(self, param):
         self.param_table.append(param)
         
-    def add_var_count(self, position):
-        self.size[position] += 1
+    def add_var_count(self, position, slots=1):
+        self.size[position] += slots
 
     def add_param_count(self, position):
         self.size[position] += 1
@@ -130,8 +138,8 @@ class Function:
     def set_address(self, address):
         self.initial_address = address
 
-    def add_variable(self, name, data_type, scope):
-        return self.symbol_table.add(name, data_type, scope)
+    def add_variable(self, name, data_type, scope, d1=None, d2=None, m1=None, size=None):
+        return self.symbol_table.add(name, data_type, scope, d1, d2, m1, size)
 
     def add_temporal_variable(self, data_type):
         return self.symbol_table.add_temporal_variable(data_type)
@@ -139,8 +147,8 @@ class Function:
     def move_temporal_next_direction(self, data_type):
         self.symbol_table.move_temporal_next_direction(data_type)
 
-    def move_local_next_direction(self, data_type):
-        self.symbol_table.move_local_next_direction(data_type)
+    def move_local_next_direction(self, data_type, jump=1):
+        self.symbol_table.move_local_next_direction(data_type, jump)
 
     def find_variable(self, name):
         return self.symbol_table.find_variable(name)
@@ -154,15 +162,18 @@ class Function:
     def get_initial_address(self):
         return self.initial_address
 
+    def get_temporal_address(self):
+        return self.symbol_table.temporal_addresses
+
     def get_all_variables(self):
         return self.symbol_table.get_all_variables_names()
 
     def delete_table(self):
-        del self.symbol_table
+        #del self.symbol_table
+        #print('ya se borro')
         gc.collect()
 
-class ProcedureSymbol(metaclass=SingletonMeta):
-    # __metaclass__ = SingletonMeta
+class ProcedureSymbol():
 
     methods = {}
     global_scope = 'global'
@@ -209,15 +220,21 @@ class ProcedureSymbol(metaclass=SingletonMeta):
             print(f"Variable {name} already defined")
             exit(-1)
 
-    def add_variable(self, name_func, name_var, data_type):
+    def add_variable(self, name_func, name_var, data_type, d1=None, d2=None, m1=None, size=None):
         is_global = self.get_global_variable(name_var)
         if is_global:
             print(f"Variable {name_var} already defined")
             exit(-1)
         else:
-            added = self.get_method(name_func).add_variable(name_var, data_type, "local")
+            added = self.get_method(name_func).add_variable(name_var, data_type, "local", d1, d2, m1, size)
             if added != None:
-                self.move_local_next_direction(name_func, data_type)
+                jump = int(1)
+                if d1:
+                    jump *= d1
+                if d2:
+                    jump *= d2
+                print("ddwefe", type(jump))
+                self.move_local_next_direction(name_func, data_type, int(jump))
             else:
                 print(f"Variable {name_var} already defined")
                 exit(-1)
@@ -229,8 +246,8 @@ class ProcedureSymbol(metaclass=SingletonMeta):
     def move_temporal_next_direction(self, name_func, data_type):
         self.get_method(name_func).move_temporal_next_direction(data_type)
 
-    def move_local_next_direction(self, name_func, data_type):
-        self.get_method(name_func).move_local_next_direction(data_type)
+    def move_local_next_direction(self, name_func, data_type, jump=1):
+        self.get_method(name_func).move_local_next_direction(data_type, jump)
 
     def get_param(self, name_func, position):
         try:
@@ -256,8 +273,8 @@ class ProcedureSymbol(metaclass=SingletonMeta):
     def add_param_count(self, name_func, position):
         self.get_method(name_func).add_param_count(position)
 
-    def add_var_count(self, name_func, position):
-        self.get_method(name_func).add_var_count(position)
+    def add_var_count(self, name_func, position, slots=1):
+        self.get_method(name_func).add_var_count(position, slots)
 
     def get_variable_address(self, name_function, name_variable):
         return self.get_method(name_function).get_virtual_address(name_variable)
@@ -297,13 +314,37 @@ class ProcedureSymbol(metaclass=SingletonMeta):
         for key, value in self.methods.items():
             print(f"{key}: {value.get_status()}")
     
+    def debug(self):
+        """
+         print('ffff', self.function_table.get_method(self.functions_stack[-1]).get_all_variables())
+            print('methods names', self.function_table.get_methods_names())
+            print('currently in method', self.functions_stack[-1])
+            for var in self.function_table.get_method(self.functions_stack[-1]).get_all_variables():
+                print(var, self.function_table.get_method(self.functions_stack[-1]).find_variable(var).get()) #get(var))
+
+        
+        """
+        print('----DEBUG-----')
+        for method_name in self.methods:
+            print(f"SCOPE: {method_name}")
+            print('\tVARS')
+            for variable in self.get_method(method_name).get_all_variables():
+                print(f"\t\t{variable} -> {self.get_method(method_name).find_variable(variable).get(description=True)}")
+            print(f"\tTEMP")
+            #print(f"\t\t{self.get_method(method_name).get_temporal_address()}")
+            for temporal_variable in self.get_method(method_name).get_temporal_address():
+                print(f"\t\t{temporal_variable}, ")
+
+        print('----END DEBUG-----')
 
 class Constant:
     def __init__(self, value, address):
         self.value = value
         self.address = address
     
-    def get(self):
+    def get(self, description=None):
+        if description:
+            return {"value": self.value, "address": self.address}
         return (self.value, self.address)
 
     def __eq__(self, __o) -> bool:
@@ -340,3 +381,10 @@ class ConstantTable(Constant):
     
     def get_all_constants_values(self):
         return self.constants.keys()
+    
+    def debug(self):
+        print('----DEBUG-----')
+        print(f"\tCONSTANTS")
+        for constant in self.constants:
+            print(f"\t\t{constant} -> {self.constants[constant].get(description=True)}")
+        print('----END DEBUG-----')
