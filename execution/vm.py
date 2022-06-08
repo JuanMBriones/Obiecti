@@ -58,7 +58,22 @@ def set_value(functions_table, address, value, func_address):
 
             #print("Set value:", value)
             functions_table.set_value(name_func, address, value)
-            
+
+def debug(functions_table):
+    print(f"===Functions====")
+    for key, value in functions_table.debug().items():
+        print(f"\t{key}")
+
+        print(f"\t\tdirBase: {value['initial_address']}")
+        print(f"\t\tsize: {value['size']}")
+        print(f"\t\tparams: {value['params']}")
+        print(f"\t\tLOCAL MEMORY")
+        for type, list_type in value['local_memory'].items():
+            print(f"\t\t\t{type}")
+            for info_var in list_type:
+                print(f"\t\t\t\t{info_var['index']}(index): {info_var['value']}")
+                
+        
 
 
 def read_file(file="object.txt"):
@@ -135,6 +150,7 @@ def read_file(file="object.txt"):
     ip = 0
     while ip < len(quadruples.quadruples):
         print('IP: ', ip)
+        debug(functions_table)
         name_func = functions_table.get_name_func(ip)
         #print(name_func, ip)
         #print(ip)
