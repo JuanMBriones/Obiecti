@@ -381,5 +381,5 @@ class ConstantTable(Constant):
         print('----DEBUG-----')
         print(f"\tCONSTANTS")
         for constant in self.constants:
-            print(f"\t{constant} -> {self.constants[constant].get(description=True)}")
+            print(f"\t\t{constant} -> {self.constants[constant].get(description=True)}")
         print('----END DEBUG-----')

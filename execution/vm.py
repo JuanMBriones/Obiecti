@@ -134,7 +134,7 @@ def read_file(file="object.txt"):
 
     ip = 0
     while ip < len(quadruples.quadruples):
-        #print('IP: ', ip)
+        print('IP: ', ip)
         name_func = functions_table.get_name_func(ip)
         #print(name_func, ip)
         #print(ip)

@@ -1,3 +1,4 @@
+from array import array
 from audioop import add
 from pydoc import doc
 from semantical.data_types import DataType
@@ -220,13 +221,13 @@ class LexicalAnalyzer:
 
             #d1=None, d2=None, m1=None, size=None
             #def add_variable(self, name_func, name_var, data_type, d1=None, d2=None, m1=None, size=None):
-            print('diimm', dim_1)
+            #print('diimm', dim_1)
 
             self.function_table.add_variable(self.functions_stack[-1], name_var, type_var, dim_1_h, None, None, dim_1_h)
-            print('ffff', self.function_table.get_method(self.functions_stack[-1]).get_all_variables())
+            #print('ffff', self.function_table.get_method(self.functions_stack[-1]).get_all_variables())
 
-            for var in self.function_table.get_method(self.functions_stack[-1]).get_all_variables():
-                print(var, self.function_table.get_method(self.functions_stack[-1]).find_variable(var).get()) #get(var))
+            #for var in self.function_table.get_method(self.functions_stack[-1]).get_all_variables():
+            #    print(var, self.function_table.get_method(self.functions_stack[-1]).find_variable(var).get()) #get(var))
             #print(name_var, type_var, dim_1)
             #print(name_var, type_var, dim_1_h)
         else:
@@ -236,20 +237,18 @@ class LexicalAnalyzer:
             type_var = self.types_stack.pop() #p[10]
             dim_2 = self.operands_stack.pop() #p[7]
             dim_1 = self.operands_stack.pop() #p[4]
+            dim_2_h = int(self.human_operands_stack.pop())
+            dim_1_h = int(self.human_operands_stack.pop())
             
 
-            dim_1_h = int(self.human_operands_stack.pop())
-            dim_2_h = int(self.human_operands_stack.pop())
             m1 = int(dim_2_h)
             size = int(dim_1_h) * int(dim_2_h)
-            print('diimm', dim_1_h, dim_2_h)
-            print("size", size)
-            print("m1", m1)
-
-            #def add_variable(self, name_func, name_var, data_type, d1=None, d2=None, m1=None, size=None):
+            
+            #print('diimm', dim_1_h, dim_2_h)
+            #print("size", size)
+            #print("m1", m1)
 
             self.function_table.add_variable(self.functions_stack[-1], name_var, type_var, dim_1_h, dim_2_h, m1, size)
-            #print(name_var, type_var, dim_1, dim_2)
 
 
     def add_var_func_size(self, name_func, type):
@@ -380,51 +379,73 @@ class LexicalAnalyzer:
                 value_human = self.human_operands_stack.pop()
                 index_human = self.human_operands_stack.pop()
 
-                
+                array_info = self.function_table.get_method(self.functions_stack[-1]).find_variable(p[1]).get(description=True)
+                #{'name': 'y', 'data_type': <DataType.INT: 'int'>, 'scope': 'local', 'address': 500012, 'dim1': '3', 'size': '3'}
 
+                #address = self.function_table.add_temporal_variable(self.functions_stack[-1], result_type)
                 #self.function_table.add_variable(self.functions_stack[-1], p[1], self.types_stack[-1], 28)
                 #self.function_table.add_variable(self.functions_stack[-1], p[1]+'3', self.types_stack[-1])
 
-                self.generate_quadruple(operation="VER", left_operand=self.human_operands_stack[-2], right_operand=0, result="SIZE-1", type=True)
-                self.generate_quadruple(operation="+", left_operand=self.human_operands_stack[-2], right_operand="DIRB", result=self.quadruples.get_current(), type=True)
-                self.generate_quadruple(operation="=", left_operand=self.human_operands_stack[-1], right_operand="", result=f"({self.quadruples.get_current()})", type=True)
+                self.generate_quadruple(operation="VER", left_operand=int(index), right_operand=0, result=int(array_info['dim1']), type=True)
+                self.generate_quadruple(operation="DIR_+", left_operand=index_human, right_operand=array_info['address'], result=self.quadruples.get_current(), type=True)
+                self.generate_quadruple(operation="DIR_=", left_operand=value_human, right_operand="", result=f"({self.quadruples.get_current()})", type=True)
                 self.quadruples.increment_current()
-            else:
-                print(f"{p[1]}[{self.human_operands_stack[-3]}][{self.human_operands_stack[-2]}] = {self.human_operands_stack[-1]}")
-                dim_1 = self.human_operands_stack[-3]
-                dim_2 = self.human_operands_stack[-2]
 
-                #def __init__(self, dim, limits: list):
-                #array = ArrayList(2, [dim_1, dim_2])
-                #array.calculate()
-                #print('array=', array.)
-
-                """                                
-                right_operand = self.operands_stack.pop()
-                left_operand = self.operands_stack.pop()
-                right_operand_human = self.human_operands_stack.pop()
-                left_operand_human = self.human_operands_stack.pop()
+                address = self.function_table.add_temporal_variable(self.functions_stack[-1], DataType.INT)
+                self.function_table.move_temporal_next_direction(self.functions_stack[-1], DataType.INT)
+                self.generate_quadruple(operation=int(OperationCodes.VER), left_operand=index, right_operand=0, result=int(array_info['size']))
+                self.generate_quadruple(operation=int(OperationCodes.SUMDIR), left_operand=index, right_operand=array_info['address'], result=address)
+                self.generate_quadruple(operation=int(OperationCodes.ASSIGNDIR), left_operand=int(value_human), right_operand=int(OperationCodes.NONE), result=address)
                 
-                result_type = self.semantic_cube.validate(operator, self.types_stack.pop(), self.types_stack.pop())
-                if result_type != None:
-                    address = self.function_table.add_temporal_variable(self.functions_stack[-1], result_type)
-                    
-                    self.generate_quadruple(operation=address_operator, left_operand=left_operand, right_operand=right_operand, result=address)
-                    self.generate_quadruple(operation=operator, left_operand=left_operand_human, right_operand=right_operand_human, result=f"t{self.quadruples.get_current()}", type=True)
-                """
+                
+            else:
+                value = self.operands_stack.pop()
+                index2 = self.operands_stack.pop()
+                index = self.operands_stack.pop()
 
-                self.generate_quadruple(operation="VER", left_operand=dim_1, right_operand=0, result="SIZE-1", type=True)
-                self.generate_quadruple(operation="*", left_operand=dim_1, right_operand="M1", result=self.quadruples.get_current(), type=True)
+                value_human = self.human_operands_stack.pop()
+                index_human_2 = self.human_operands_stack.pop()
+                index_human = self.human_operands_stack.pop()
+
+                array_info = self.function_table.get_method(self.functions_stack[-1]).find_variable(p[1]).get(description=True)
+                 #{'name': 'y', 'data_type': <DataType.INT: 'int'>, 'scope': 'local', 'address': 500012, 'dim1': '3', 'size': '3'}
+
+
+                self.generate_quadruple(operation=int(OperationCodes.VER), left_operand=int(index), right_operand=0, result=array_info['dim1'])
+                
+                address_temp = self.function_table.add_temporal_variable(self.functions_stack[-1], DataType.INT)
+                self.function_table.move_temporal_next_direction(self.functions_stack[-1], DataType.INT)
+                """def move_temporal_next_direction(self, data_type):
+                    self.symbol_table.move_temporal_next_direction(data_type)"""
+
+                self.generate_quadruple(operation=int(OperationCodes.MULTDIR), left_operand=int(index), right_operand=array_info['m1'], result=address_temp)
+
+                self.generate_quadruple(operation=int(OperationCodes.VER), left_operand=index2, right_operand=0, result=array_info['dim2'])
+                
+                address_sum = self.function_table.add_temporal_variable(self.functions_stack[-1], DataType.INT)
+                self.function_table.move_temporal_next_direction(self.functions_stack[-1], DataType.INT)
+                print('address sum', address_sum)
+                self.generate_quadruple(operation=int(OperationCodes.SUM), left_operand=address_temp, right_operand=index2, result=address_sum)
+                
+                final_address = self.function_table.add_temporal_variable(self.functions_stack[-1], DataType.INT)
+                self.function_table.move_temporal_next_direction(self.functions_stack[-1], DataType.INT)
+                self.generate_quadruple(operation=int(OperationCodes.SUMDIR), left_operand=address_sum, right_operand=int(array_info['address']), result=final_address)
+
+                self.generate_quadruple(operation=int(OperationCodes.ASSIGNDIR), left_operand=int(value_human), right_operand=int(OperationCodes.NONE), result=final_address)
+
+
+          
+                self.generate_quadruple(operation="VER", left_operand=index_human, right_operand=0, result=array_info['dim1'], type=True)
+                self.generate_quadruple(operation="DIR_*", left_operand=index_human, right_operand=array_info['m1'], result=self.quadruples.get_current(), type=True)
                 quadruple_sum = self.quadruples.get_current()
                 self.quadruples.increment_current()
-                self.generate_quadruple(operation="VER", left_operand=dim_2, right_operand=0, result="SIZE-1", type=True)
-                self.generate_quadruple(operation="+", left_operand=quadruple_sum, right_operand=dim_2, result=self.quadruples.get_current(), type=True)
+                self.generate_quadruple(operation="VER", left_operand=index_human_2, right_operand=0, result=array_info['dim2'], type=True)
+                self.generate_quadruple(operation="+", left_operand=quadruple_sum, right_operand=index_human_2, result=self.quadruples.get_current(), type=True)
                 current_dir = self.quadruples.get_current()
                 self.quadruples.increment_current()
-                self.generate_quadruple(operation="+", left_operand=current_dir, right_operand="DIRB", result=self.quadruples.get_current(), type=True)
-                self.generate_quadruple(operation="=", left_operand=self.human_operands_stack[-1], right_operand="", result=f"({self.quadruples.get_current()})", type=True)
-            print('s',self.human_operands_stack[:])
-            
+                self.generate_quadruple(operation="DIR_+", left_operand=current_dir, right_operand=array_info['address'], result=self.quadruples.get_current(), type=True)
+                self.generate_quadruple(operation="DIR_=", left_operand=value_human, right_operand="", result=f"({self.quadruples.get_current()})", type=True)
+                self.quadruples.increment_current()
     
     def function_calling(self):
         name_function = self.operands_stack.pop()
