@@ -29,28 +29,28 @@ class Memory:
 
     def assign_int(self, address, value, original_address=None):
         #print("Assign int self.ints[address]:", self.ints[address])
-        self.debug_ints[address] = {'fixed_address': address, 'original_address': original_address}
+        self.debug_ints[address] = {'fixed_address': address, 'original_address': original_address, 'value': value}
         self.ints[address] = value
 
     def access_float(self, address):
         return self.floats[address]
     
     def assign_float(self, address, value, original_address=None):
-        self.debug_floats[address] = {'fixed_address': address, 'original_address': original_address}
+        self.debug_floats[address] = {'fixed_address': address, 'original_address': original_address, 'value': value}
         self.floats[address] = value
 
     def access_char(self, address):
         return self.chars[address]
 
     def assign_char(self, address,  value, original_address=None):
-        self.debug_chars[address] = {'fixed_address': address, 'original_address': original_address}
+        self.debug_chars[address] = {'fixed_address': address, 'original_address': original_address, 'value': value}
         self.chars[address] = value
 
     def access_boolean(self, address):
         return self.booleans[address]
 
     def assign_boolean(self, address, value, original_address=None):
-        self.debug_booleans[address] = {'fixed_address': address, 'original_address': original_address}
+        self.debug_booleans[address] = {'fixed_address': address, 'original_address': original_address, 'value': value}
         self.booleans[address] = value
 
 class TemporalMemory(Memory):
