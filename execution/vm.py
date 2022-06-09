@@ -149,7 +149,10 @@ def read_file(file="object.txt"):
         operator = int(quadruple[0])
         left_operand = int(quadruple[1])
         right_operand = int(quadruple[2])
-        result = int(quadruple[3])
+        try:
+            result = int(quadruple[3])
+        except:
+            result = quadruple[3]
         q = Quadruple(operator, left_operand, right_operand, result)
         quadruples.add_quadruple(q)
 
@@ -170,6 +173,21 @@ def read_file(file="object.txt"):
                     functions_stack.append(ip)""" # DE MIENTRAS ESTA COMENTADO BY THE MOMENT
             #print(functions_stack)
             cod_op = quadruples.quadruples[ip].get_operation()
+
+            left = quadruples.quadruples[ip].get_left_operand()
+            right = quadruples.quadruples[ip].get_right_operand()
+            result = quadruples.quadruples[ip].get_result()
+
+            if type(left) == str and '*' in left:
+                real_address = get_value(functions_table, constants_table, result_address, functions_stack[-1])
+                quadruples.quadruples[ip].left_operand = real_address
+            if type(right) == str and '*' in right:
+                real_address = get_value(functions_table, constants_table, result_address, functions_stack[-1])
+                quadruples.quadruples[ip].right_operand = real_address
+            if type(result) == str and '*' in result:
+                real_address = get_value(functions_table, constants_table, result_address, functions_stack[-1])
+                quadruples.quadruples[ip].result = real_address
+
             if cod_op == int(OperationCodes.SUM):
                 left_operand = quadruples.quadruples[ip].get_left_operand()
                 right_operand = quadruples.quadruples[ip].get_right_operand()

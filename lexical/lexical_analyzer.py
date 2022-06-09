@@ -1,5 +1,6 @@
 from array import array
 from audioop import add
+from pickle import NONE
 from pydoc import doc
 from execution.vm import get_value
 from semantical.data_types import DataType
@@ -716,7 +717,56 @@ class LexicalAnalyzer:
                     exit(-1) 
 
     def add_var(self, p):
-        if p[1]:
+        """
+        | ID LBRACKET exp RBRACKET
+            | ID LBRACKET exp RBRACKET LBRACKET exp RBRACKET'''
+        """
+        print('size',len(p))
+        if len(p) >= 8:
+            pass
+
+        elif len(p) >= 5:
+            array_name = p[1]
+
+            #value = self.operands_stack.pop()
+            index = self.operands_stack.pop()
+            #value_human = self.human_operands_stack.pop()
+            index_human = self.human_operands_stack.pop()
+            print(index, index_human)
+
+            array_info = self.function_table.get_method(self.functions_stack[-1]).find_variable(array_name).get(description=True)
+            #{'name': 'y', 'data_type': <DataType.INT: 'int'>, 'scope': 'local', 'address': 500012, 'dim1': '3', 'size': '3'}
+            print(array_info)
+            #address = self.function_table.add_temporal_variable(self.functions_stack[-1], result_type)
+            #self.function_table.add_variable(self.functions_stack[-1], p[1], self.types_stack[-1], 28)
+            #self.function_table.add_variable(self.functions_stack[-1], p[1]+'3', self.types_stack[-1])
+            #index_value =  #get_value(self.function_table, self.constants_table, index, self.functions_stack[-1])
+            #index_value = self.function_table.get_value(self.functions_stack[-1], self.constants_table, index, self.functions_stack[-1])
+
+            print('index --->', index_human)
+            #print('index_value --->', index_value)
+
+            self.generate_quadruple(operation="VER", left_operand=int(index_human), right_operand=0, result=int(array_info['dim1']), type=True)
+            self.generate_quadruple(operation="DIR_+", left_operand=index_human, right_operand=array_info['address'], result=self.quadruples.get_current(), type=True)
+            #self.generate_quadruple(operation="DIR_=", left_operand=value_human, right_operand="", result=f"({self.quadruples.get_current()})", type=True)
+            self.human_operands_stack.append(f"({self.quadruples.get_current()})")
+            self.quadruples.increment_current()
+
+            address = self.function_table.add_temporal_variable(self.functions_stack[-1], DataType.INT)
+            self.function_table.move_temporal_next_direction(self.functions_stack[-1], DataType.INT)
+            self.add_temp_func_size(self.functions_stack[-1], DataType.INT)
+
+            self.generate_quadruple(operation=int(OperationCodes.VER), left_operand=index, right_operand=0, result=int(array_info['size']))
+            self.generate_quadruple(operation=int(OperationCodes.SUMDIR), left_operand=index, right_operand=array_info['address'], result=address)
+            self.operands_stack.append(f"*{address}")
+            print('rrrrr',address)
+            #address_value = self.function_table.get_value(self.functions_stack[-1], self.constants_table, address, self.functions_stack[-1])
+            
+            #self.operands_stack.append(address_value)
+            #self.generate_quadruple(operation=int(OperationCodes.ASSIGNDIR), left_operand=value, right_operand=int(OperationCodes.NONE), result=address)
+            
+
+        elif p[1]:
             if len(self.functions_stack) > 1:
                 name_function = self.functions_stack[-1]
                 if (not self.function_table.get_global_variable(p[1]) and 

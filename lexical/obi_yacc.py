@@ -310,7 +310,9 @@ def p_var(p):
     '''var : ID
             | cint
             | cfloat
-            | cchar'''
+            | cchar
+            | ID LBRACKET exp RBRACKET
+            | ID LBRACKET exp RBRACKET LBRACKET exp RBRACKET'''
     lexical_analyzer.add_var(p)
 
 def p_cint(p):
