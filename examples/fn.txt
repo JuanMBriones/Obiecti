@@ -1,0 +1,14 @@
+program fun 
+private class x {
+    int def fun(int a, int b) {
+        return a + b
+    }
+
+    void def main() {
+        var a, b : int
+        a = 10
+        b = a + 4
+
+        print(fun(a, b))
+    }
+}

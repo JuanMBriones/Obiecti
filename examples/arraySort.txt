@@ -1,0 +1,26 @@
+program x2 
+private class x3 : x4 {
+    void def main() {
+        var index : int
+        var array[10] : int
+        var t : int
+
+        index = 0
+        while(index < 10) {
+            read(t)
+            array[index] = t
+            index = index + 1
+        }
+
+        array.sort()
+        var temp : int
+        index = 0
+        print("Sorted array:")
+        while(index < 10) {
+            print(array[index])
+            index = index + 1
+        }
+        
+
+    }
+}

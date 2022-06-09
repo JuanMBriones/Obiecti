@@ -787,8 +787,9 @@ class LexicalAnalyzer:
 
             array_info = self.function_table.get_method(self.functions_stack[-1]).find_variable(array_name).get(description=True)
             #{'name': 'y', 'data_type': <DataType.INT: 'int'>, 'scope': 'local', 'address': 500012, 'dim1': '3', 'size': '3'}
-
-            self.generate_quadruple(operation="VER", left_operand=int(index_human), right_operand=0, result=int(array_info['dim1']), type=True)
+            
+            #self.generate_quadruple(operation="VER", left_operand=int(index_human), right_operand=0, result=int(array_info['dim1']), type=True)
+            self.generate_quadruple(operation="VER", left_operand=int(index), right_operand=0, result=int(array_info['dim1']), type=True)
             self.generate_quadruple(operation="DIR_+", left_operand=index_human, right_operand=array_info['address'], result=self.quadruples.get_current(), type=True)
             
             self.human_operands_stack.append(f"({self.quadruples.get_current()})")
@@ -836,6 +837,24 @@ class LexicalAnalyzer:
     
     def add_int_constant(self, p):
         self.add_constant(p, DataType.INT)
+
+    def sort(self, name):
+        array_info = self.function_table.get_method(self.functions_stack[-1]).find_variable(name).get(description=True)
+        #{'name': 'y', 'data_type': <DataType.INT: 'int'>, 'scope': 'local', 'address': 500012, 'dim1': '3', 'size': '3'}
+
+        self.generate_quadruple(operation=int(OperationCodes.SORT), left_operand=int(array_info['address']), right_operand=int(array_info['address'])+int(array_info['size'])-1, result=int(OperationCodes.NONE))
+        self.generate_quadruple(operation="SORT", left_operand="", right_operand="", result=name, type=True)
+
+
+    def find(self, name):
+        array_info = self.function_table.get_method(self.functions_stack[-1]).find_variable(name).get(description=True)
+        #{'name': 'y', 'data_type': <DataType.INT: 'int'>, 'scope': 'local', 'address': 500012, 'dim1': '3', 'size': '3'}
+
+        #print('✨',self.human_operands_stack.pop())
+        #print('✨',self.operands_stack.pop())
+        self.generate_quadruple(operation=int(OperationCodes.FIND), left_operand=int(array_info['address']), right_operand=int(array_info['address'])+int(array_info['size'])-1, result=self.operands_stack.pop())
+        self.generate_quadruple(operation="FIND", left_operand="", right_operand=self.human_operands_stack.pop(), result=name, type=True)
+
     
     def add_char_constant(self, p):
         self.add_constant(p, DataType.CHAR)
