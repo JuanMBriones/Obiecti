@@ -420,6 +420,14 @@ def read_file(file="object.txt"):
                 
                 set_value(functions_table, real_address, left_operand_value, functions_stack[-1])
                 ip += 1
+            elif cod_op == int(OperationCodes.READ):
+                result_address = quadruples.quadruples[ip].get_result()
+
+                input_value = input()
+
+                set_value(functions_table, result_address, input_value, functions_stack[-1])
+
+                ip += 1
             else:
                 print(cod_op)
                 ip += 1

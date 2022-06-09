@@ -198,6 +198,15 @@ class LexicalAnalyzer:
             self.generate_quadruple(operation=operation, left_operand=int(OperationCodes.NONE), right_operand=int(OperationCodes.NONE), result=self.operands_stack.pop())
             self.generate_quadruple(operation=OperationCodes.name(int(operation)), left_operand="", right_operand="", result=self.human_operands_stack.pop(), type=True)
 
+    def read(self, p):
+        #self.add_id(p[3])
+
+        human_id = self.human_operands_stack.pop()
+        id = self.operands_stack.pop()
+
+        var_to_read_address = self.function_table.get_variable_address(self.functions_stack[-1], human_id)
+        self.generate_quadruple(operation=int(OperationCodes.READ), left_operand=int(OperationCodes.NONE), right_operand=int(OperationCodes.NONE), result=var_to_read_address)
+        self.generate_quadruple(operation="READ", left_operand="", right_operand="", result=human_id, type=True)
     def add_expression_print(self, p): 
         if p[1]:
             self.constants_table.add(p[1], DataType.STRING)
