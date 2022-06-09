@@ -9,9 +9,9 @@ private class x3 : x4 {
         f = 90
         print(7698585)
 
-        x[3*4][5*6] = 1
+        x[2][3] = 1
         
-        y[9*4] = 3
+        y[2] = 3
 
         var t : int
         
