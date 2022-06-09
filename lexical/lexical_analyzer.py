@@ -1,6 +1,7 @@
 from array import array
 from audioop import add
 from pydoc import doc
+from execution.vm import get_value
 from semantical.data_types import DataType
 from semantical.quadruples import Quadruples, Quadruple
 from semantical.semantic_cube import SemanticCube
@@ -381,7 +382,7 @@ class LexicalAnalyzer:
                 index = self.operands_stack.pop()
                 value_human = self.human_operands_stack.pop()
                 index_human = self.human_operands_stack.pop()
-
+                print(value, index, value_human, index_human)
                 array_info = self.function_table.get_method(self.functions_stack[-1]).find_variable(p[1]).get(description=True)
                 #{'name': 'y', 'data_type': <DataType.INT: 'int'>, 'scope': 'local', 'address': 500012, 'dim1': '3', 'size': '3'}
 
@@ -400,7 +401,7 @@ class LexicalAnalyzer:
 
                 self.generate_quadruple(operation=int(OperationCodes.VER), left_operand=index, right_operand=0, result=int(array_info['size']))
                 self.generate_quadruple(operation=int(OperationCodes.SUMDIR), left_operand=index, right_operand=array_info['address'], result=address)
-                self.generate_quadruple(operation=int(OperationCodes.ASSIGNDIR), left_operand=int(value_human), right_operand=int(OperationCodes.NONE), result=address)
+                self.generate_quadruple(operation=int(OperationCodes.ASSIGNDIR), left_operand=value, right_operand=int(OperationCodes.NONE), result=address)
                 
             else:
                 value = self.operands_stack.pop()
