@@ -155,13 +155,15 @@ def p_estatuto(p):
 
 def p_lectura(p):
     '''lectura : READ LPAREN aux4 RPAREN'''
-    lexical_analyzer.generate_multiple_quadruples(operation=int(OperationCodes.READ))
+    #lexical_analyzer.generate_multiple_quadruples(operation=int(OperationCodes.READ))
+    lexical_analyzer.read(p)
 
 def p_aux4(p):
     '''aux4 : ID
             | objeto_aAcceso
             | ID COMMA aux4
             | objeto_aAcceso COMMA aux4'''
+    #lexical_analyzer.add_operand(p, 1)
     lexical_analyzer.add_operand(p, 1)
     
 

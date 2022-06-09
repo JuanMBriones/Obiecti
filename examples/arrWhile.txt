@@ -1,0 +1,15 @@
+program x2 
+private class x3 : x4 {
+    void def main() {
+        var x[10][10] : int
+        var index : int
+        var size : int
+        size = 10
+        index = 0
+        while(index < size) {
+            x[index][index] = 9999
+            index = index + 1
+        }
+        
+    }
+}

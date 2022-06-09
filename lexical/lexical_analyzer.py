@@ -1,6 +1,7 @@
 from array import array
 from audioop import add
 from pydoc import doc
+from execution.vm import get_value
 from semantical.data_types import DataType
 from semantical.quadruples import Quadruples, Quadruple
 from semantical.semantic_cube import SemanticCube
@@ -165,6 +166,15 @@ class LexicalAnalyzer:
             self.generate_quadruple(operation=operation, left_operand=int(OperationCodes.NONE), right_operand=int(OperationCodes.NONE), result=self.operands_stack.pop())
             self.generate_quadruple(operation=OperationCodes.name(int(operation)), left_operand="", right_operand="", result=self.human_operands_stack.pop(), type=True)
 
+    def read(self, p):
+        #self.add_id(p[3])
+
+        human_id = self.human_operands_stack.pop()
+        id = self.operands_stack.pop()
+
+        var_to_read_address = self.function_table.get_variable_address(self.functions_stack[-1], human_id)
+        self.generate_quadruple(operation=int(OperationCodes.READ), left_operand=int(OperationCodes.NONE), right_operand=int(OperationCodes.NONE), result=var_to_read_address)
+        self.generate_quadruple(operation="READ", left_operand="", right_operand="", result=human_id, type=True)
     def add_expression_print(self, p): 
         if p[1]:
             self.constants_table.add(p[1], DataType.STRING)
@@ -354,7 +364,7 @@ class LexicalAnalyzer:
                 index = self.operands_stack.pop()
                 value_human = self.human_operands_stack.pop()
                 index_human = self.human_operands_stack.pop()
-
+                print(value, index, value_human, index_human)
                 array_info = self.function_table.get_method(self.functions_stack[-1]).find_variable(p[1]).get(description=True)
                 #{'name': 'y', 'data_type': <DataType.INT: 'int'>, 'scope': 'local', 'address': 500012, 'dim1': '3', 'size': '3'}
 
@@ -373,7 +383,7 @@ class LexicalAnalyzer:
 
                 self.generate_quadruple(operation=int(OperationCodes.VER), left_operand=index, right_operand=0, result=int(array_info['size']))
                 self.generate_quadruple(operation=int(OperationCodes.SUMDIR), left_operand=index, right_operand=array_info['address'], result=address)
-                self.generate_quadruple(operation=int(OperationCodes.ASSIGNDIR), left_operand=int(value_human), right_operand=int(OperationCodes.NONE), result=address)
+                self.generate_quadruple(operation=int(OperationCodes.ASSIGNDIR), left_operand=value, right_operand=int(OperationCodes.NONE), result=address)
                 
             else:
                 value = self.operands_stack.pop()
@@ -413,7 +423,7 @@ class LexicalAnalyzer:
 
                 self.generate_quadruple(operation=int(OperationCodes.SUMDIR), left_operand=address_sum, right_operand=int(array_info['address']), result=final_address)
 
-                self.generate_quadruple(operation=int(OperationCodes.ASSIGNDIR), left_operand=int(value_human), right_operand=int(OperationCodes.NONE), result=final_address)
+                self.generate_quadruple(operation=int(OperationCodes.ASSIGNDIR), left_operand=value, right_operand=int(OperationCodes.NONE), result=final_address)
 
 
           
