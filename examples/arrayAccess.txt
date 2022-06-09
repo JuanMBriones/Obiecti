@@ -1,0 +1,19 @@
+program x2 
+private class x3 : x4 {
+    void def main() {
+        var t : int
+        var array[10] : int
+        t = 90
+        var i : int
+        i = 2
+        array[i] = 4
+
+        print(array[2])
+
+        var arr[3][5] : int
+        arr[0][0] = 1
+
+        var h : int
+        print(arr[0][0])
+    }
+}

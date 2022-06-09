@@ -32,6 +32,7 @@ class OperationCodes(Enum):
     SUMDIR = 2100025
     ASSIGNDIR = 2100026
     MULTDIR = 2100027
+    POINTER = 2100028
 
     def __new__(cls, value):
         member = object.__new__(cls)
