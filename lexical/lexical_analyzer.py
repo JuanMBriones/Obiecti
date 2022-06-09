@@ -441,7 +441,7 @@ class LexicalAnalyzer:
 
                 self.generate_quadruple(operation=int(OperationCodes.SUMDIR), left_operand=address_sum, right_operand=int(array_info['address']), result=final_address)
 
-                self.generate_quadruple(operation=int(OperationCodes.ASSIGNDIR), left_operand=int(value_human), right_operand=int(OperationCodes.NONE), result=final_address)
+                self.generate_quadruple(operation=int(OperationCodes.ASSIGNDIR), left_operand=value, right_operand=int(OperationCodes.NONE), result=final_address)
 
 
           

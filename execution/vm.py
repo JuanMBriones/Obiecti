@@ -409,10 +409,15 @@ def read_file(file="object.txt"):
                 ip += 1
             elif cod_op == int(OperationCodes.ASSIGNDIR):
                 left_operand_value = quadruples.quadruples[ip].get_left_operand()
+
+                try: 
+                    left_operand_value = get_value(functions_table, constants_table, quadruples.quadruples[ip].get_left_operand(), functions_stack[-1])
+                except:
+                    left_operand_value = quadruples.quadruples[ip].get_left_operand()
                 # the result_part of quadruple is a pointr to the address of the variable
                 result_address = quadruples.quadruples[ip].get_result()
                 real_address = get_value(functions_table, constants_table, result_address, functions_stack[-1])
-
+                
                 set_value(functions_table, real_address, left_operand_value, functions_stack[-1])
                 ip += 1
             else:
