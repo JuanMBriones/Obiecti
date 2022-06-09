@@ -9,5 +9,11 @@ private class x3 : x4 {
         array[i] = 4
 
         print(array[2])
+
+        var arr[3][5] : int
+        arr[0][0] = 1
+
+        var h : int
+        print(arr[0][0])
     }
 }
