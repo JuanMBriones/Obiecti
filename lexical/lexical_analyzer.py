@@ -57,8 +57,8 @@ class LexicalAnalyzer:
             for key, value in self.quadruples.get_quadruples().items():
                 object_file.write(f"{value}\n")
         
-        self.function_table.debug()
-        self.constants_table.debug()
+        #self.function_table.debug()
+        #self.constants_table.debug()
             
             
     def generate_quadruple(self, operation, left_operand, right_operand, result, type=None):
@@ -86,6 +86,10 @@ class LexicalAnalyzer:
             end = self.jumps_stack.pop()
             self.quadruples.quadruples[end].result = self.quadruples_size()
     
+    def generate_debug(self):
+        self.generate_quadruple(operation="DEBUG", left_operand="", right_operand="", result="", type=True)
+        self.generate_quadruple(operation=int(OperationCodes.DEBUG), left_operand=int(OperationCodes.NONE), right_operand=int(OperationCodes.NONE), result=int(OperationCodes.NONE))
+
     def calculate_if_false_jumps(self):
         false = self.jumps_stack.pop()
         self.generate_quadruple(operation=int(OperationCodes.GOTO), left_operand=int(OperationCodes.NONE), right_operand=int(OperationCodes.NONE), result=int(OperationCodes.NONE))        
@@ -374,8 +378,8 @@ class LexicalAnalyzer:
             for var in self.function_table.get_method(self.functions_stack[-1]).get_all_variables():
                 print(var, self.function_table.get_method(self.functions_stack[-1]).find_variable(var).get()) #get(var))"""
 
-            self.function_table.debug()
-            self.constants_table.debug()
+            #self.function_table.debug()
+            #self.constants_table.debug()
         elif len(p) > 4:
             # arrays
             """
@@ -393,7 +397,7 @@ class LexicalAnalyzer:
                 index = self.operands_stack.pop()
                 value_human = self.human_operands_stack.pop()
                 index_human = self.human_operands_stack.pop()
-                print(value, index, value_human, index_human)
+                #print(value, index, value_human, index_human)
                 array_info = self.function_table.get_method(self.functions_stack[-1]).find_variable(p[1]).get(description=True)
                 #{'name': 'y', 'data_type': <DataType.INT: 'int'>, 'scope': 'local', 'address': 500012, 'dim1': '3', 'size': '3'}
 
@@ -415,8 +419,8 @@ class LexicalAnalyzer:
                 self.generate_quadruple(operation=int(OperationCodes.ASSIGNDIR), left_operand=value, right_operand=int(OperationCodes.NONE), result=address)
                 
             else:
-                print(p[:])
-                print(self.operands_stack[:])
+                #print(p[:])
+                #print(self.operands_stack[:])
                 value = self.operands_stack.pop()
                 index2 = self.operands_stack.pop()
                 index = self.operands_stack.pop()
@@ -445,7 +449,7 @@ class LexicalAnalyzer:
                 self.function_table.move_temporal_next_direction(self.functions_stack[-1], DataType.INT)
                 self.add_temp_func_size(self.functions_stack[-1], DataType.INT)
 
-                print('address sum', address_sum)
+                #print('address sum', address_sum)
                 self.generate_quadruple(operation=int(OperationCodes.SUM), left_operand=address_temp, right_operand=index2, result=address_sum)
                 
                 final_address = self.function_table.add_temporal_variable(self.functions_stack[-1], DataType.INT)
@@ -538,7 +542,7 @@ class LexicalAnalyzer:
             if argument_type != current_param:
                 expected = current_param.value
                 argument = argument_type.value
-                print(argument_type, current_param)
+                #print(argument_type, current_param)
                 print(f"Expected argument of type {expected.upper()} but instead {argument.upper()} were given")
                 exit(-1)
             name_function = self.operands_stack[-1]
@@ -724,10 +728,10 @@ class LexicalAnalyzer:
         | ID LBRACKET exp RBRACKET
             | ID LBRACKET exp RBRACKET LBRACKET exp RBRACKET'''
         """
-        print('size',len(p))
+        #print('size',len(p))
         if len(p) >= 8:
-            print(p[:])
-            print(self.operands_stack[:])
+            #print(p[:])
+            #print(self.operands_stack[:])
 
             index2 = self.operands_stack.pop()
             index = self.operands_stack.pop()

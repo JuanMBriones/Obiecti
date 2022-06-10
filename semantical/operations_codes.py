@@ -33,6 +33,7 @@ class OperationCodes(Enum):
     POINTER = 2100028
     SORT = 2100029
     FIND = 2100030
+    DEBUG = 2100031
 
     def __new__(cls, value):
         member = object.__new__(cls)

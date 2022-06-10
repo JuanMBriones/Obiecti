@@ -180,13 +180,16 @@ def read_file(file="object.txt"):
             result = quadruples.quadruples[ip].get_result()
 
             if type(left) == str and '*' in left:
-                real_address = get_value(functions_table, constants_table, result_address, functions_stack[-1])
+                left = left[3:len(left)-1]
+                real_address = get_value(functions_table, constants_table, int(left), functions_stack[-1])
                 quadruples.quadruples[ip].left_operand = real_address
             if type(right) == str and '*' in right:
-                real_address = get_value(functions_table, constants_table, result_address, functions_stack[-1])
+                right = right[3:len(right)-1]
+                real_address = get_value(functions_table, constants_table, int(right), functions_stack[-1])
                 quadruples.quadruples[ip].right_operand = real_address
             if type(result) == str and '*' in result:
-                real_address = get_value(functions_table, constants_table, result_address, functions_stack[-1])
+                result = result[3:len(result)-1]
+                real_address = get_value(functions_table, constants_table, int(result), functions_stack[-1])
                 quadruples.quadruples[ip].result = real_address
 
             if cod_op == int(OperationCodes.SUM):
@@ -451,7 +454,7 @@ def read_file(file="object.txt"):
                 left_operand_address = quadruples.quadruples[ip].get_left_operand()
                 right_operand_address = quadruples.quadruples[ip].get_right_operand()
                 result_address = quadruples.quadruples[ip].get_result()
-                print('🚧🚧🚧🚧🚧🚧🚧🚧🚧🚧🚧')
+                #print('🚧🚧🚧🚧🚧🚧🚧🚧🚧🚧🚧')
                 to_find = get_value(functions_table, constants_table, result_address, functions_stack[-1])
                 current_address = left_operand_address
                 res = -1
@@ -482,7 +485,7 @@ def read_file(file="object.txt"):
                     current_address += 1
                 
                 lst.sort()
-                print(f'❄️❄️❄️❄️❄️❄️❄️❄️', len(lst))
+                #print(f'❄️❄️❄️❄️❄️❄️❄️❄️', len(lst))
                 current_address = left_operand_address
                 index = 0
                 while(current_address <= right_operand_address):
@@ -493,7 +496,7 @@ def read_file(file="object.txt"):
                 ip += 1
 
             else:
-                print(cod_op)
+                #print(cod_op)
                 ip += 1
             
     except Exception as e:

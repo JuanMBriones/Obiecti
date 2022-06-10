@@ -26,8 +26,8 @@ def p_programa(p):
     lexical_analyzer.generate_object_file()
     #lexical_analyzer.print_func_all_variables()
 
-    for key, value in lexical_analyzer.human_quadruples.get_quadruples().items():
-        print(f"{key}: {value}")
+    #for key, value in lexical_analyzer.human_quadruples.get_quadruples().items():
+    #    print(f"{key}: {value}")
 
 
 def p_aux_program(p):
@@ -63,7 +63,7 @@ def p_aux6(p):
 
 def p_sort(p):
     '''sort_p : ID PERIOD SORT LPAREN aux_sort RPAREN'''
-    print('SORT',p[:])
+    #print('SORT',p[:])
     lexical_analyzer.sort(p[1])
 
 def p_aux_sort(p):
@@ -71,7 +71,7 @@ def p_aux_sort(p):
 
 def p_find(p):
     '''find_p : ID PERIOD FIND LPAREN var RPAREN'''
-    print('FIND',p[:])
+    #print('FIND',p[:])
     lexical_analyzer.find(p[1])
 
 def p_condicion(p):

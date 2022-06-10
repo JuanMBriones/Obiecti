@@ -228,7 +228,7 @@ class ProcedureSymbol():
                     jump *= d1
                 if d2:
                     jump *= d2
-                print("ddwefe", type(jump))
+                #print("ddwefe", type(jump))
                 self.move_local_next_direction(name_func, data_type, int(jump))
             else:
                 print(f"Variable {name_var} already defined")

@@ -1,0 +1,23 @@
+program patito
+private class x {
+    void def main() {
+        var array[10] : int
+        var index : int
+        
+        index = 0
+
+        while(index < 10) {
+            array[index] = 10-index
+            index = index + 1
+        }
+
+        index = index - 1
+
+        while(index >= 0) {
+            print(array[index])
+            index = index - 1
+        }
+
+        
+    }
+}
