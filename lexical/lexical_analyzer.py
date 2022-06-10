@@ -154,7 +154,6 @@ class LexicalAnalyzer:
         elif p[1] == "bool":
             self.types_stack.append(DataType.BOOL)
         #print("Identify type operands stack:", self.operands_stack)
-        #print("Identify type types stack:", self.types_stack)
     
     def add_operand(self, p, index):
         if len(p) >= index + 1 and p[index]:
@@ -512,8 +511,6 @@ class LexicalAnalyzer:
 
         self.function_table.reset_counter(name_function)
         counter = self.function_table.get_counter(self.operands_stack[-1])
-        self.params_stack.append(self.function_table.get_param(name_function, counter))
-        #print(paramater)
     
     def function_call_neural_point_arg_end(self, p):
         name_function = self.operands_stack[-1]
@@ -538,6 +535,10 @@ class LexicalAnalyzer:
             self.function_table.add_param_count(name_func, 1)
         elif type == DataType.CHAR:
             self.function_table.add_param_count(name_func, 2)
+        elif type == DataType.STRING:
+            self.function_table.add_param_count(name_func, 3)
+        elif type == DataType.BOOL:
+            self.function_table.add_param_count(name_func, 4)
 
     def add_function_parameters(self):
         while len(self.operands_stack) > 1:
@@ -547,16 +548,22 @@ class LexicalAnalyzer:
             data_type = self.types_stack.pop()
             self.function_table.add_variable(name_func, name_var, data_type)
             self.add_param(name_func, data_type)
-        
+    
+    def set_func_initial_address(self):
         self.human_operands_stack.pop() # human
         self.function_table.set_initial_address(self.operands_stack.pop(), self.quadruples_size())
 
     
     def function_args_neural_point(self):
+
         argument = self.operands_stack.pop()
         argument_human = self.human_operands_stack.pop()
         argument_type = self.types_stack.pop()
+        name_function = self.operands_stack[-1]
+        counter = self.function_table.get_counter(name_function)
+        self.params_stack.append(self.function_table.get_param(name_function, counter))
         current_param = self.params_stack.pop()
+        
         if current_param:
             if argument_type != current_param:
                 expected = current_param.value
@@ -564,8 +571,6 @@ class LexicalAnalyzer:
                 print(argument_type, current_param)
                 print(f"Expected argument of type {expected.upper()} but instead {argument.upper()} were given")
                 exit(-1)
-            name_function = self.operands_stack[-1]
-            counter = self.function_table.get_counter(name_function)
             self.generate_quadruple(operation=int(OperationCodes.PARAM), left_operand=argument, right_operand=int(OperationCodes.NONE), result=counter)
             self.generate_quadruple(operation="PARAM", left_operand=argument_human, right_operand="", result=counter, type=True)
     
@@ -573,7 +578,6 @@ class LexicalAnalyzer:
         name_function = self.operands_stack[-1]
         counter = self.function_table.get_counter(name_function)
         self.function_table.set_counter(name_function, counter + 1)
-        self.params_stack.append(self.function_table.get_param(name_function, counter))
 
     # Function size assignation
     def add_var_func_size(self, name_func, type):

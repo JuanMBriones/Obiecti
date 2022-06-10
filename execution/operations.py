@@ -22,8 +22,13 @@ class Operations:
             Nombre de la función en la que se realizará la asignación'''
         
         if name_func == "global":
-            #self.functions_table.print_func_size(name_func)
             self.functions_table.set_value(name_func, address, value)
+        else:
+            is_global = self.functions_table.is_var_global(address)
+            if is_global != None:
+                self.functions_table.set_value("global", address, value)
+            else:
+                self.functions_table.set_value(name_func, address, value)
 
     def __get_value(self, address, name_func):
         '''Regresa el valor de una variable dentro de una función
@@ -55,6 +60,15 @@ class Operations:
         #   Checa si se busca la dirección en la tabla de variables global
         if name_func == "global":
             return self.functions_table.get_value(name_func, address)
+        else:
+            is_global = self.functions_table.is_var_global(address)
+            if is_global != None:
+                return is_global
+            else:
+                return self.functions_table.get_value(name_func, address)
+
+    def add_method(self, name, data_type, initial_address, size, param_table):
+        self.functions_table.add_method(name, data_type, initial_address, size, param_table)
 
     def assign_op(self, left_operand, result, name_func):
         '''Realiza la operación de asignación
@@ -365,3 +379,57 @@ class Operations:
         else:
             result_value = False
         self.__set_value(result, result_value, name_func)
+
+    def goto_op(self, left_operand, name_func):
+        left_operand_value = self.__get_value(left_operand, name_func)
+        return left_operand_value
+
+    def return_op(self, left_operand, result, name_func):
+        '''Realiza la operación return
+        
+        Parámetros
+        ---------------
+        left_operand : int
+            Dirección del operador izquierdo
+            
+        result : int
+            Dirección del resultado de la operación
+            
+        name_func : str
+            Nombre de la función en la que se realizará la operación'''
+        result_value = self.__get_value(result, name_func)
+        self.__set_value(left_operand, result_value, "global")
+
+    def gosub_op(self, name_function):
+        '''Regresa la dirección inicial de una función para realizar la
+        operación GOSUB
+        
+        Parámetros
+        ---------------
+        name_func : str
+            Nombre de la función en la que se realizará la operación'''
+        return self.functions_table.get_initial_address(name_function)
+
+    def param_op(self, left_operand, result, prev_func, act_func):
+        '''Realiza la operación PARAM asignando un valor a un parámetro.
+        Se necesita saber en qué parámetro nos encontramos, la dirección del 
+        valor que se va a asignar y el nombre de la función de donde se pasa 
+        el dato para recuperarse. Al recolectarlo, se asigna en la función deseada
+        
+        Parámetros
+        ---------------
+        left_operand : int
+            Dirección del valor que se va a asignar
+        
+        result : int
+            Parámetro donde se encuentra actualmente
+            
+        prev_func : str
+            Nombre de la función de donde se pasa el dato
+            
+        act_func : str
+            Nombre de la función donde se quiere asignar el dato'''
+        left_operand_value = self.__get_value(left_operand, prev_func)
+        self.functions_table.set_param(act_func, result, left_operand_value)
+
+

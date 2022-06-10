@@ -85,8 +85,8 @@ def p_bloque(p):
     '''bloque : LBRACE aux5 RBRACE'''
 
 def p_funcion(p):
-    '''funcion : scope type DEF id LPAREN param aux_param RPAREN contexto_func
-                | scope VOID DEF id_void LPAREN param aux_param RPAREN contexto_func'''
+    '''funcion : scope type DEF id LPAREN param aux_param2 RPAREN contexto_func
+                | scope VOID DEF id_void LPAREN param aux_param2 RPAREN contexto_func'''
     lexical_analyzer.create_function(p)
 
 def p_id(p):
@@ -132,13 +132,20 @@ def p_aux5(p):
 
 def p_param(p):
     '''param : 
-                | tipo_simple ID
-                | tipo_simple ID COMMA param'''
+                | param_id aux_param
+                | param_id aux_param COMMA param'''
+
+def p_param_id(p):
+    '''param_id : tipo_simple ID'''
     lexical_analyzer.add_operand(p, 2)
 
 def p_aux_param(p):
     '''aux_param :'''
     lexical_analyzer.add_function_parameters()
+
+def p_aux_param2(p):
+    '''aux_param2 :'''
+    lexical_analyzer.set_func_initial_address()
 
 def p_scope(p):
     '''scope : 
@@ -199,7 +206,7 @@ def p_tipo_simple(p):
     '''tipo_simple : INT
                     | FLOAT
                     | CHAR
-                    | BOOL'''
+                    | STRING'''
     lexical_analyzer.identify_type(p)
 
 def p_tipo_compuesto(p):

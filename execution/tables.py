@@ -7,7 +7,7 @@ class Function:
         self.name = name
         self.data_type = data_type
         self.initial_address = initial_address
-        self.size = size     #[int, float, char, temp_int, temp_float, temp_char]
+        self.size = size     #[int, float, char, string, bool, temp_int, temp_float, temp_char, temp_string, temp_bool]
         self.param_table = param_table
         self.local_memory = Memory(self.size[0], self.size[1], self.size[2], self.size[3], self.size[4])
         self.temp_memory = TemporalMemory(self.size[5], self.size[6], self.size[7], self.size[8], self.size[9])
@@ -128,23 +128,55 @@ class Function:
             elif address >= 1400000 and address < 1500000:
                 real_address = address - 1400000
                 return self.temp_memory.access_boolean(real_address)
-    
+
+    def set_param(self, param_counter, value):
+        '''Asigna un valor a un parametro. Se necesita saber a qué
+        parámetro se debe asignar para saber qué tipo de dato se
+        tiene y a qué segmento de memoria se debe asignar el valor
+            
+        Parametros
+        ------------------------
+        param_counter : int
+            Número de parámetro a asignar
+
+        value : Any
+            Valor a asignar al parámetro
+        '''
+        type_param = self.param_table[param_counter]
+        if type_param == DataType.INT:
+            for i in range(self.size[0]):
+                if self.local_memory.access_int(i) == None:
+                    self.local_memory.assign_int(i, value, i)
+                    break
+        elif type_param == DataType.FLOAT:
+            for i in range(self.size[1]):
+                if self.local_memory.access_float(i) == None:
+                    self.local_memory.assign_float(i, value, i)
+                    break
+        elif type_param == DataType.CHAR:
+            for i in range(self.size[2]):
+                if self.local_memory.access_char(i) == None:
+                    self.local_memory.assign_char(i, value, i)
+                    break
+        elif type_param == DataType.STRING:
+            for i in range(self.size[3]):
+                if self.local_memory.access_string(i) == None:
+                    self.local_memory.assign_string(i, value, i)
+                    break
+        elif type_param == DataType.BOOL:
+            for i in range(self.size[4]):
+                if self.local_memory.access_boolean(i) == None:
+                    self.local_memory.assign_boolean(i, value, i)
+                    break
 
     def is_var_global(self, address):
         '''Auxiliar para las funciones que busca si una variable existe en la
         memoria global'''
-        if address >= 0 and address < 100000:
-            return self.local_memory.access_int(address)
-        elif address >= 100000 and address < 200000:
-            real_address = address - 100000
-            return self.local_memory.access_float(real_address)
-        elif address >= 200000 and address < 300000:
-            real_address = address - 200000
-            return self.local_memory.access_char(real_address)
-        elif address >= 400000 and address < 500000:
-            real_address = address - 400000
-            return self.local_memory.access_boolean(real_address)
-        return None
+        try:
+            is_global = self.get_value(address)
+            return is_global
+        except:
+            return None
 
 class ProcedureSymbol():
     methods = {}
@@ -235,7 +267,7 @@ class ProcedureSymbol():
     def string_to_param_table(self, string):
         '''Convierte el texto en una tabla de parámetros'''
         string_split = string.strip().strip('[]').split(',')
-        if len(string_split) <= 1:
+        if len(string_split) < 1:
             return []
         else:
             new_list = []
@@ -267,6 +299,33 @@ class ProcedureSymbol():
         value : Any
             Valor que se va a asignar'''            
         self.methods[name_func].set_value(address, value)
+
+    def get_initial_address(self, name_func):
+        '''Regresa la dirección del cuádruplo donde empieza una función
+        Parámetros
+        ---------------
+        name_func : str
+            Nombre de la función de dónde se busca la dirección inicial'''
+        
+        return self.methods[name_func].initial_address
+
+    def set_param(self, name_func, param_counter, value):
+        '''Asigna un valor a un parametro. Se necesita saber a qué
+            parámetro se debe asignar para saber qué tipo de dato se
+            tiene y a qué segmento de memoria se debe asignar el valor
+            
+            Parametros
+            ------------------------
+            name_func : str
+                Nombre de la función donde se asignará el parámetro
+
+            param_counter : int
+                Número de parámetro a asignar
+
+            value : Any
+                Valor a asignar al parámetro
+        '''
+        self.methods[name_func].set_param(param_counter, value)
 
     def get_value(self, name_func, address):
         return self.methods[name_func].get_value(address)
