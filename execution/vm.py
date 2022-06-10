@@ -1,6 +1,7 @@
 from lib2to3.pgen2.token import OP
 from webbrowser import Opera
 from execution.memory import Memory
+from execution.operations import Operations
 from execution.tables import ConstantTable, Function, ProcedureSymbol
 from semantical.quadruples import Quadruple, Quadruples
 from semantical.operations_codes import OperationCodes
@@ -116,12 +117,12 @@ def read_file(file="object.txt"):
 
     functions_table = ProcedureSymbol(functions_good[0][3])
     functions_good.pop(0)
-    functions_stack = [None]
+    functions_stack = ["global"]
     for function in functions_good:
         #print(function[0])
         if function[0] == "main":
             functions_table.add_method(function[0], function[1], function[2], function[3], function[4])
-            functions_stack.append(int(function[2]))
+            functions_stack.append(function[0])
             break
         #functions_table.add_method(function[0], function[1], function[2], function[3], function[4])
 
@@ -157,8 +158,7 @@ def read_file(file="object.txt"):
         q = Quadruple(operator, left_operand, right_operand, result)
         quadruples.add_quadruple(q)
 
-
-    
+    operations = Operations(functions_table, constants_table)
 
     ip = 0
     try:
@@ -196,199 +196,136 @@ def read_file(file="object.txt"):
                 left_operand = quadruples.quadruples[ip].get_left_operand()
                 right_operand = quadruples.quadruples[ip].get_right_operand()
                 result = quadruples.quadruples[ip].get_result()
-                left_operand_value = get_value(functions_table, constants_table, left_operand, functions_stack[-1])
-                right_operand_value = get_value(functions_table, constants_table, right_operand, functions_stack[-1])
-                result_value = left_operand_value + right_operand_value
-                set_value(functions_table, result, result_value, functions_stack[-1])
+                operations.sum_op(left_operand, right_operand, result, functions_stack[-1])
                 ip += 1
             elif cod_op == int(OperationCodes.MINUS):
                 left_operand = quadruples.quadruples[ip].get_left_operand()
                 right_operand = quadruples.quadruples[ip].get_right_operand()
                 result = quadruples.quadruples[ip].get_result()
-                left_operand_value = get_value(functions_table, constants_table, left_operand, functions_stack[-1])
-                right_operand_value = get_value(functions_table, constants_table, right_operand, functions_stack[-1])
-                result_value = left_operand_value - right_operand_value
-                set_value(functions_table, result, result_value, functions_stack[-1])
+                operations.sub_op(left_operand, right_operand, result, functions_stack[-1])
                 ip += 1
             elif cod_op == int(OperationCodes.MULT):
                 left_operand = quadruples.quadruples[ip].get_left_operand()
                 right_operand = quadruples.quadruples[ip].get_right_operand()
                 result = quadruples.quadruples[ip].get_result()
-                left_operand_value = get_value(functions_table, constants_table, left_operand, functions_stack[-1])
-                right_operand_value = get_value(functions_table, constants_table, right_operand, functions_stack[-1])
-                result_value = left_operand_value * right_operand_value
-                set_value(functions_table, result, result_value, functions_stack[-1])
+                operations.times_op(left_operand, right_operand, result, functions_stack[-1])
                 ip += 1
             elif cod_op == int(OperationCodes.DIV):
                 left_operand = quadruples.quadruples[ip].get_left_operand()
                 right_operand = quadruples.quadruples[ip].get_right_operand()
                 result = quadruples.quadruples[ip].get_result()
-                left_operand_value = get_value(functions_table, constants_table, left_operand, functions_stack[-1])
-                right_operand_value = get_value(functions_table, constants_table, right_operand, functions_stack[-1])
-                result_value = left_operand_value / right_operand_value
-                set_value(functions_table, result, result_value, functions_stack[-1])
+                operations.divide_op(left_operand, right_operand, result, functions_stack[-1])
                 ip += 1
             elif cod_op == int(OperationCodes.MOD):
                 left_operand = quadruples.quadruples[ip].get_left_operand()
                 right_operand = quadruples.quadruples[ip].get_right_operand()
                 result = quadruples.quadruples[ip].get_result()
-                left_operand_value = get_value(functions_table, constants_table, left_operand, functions_stack[-1])
-                right_operand_value = get_value(functions_table, constants_table, right_operand, functions_stack[-1])
-                result_value = left_operand_value % right_operand_value
-                set_value(functions_table, result, result_value, functions_stack[-1])
+                operations.modulo_op(left_operand, right_operand, result, functions_stack[-1])
                 ip += 1
             elif cod_op == int(OperationCodes.ASSIGN):
                 left_operand = quadruples.quadruples[ip].get_left_operand()
-                #print(left_operand)
-                left_operand_value = get_value(functions_table, constants_table, left_operand, functions_stack[-1])
-                #print("Left operand value:", left_operand_value)
                 result = quadruples.quadruples[ip].get_result()
-                set_value(functions_table, result, left_operand_value, functions_stack[-1])
+                operations.assign_op(left_operand, result, functions_stack[-1])
                 ip += 1
             elif cod_op == int(OperationCodes.LT):
                 left_operand = quadruples.quadruples[ip].get_left_operand()
                 right_operand = quadruples.quadruples[ip].get_right_operand()
                 result = quadruples.quadruples[ip].get_result()
-                left_operand_value = get_value(functions_table, constants_table, left_operand, functions_stack[-1])
-                right_operand_value = get_value(functions_table, constants_table, right_operand, functions_stack[-1])
-                result_value = left_operand_value < right_operand_value
-                set_value(functions_table, result, result_value, functions_stack[-1])
+                operations.lt_op(left_operand, right_operand, result, functions_stack[-1])
                 ip += 1
             elif cod_op == int(OperationCodes.GT):
                 left_operand = quadruples.quadruples[ip].get_left_operand()
                 right_operand = quadruples.quadruples[ip].get_right_operand()
                 result = quadruples.quadruples[ip].get_result()
-                left_operand_value = get_value(functions_table, constants_table, left_operand, functions_stack[-1])
-                right_operand_value = get_value(functions_table, constants_table, right_operand, functions_stack[-1])
-                result_value = left_operand_value > right_operand_value
-                set_value(functions_table, result, result_value, functions_stack[-1])
+                operations.gt_op(left_operand, right_operand, result, functions_stack[-1])
                 ip += 1
             elif cod_op == int(OperationCodes.LE):
                 left_operand = quadruples.quadruples[ip].get_left_operand()
                 right_operand = quadruples.quadruples[ip].get_right_operand()
                 result = quadruples.quadruples[ip].get_result()
-                left_operand_value = get_value(functions_table, constants_table, left_operand, functions_stack[-1])
-                right_operand_value = get_value(functions_table, constants_table, right_operand, functions_stack[-1])
-                result_value = left_operand_value <= right_operand_value
-                set_value(functions_table, result, result_value, functions_stack[-1])
+                operations.le_op(left_operand, right_operand, result, functions_stack[-1])
                 ip += 1
             elif cod_op == int(OperationCodes.GE):
                 left_operand = quadruples.quadruples[ip].get_left_operand()
                 right_operand = quadruples.quadruples[ip].get_right_operand()
                 result = quadruples.quadruples[ip].get_result()
-                left_operand_value = get_value(functions_table, constants_table, left_operand, functions_stack[-1])
-                right_operand_value = get_value(functions_table, constants_table, right_operand, functions_stack[-1])
-                result_value = left_operand_value >= right_operand_value
-                set_value(functions_table, result, result_value, functions_stack[-1])
+                operations.ge_op(left_operand, right_operand, result, functions_stack[-1])
                 ip += 1
             elif cod_op == int(OperationCodes.EQ):
                 left_operand = quadruples.quadruples[ip].get_left_operand()
                 right_operand = quadruples.quadruples[ip].get_right_operand()
                 result = quadruples.quadruples[ip].get_result()
-                left_operand_value = get_value(functions_table, constants_table, left_operand, functions_stack[-1])
-                right_operand_value = get_value(functions_table, constants_table, right_operand, functions_stack[-1])
-                result_value = left_operand_value == right_operand_value
-                set_value(functions_table, result, result_value, functions_stack[-1])
+                operations.eq_op(left_operand, right_operand, result, functions_stack[-1])
                 ip += 1
             elif cod_op == int(OperationCodes.NE):
                 left_operand = quadruples.quadruples[ip].get_left_operand()
                 right_operand = quadruples.quadruples[ip].get_right_operand()
                 result = quadruples.quadruples[ip].get_result()
-                left_operand_value = get_value(functions_table, constants_table, left_operand, functions_stack[-1])
-                right_operand_value = get_value(functions_table, constants_table, right_operand, functions_stack[-1])
-                result_value = left_operand_value != right_operand_value
-                set_value(functions_table, result, result_value, functions_stack[-1])
+                operations.ne_op(left_operand, right_operand, result, functions_stack[-1])
                 ip += 1
             elif cod_op == int(OperationCodes.AND):
                 left_operand = quadruples.quadruples[ip].get_left_operand()
                 right_operand = quadruples.quadruples[ip].get_right_operand()
                 result = quadruples.quadruples[ip].get_result()
-                left_operand_value = get_value(functions_table, constants_table, left_operand, functions_stack[-1])
-                right_operand_value = get_value(functions_table, constants_table, right_operand, functions_stack[-1])
-                if left_operand_value and right_operand_value:
-                    result_value = True
-                else:
-                    result_value = False
-                set_value(functions_table, result, result_value, functions_stack[-1])
+                operations.and_op(left_operand, right_operand, result, functions_stack[-1])
                 ip += 1
             elif cod_op == int(OperationCodes.OR):
                 left_operand = quadruples.quadruples[ip].get_left_operand()
                 right_operand = quadruples.quadruples[ip].get_right_operand()
                 result = quadruples.quadruples[ip].get_result()
-                left_operand_value = get_value(functions_table, constants_table, left_operand, functions_stack[-1])
-                right_operand_value = get_value(functions_table, constants_table, right_operand, functions_stack[-1])
-                if left_operand_value or right_operand_value:
-                    result_value = True
-                else:
-                    result_value = False
-                set_value(functions_table, result, result_value, functions_stack[-1])
+                operations.or_op(left_operand, right_operand, result, functions_stack[-1])
                 ip += 1
             elif cod_op == int(OperationCodes.GOTO):
                 ip = quadruples.quadruples[ip].get_result()
             elif cod_op == int(OperationCodes.GOTOF):
                 left_operand = quadruples.quadruples[ip].get_left_operand()
-                left_operand_value = get_value(functions_table, constants_table, left_operand, functions_stack[-1])
+                left_operand_value = operations.goto_op(left_operand, functions_stack[-1])
                 if left_operand_value == False:
                     ip = quadruples.quadruples[ip].get_result()
                 else:
                     ip += 1
             elif cod_op == int(OperationCodes.ENDFUNC):             # ENDFUNC
                 #functions_stack.pop()
-                main_address = functions_table.get_method('main').initial_address
-                if functions_stack[-1] != main_address: # main
-                    ip = jump_stack.pop() # += 1
+                #main_address = functions_table.get_method('main').initial_address
+                if functions_stack[-1] != "main": # main
+                    ip = jump_stack.pop()
                 else:
-                    ip += 1 
+                    ip += 1
                 functions_stack.pop()
+                #else: 
+                #functions_stack.pop()
             elif cod_op == int(OperationCodes.PRINT):             # PRINT
                 result = quadruples.quadruples[ip].get_result()
-                result_value = get_value(functions_table, constants_table, result, functions_stack[-1])
-                print(result_value)
+                operations.print_op(result, functions_stack[-1])
                 ip += 1
             elif cod_op == int(OperationCodes.ERA):            # ERA
-                name_func_address = quadruples.quadruples[ip].get_result()
-                #print("Name func address", name_func_address)
-                functions_stack.append(name_func_address)
-                
-                #print("FUNC_STACK:", functions_stack[:])
-                #print('=========')
-                """functions_table
-                    ['fib', ' DataType.INT', ' 1', ' [6, 0, 0, 0, 0, 1, 0, 0, 0, 1]', " [<DataType.INT: 'int'>]"]
-                    fib 0 -> 0+1 = 1 which is the initial_address of fib
-                """
+                name_func_address = quadruples.quadruples[ip].get_result()                
                 for function in functions_good:
-                    #print(function[:])
-                    #print(function[2], name_func_address)
                     if int(function[2]) == int(name_func_address):
-                        #print("OP")
-                        functions_table.add_method(function[0], function[1], function[2], function[3], function[4])
+                        operations.add_method(function[0], function[1], function[2], function[3], function[4])
+                        functions_stack.append(function[0])  
                         break
+
+                #print(functions_stack)
+
                 #print(functions_table.get_all_func_directions())
 
                 ip += 1
-            elif cod_op == int(OperationCodes.RETURN):            # ER
+            elif cod_op == int(OperationCodes.RETURN):            # RETURN
                 left_operand = quadruples.quadruples[ip].get_left_operand()    
                 result = quadruples.quadruples[ip].get_result()
-                result_value = get_value(functions_table, constants_table, result, functions_stack[-1])
-                set_value(functions_table, left_operand, result_value, None)
+                name_function = functions_stack[-1]
+                operations.return_op(left_operand, result, name_function)
                 ip += 1
             elif cod_op == int(OperationCodes.GOSUB):
-                #ip += 1
                 jump_stack.append(ip + 1)
-                #print('PPPPPP', jump_stack[:])
-                ip = functions_stack[-1] #quadruples.quadruples[ip].get_left_operand() + 1
-
+                ip = operations.gosub_op(functions_stack[-1])
             elif cod_op == int(OperationCodes.PARAM):
-                #print(ip, quadruples.quadruples[ip])
-                # function_table, address, value, function_address
-                #15: ['PARAM', '5', '', 0]
-                #16 [2100017, 1600003, 2100022, 0]
-                initial_address = functions_stack[-1] #functions_table.get_initial_address(func_name
-                #print(initial_address)
-                value = get_value(functions_table, constants_table, quadruples.quadruples[ip].get_left_operand(), functions_stack[-1])
-                #print("Value:", value)
-                set_value(functions_table, quadruples.quadruples[ip].result, value, initial_address)
-
+                actual_function = functions_stack.pop()
+                left_operand = quadruples.quadruples[ip].get_left_operand()
+                result = quadruples.quadruples[ip].get_result()
+                operations.param_op(left_operand, result, functions_stack[-1], actual_function)
+                functions_stack.append(actual_function)
                 ip += 1
             elif cod_op == int(OperationCodes.VER):
                 left_operand_address = quadruples.quadruples[ip].get_left_operand()

@@ -1,16 +1,6 @@
 program patito
 public class x {
-    int def f(int s) {
-        return 0 + s
-    }
-
-    int def g(int s) {
-        return 0 + s
-    }
-
-    void def main() {
-        print("y", f(9))
-        print("y")
-        print("y", g(9))
-    }
+    var x : int
+    x = 10
+    print(x)
 } 

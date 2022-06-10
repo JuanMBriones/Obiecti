@@ -46,6 +46,13 @@ class Memory:
         self.debug_chars[address] = {'fixed_address': address, 'original_address': original_address, 'value': value}
         self.chars[address] = value
 
+    def assign_string(self, address, value, original_address=None):
+        self.debug_floats[address] = {'fixed_address': address, 'original_address': original_address, 'value': value}
+        self.string[address] = value
+
+    def access_string(self, address):
+        return self.string[address]
+
     def access_boolean(self, address):
         return self.booleans[address]
 
