@@ -1,3 +1,4 @@
+from lib2to3.pgen2.token import OP
 from webbrowser import Opera
 from execution.memory import Memory
 from execution.tables import ConstantTable, Function, ProcedureSymbol
@@ -179,13 +180,16 @@ def read_file(file="object.txt"):
             result = quadruples.quadruples[ip].get_result()
 
             if type(left) == str and '*' in left:
-                real_address = get_value(functions_table, constants_table, result_address, functions_stack[-1])
+                left = left[3:len(left)-1]
+                real_address = get_value(functions_table, constants_table, int(left), functions_stack[-1])
                 quadruples.quadruples[ip].left_operand = real_address
             if type(right) == str and '*' in right:
-                real_address = get_value(functions_table, constants_table, result_address, functions_stack[-1])
+                right = right[3:len(right)-1]
+                real_address = get_value(functions_table, constants_table, int(right), functions_stack[-1])
                 quadruples.quadruples[ip].right_operand = real_address
             if type(result) == str and '*' in result:
-                real_address = get_value(functions_table, constants_table, result_address, functions_stack[-1])
+                result = result[3:len(result)-1]
+                real_address = get_value(functions_table, constants_table, int(result), functions_stack[-1])
                 quadruples.quadruples[ip].result = real_address
 
             if cod_op == int(OperationCodes.SUM):
@@ -446,8 +450,53 @@ def read_file(file="object.txt"):
                 set_value(functions_table, result_address, input_value, functions_stack[-1])
 
                 ip += 1
+            elif cod_op == int(OperationCodes.FIND):
+                left_operand_address = quadruples.quadruples[ip].get_left_operand()
+                right_operand_address = quadruples.quadruples[ip].get_right_operand()
+                result_address = quadruples.quadruples[ip].get_result()
+                #print('🚧🚧🚧🚧🚧🚧🚧🚧🚧🚧🚧')
+                to_find = get_value(functions_table, constants_table, result_address, functions_stack[-1])
+                current_address = left_operand_address
+                res = -1
+                index = 0
+                while(current_address <= right_operand_address):
+                    current_value = get_value(functions_table, constants_table, current_address, functions_stack[-1])
+                    if int(current_value) == int(to_find):
+                        res = index
+                        break
+
+                    current_address += 1
+                    index += 1
+                
+                print(res)
+                ip += 1
+            elif cod_op == int(OperationCodes.SORT):
+                #[2100030, 500001, 500010, 500000]
+
+                left_operand_address = quadruples.quadruples[ip].get_left_operand()
+                right_operand_address = quadruples.quadruples[ip].get_right_operand()
+                result_address = quadruples.quadruples[ip].get_result()
+
+                current_address = left_operand_address
+                lst = []
+                while(current_address <= right_operand_address):
+                    current_value = get_value(functions_table, constants_table, current_address, functions_stack[-1])
+                    lst.append(current_value)
+                    current_address += 1
+                
+                lst.sort()
+                #print(f'❄️❄️❄️❄️❄️❄️❄️❄️', len(lst))
+                current_address = left_operand_address
+                index = 0
+                while(current_address <= right_operand_address):
+                    set_value(functions_table, current_address, lst[index], functions_stack[-1])
+
+                    index += 1
+                    current_address += 1
+                ip += 1
+
             else:
-                print(cod_op)
+                #print(cod_op)
                 ip += 1
             
     except Exception as e:

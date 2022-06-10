@@ -9,7 +9,7 @@ reserved = {
     'return' : 'RETURN', 'and' : 'AND', 
     'or' : 'OR', 'while' : 'WHILE',
     'print' : 'PRINT', 'read' : 'READ',
-    'True' : 'TRUE', 'False': 'FALSE'
+    'True' : 'TRUE', 'False': 'FALSE', 'sort': 'SORT', 'find': 'FIND'
  }
 
 tokens = [
@@ -22,7 +22,7 @@ tokens = [
     'LPAREN', 'RPAREN', 'LBRACKET', 
     'RBRACKET', 'LBRACE', 'RBRACE',
     'COMMA', 'PERIOD', 'COLON', 
-    'ID',
+    'ID', 
 ] + list(reserved.values())
 
 # Regular expression rules for simple tokens
