@@ -147,7 +147,11 @@ def p_aux_return(p):
 
 def p_aux5(p):
     '''aux5 : estatuto
+            | ciclo
+            | condicion
             | RETURN exp_cond aux_return
+            | ciclo aux5
+            | condicion aux5
             | estatuto aux5
             | RETURN exp_cond aux_return aux5'''
 

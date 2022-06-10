@@ -17,6 +17,7 @@ class LexicalAnalyzer:
         self.operators_stack = []
         self.types_stack = []
         self.jumps_stack = []
+        self.jumps_stack_aux = []
         self.params_stack = []
         self.functions_stack = ["global"]
         self.local_variables_segments = [0, 10000, 20000]
@@ -87,11 +88,11 @@ class LexicalAnalyzer:
     """
 
     def calculate_if_jumps(self):
-        #print(self.jumps_stack[:])
+        #print(self.jumps_stack_aux[:])
         end = self.jumps_stack.pop()
         self.quadruples.quadruples[end].result = self.quadruples_size()
-        while self.jumps_stack:
-            end = self.jumps_stack.pop()
+        while self.jumps_stack_aux:
+            end = self.jumps_stack_aux.pop()
             self.quadruples.quadruples[end].result = self.quadruples_size()
     
     def generate_debug(self):
@@ -102,10 +103,11 @@ class LexicalAnalyzer:
         false = self.jumps_stack.pop()
         self.generate_quadruple(operation=int(OperationCodes.GOTO), left_operand=int(OperationCodes.NONE), right_operand=int(OperationCodes.NONE), result=int(OperationCodes.NONE))        
         self.generate_quadruple(operation="GOTO", left_operand="", right_operand="", result="", type=True)
-        self.jumps_stack.append(self.quadruples_size() - 1)
+        self.jumps_stack_aux.append(self.quadruples_size() - 1)
         self.quadruples.quadruples[false].result = self.quadruples_size()
     
     def calculate_while_jump(self):
+        #print("Calcula while jump:", self.jumps_stack)
         end = self.jumps_stack.pop()
         jump_index = self.jumps_stack.pop()
         self.generate_quadruple(operation=int(OperationCodes.GOTO), left_operand=int(OperationCodes.NONE), right_operand=int(OperationCodes.NONE), result=jump_index)

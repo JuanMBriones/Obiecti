@@ -1,17 +1,53 @@
 program x2 
 private class x3 : x4 {
-    
-    void def y(int a, int b, int c) {
-        print(a)
-        print(b)
-        print(c)
-        print("Hola otra vez")
-    }
 
+    void def y(int x) {
+        while(x < 100) {
+            print(x)
+            x = x + 10
+            if (x < 100) {
+                print("Hola")
+            } elif (x == 100) {
+                print("Adios")
+                print("Ya casi me voy")
+                if (x < 100) {
+                    print("Hola")
+                } elif (x == 100) {
+                    print("Adios")
+                    print("Ya casi me voy")
+                } elif (x == 100) {
+                    print("Hola otra vez")
+                }
+            } elif (x == 100) {
+                print("Hola otra vez")
+            }
+            while(x < 200) {
+                print(x)
+                x = x + 10
+                if (x < 200) {
+                    print("Hola")
+                } elif (x == 200) {
+                    print("Adios")
+                    print("Ya casi me voy")
+                    if (x < 200) {
+                        print("Hola")
+                    } elif (x == 200) {
+                        print("Adios")
+                        print("Ya casi me voy")
+                    } elif (x == 200) {
+                        print("Hola otra vez")
+                    }
+                } elif (x == 200) {
+                    print("Hola otra vez")
+                }
+            }
+        }
+        print("Hasta luego")
+    }
+    
     void def main() {
         var x : int
-        y(10, 20, 30)
-        print("Hola")
-        print("Adios")
+        x = 10
+        y(x)
     }
 }
