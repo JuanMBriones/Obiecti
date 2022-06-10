@@ -3,7 +3,7 @@ import gc
 from pydoc import classname
 from semantical.data_types import DataType
 from semantical.errors_exceptions import TypeMismatchError
-from semantical.memory import ConstantsMemory, GlobalMemory, LocalMemory, TemporalMemory
+from semantical.memory import ConstantsMemory, LocalMemory, TemporalMemory
 from semantical.semantic_cube import SemanticCube
 
 

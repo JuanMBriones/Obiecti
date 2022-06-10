@@ -1,29 +1,17 @@
 program x2 
 private class x3 : x4 {
     
-    float def y(int x, float d, float c, float e, float b) {
-        var a : float
-        a = 10.0 + b 
+    void def y(int a, int b, int c) {
         print(a)
-        return a
-    }
-
-    int def w() {
-        return 5
+        print(b)
+        print(c)
+        print("Hola otra vez")
     }
 
     void def main() {
-        var x : float
-        x = 10 + 10 - 10
-        while (x < 100) {
-            print("Hola")
-            x = x + 10
-        }
-        
+        var x : int
+        y(10, 20, 30)
+        print("Hola")
         print("Adios")
-        x = y(1, 2.0, 5.0, 10.0, 20.0)
-        print(x)
-        x = w()
-        print(x)
     }
 }

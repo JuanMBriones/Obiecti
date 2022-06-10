@@ -27,43 +27,6 @@ class Memory:
     @abstractmethod
     def move_next_direction(self, type):
         pass
-
-
-class GlobalMemory(Memory):
-    def __init__(self):
-        self.int_segment = Segment(0, 99999)
-        self.float_segment = Segment(100000, 199999)
-        self.char_segment = Segment(200000, 299999)
-        self.string_segment = Segment(300000, 399999)
-        self.bool_segment = Segment(400000, 499999)
-
-    def requestSpace(self, type):
-        try:
-            if type == DataType.INT:
-                return self.int_segment.requestSpace()
-            elif type == DataType.FLOAT:
-                return self.float_segment.requestSpace()
-            elif type == DataType.CHAR:
-                return self.char_segment.requestSpace()
-            elif type == DataType.STRING:
-                return self.string_segment.requestSpace()
-            elif type == DataType.BOOL:
-                return self.bool_segment.requestSpace()
-            return None
-        except:
-            print("Too many variables") 
-
-    def move_next_direction(self, type, jump=1):
-        if type == DataType.INT:
-            self.int_segment.move_next_direction(jump)
-        elif type == DataType.FLOAT:
-            self.float_segment.move_next_direction(jump)
-        elif type == DataType.CHAR:
-            self.char_segment.move_next_direction(jump)
-        elif type == DataType.STRING:
-            self.string_segment.move_next_direction(jump)
-        elif type == DataType.BOOL:
-            self.bool_segment.move_next_direction(jump)
             
 class LocalMemory(Memory):
     def __init__(self, name):

@@ -472,7 +472,10 @@ class LexicalAnalyzer:
     def function_calling(self):
         name_function = self.operands_stack.pop()
         self.human_operands_stack.pop()
-        address_function = self.function_table.get_variable_address("global", name_function)
+        try:
+            address_function = self.function_table.get_variable_address("global", name_function)
+        except:
+            address_function = len(self.quadruples.quadruples)
         ip = self.function_table.get_initial_address(name_function)
         
         self.generate_quadruple(operation=int(OperationCodes.GOSUB), left_operand=address_function, right_operand=int(OperationCodes.NONE), result=ip)
@@ -491,10 +494,11 @@ class LexicalAnalyzer:
 
             self.function_table.move_temporal_next_direction(self.functions_stack[-1], type_function)
             self.quadruples.increment_current()
-        else:
-            self.operands_stack.append(address_function)
-            self.human_operands_stack.append(name_function)
-            self.types_stack.append(self.function_table.get_func_data_type(name_function)) 
+        #else:
+         #   self.operands_stack.append(address_function)
+          #  print(self.operands_stack)
+           # self.human_operands_stack.append(name_function)
+           # self.types_stack.append(self.function_table.get_func_data_type(name_function)) 
     
     def function_call_id(self, p):
         if not self.function_table.get_method(p[1]):
