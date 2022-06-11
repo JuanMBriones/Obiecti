@@ -1,0 +1,25 @@
+program x2 
+private class x3 : x4 {
+
+    void def fib(int max) {
+        var past, past_past, curr : int
+   
+        past = 1    
+        past_past = 0
+        curr = 0
+        while(curr < max) {
+            print(curr)
+            curr = past + past_past
+            past_past = past
+            past = curr
+        }
+    }
+
+    void def main() {
+        print("Introduce el tope del factorial: ")
+        var n : int
+        read(n)
+        print("----Serie Fibonnacci-----")
+        fib(n)
+    }
+}

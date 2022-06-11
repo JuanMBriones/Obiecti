@@ -1,0 +1,29 @@
+program x2 
+private class x3 : x4 {
+
+    void def main() {
+        var size : int
+        size = 4
+        var arr[4] : int
+        var i, temp : int
+        i = 0
+        while(i < size) {
+            read(temp)
+            arr[i] = temp
+            i = i + 1
+        }
+
+        var it : int
+        var t : int
+        it = 0
+        while(it < size) {
+            print(arr[i])
+            if(arr[it]==5) {
+                print(it)
+            }
+
+            it = it + 1
+        }
+
+    }
+}

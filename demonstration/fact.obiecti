@@ -1,0 +1,22 @@
+program factprog
+private class xfact {
+
+    int def fact(int n) {
+        var res: int   
+        res = 1    
+
+        while(n > 0) {
+            res = res * n
+            n = n - 1
+        }
+
+        return res
+    }
+
+    void def main() {
+        var n : int
+        read(n)
+
+        print("Factorial:", fact(n))
+    }
+}
