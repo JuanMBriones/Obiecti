@@ -2,7 +2,6 @@ from array import array
 from audioop import add
 from pickle import NONE
 from pydoc import doc
-from execution.vm import get_value
 from semantical.data_types import DataType
 from semantical.quadruples import Quadruples, Quadruple
 from semantical.semantic_cube import SemanticCube

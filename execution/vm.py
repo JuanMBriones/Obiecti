@@ -8,59 +8,6 @@ from semantical.operations_codes import OperationCodes
 
 quadruples = Quadruples()
 
-def get_value(functions_table, constants_table, address, func_address):
-    if address >= 1600000:
-        value = constants_table.get(address)
-        if type(value) is str:
-            value = value.strip("\"")
-        if address < 1700000:
-            value = int(value)
-        elif address < 1800000:
-            value = float(value)
-        elif address < int(OperationCodes.SUM): # 2100000
-            if value == 'True':
-                value = True
-            elif value == 'False':
-                value = False
-        return value
-
-    if func_address == None:
-        return functions_table.get_value("global", address)
-    else:
-        is_global = functions_table.is_var_global(address)
-        if is_global != None:
-            return is_global
-        else:
-            name_func = functions_table.get_name_func(func_address)
-            return functions_table.get_value(name_func, address)
-    
-
-def set_value(functions_table, address, value, func_address):
-    #print("Func address:", func_address)
-    if func_address == None:
-        if address < 500000:
-            functions_table.set_value("global", address, value)
-        elif address < 1600000:
-            functions_table.set_value("global", address, value)
-    else:
-        '''Busca si una variable es global cuando estamos dentro de una función y 
-        le asigna un valor. Si no es global, busca en memoria local y le asigna un
-        valor'''
-        #print("Set value address:", address)
-        is_global = functions_table.is_var_global(address)
-
-        #print("Is global:", is_global)
-        if is_global != None:
-            functions_table.set_value("global", address, value)
-        else:
-            #functions_table.get_all_methods()
-            #print("Set value:", address, value, func_address)
-            name_func = functions_table.get_name_func(func_address)
-            #print("Name func:", name_func)
-
-            #print("Set value:", value)
-            functions_table.set_value(name_func, address, value)
-
 def debug(functions_table, constants_table):
 
     print(f"===Functions====")
@@ -208,20 +155,25 @@ def read_file(file="object.txt"):
             left = quadruples.quadruples[ip].get_left_operand()
             right = quadruples.quadruples[ip].get_right_operand()
             result = quadruples.quadruples[ip].get_result()
-            print('👴🏻')
-            if type(left) == str and '*' in left:
-                left = left[3:len(left)-1]
-                #real_address = get_value(functions_table, constants_table, int(left), functions_stack[-1])
-                quadruples.quadruples[ip].left_operand = operations.change_reference(int(left), functions_stack[-1])
-            if type(right) == str and '*' in right:
-                right = right[3:len(right)-1]
-                #real_address = get_value(functions_table, constants_table, int(right), functions_stack[-1])
-                quadruples.quadruples[ip].right_operand = operations.change_reference(int(right), functions_stack[-1])
-            if type(result) == str and '*' in result:
-                result = result[3:len(result)-1]
-                #real_address = get_value(functions_table, constants_table, int(result), functions_stack[-1])
-                quadruples.quadruples[ip].result = operations.change_reference(int(result), functions_stack[-1])
-            print('🎉')
+            if cod_op == 2100020:
+                if type(quadruples.quadruples[ip].result) == str and '*' in quadruples.quadruples[ip].result:
+                    temp = quadruples.quadruples[ip].result
+                    quadruples.quadruples[ip].right_operand = int(temp.strip().strip('\'').strip('*'))
+                    quadruples.quadruples[ip].right_operand = operations.change_reference(quadruples.quadruples[ip].right_operand, functions_stack[-1])
+            else:
+                if type(left) == str and '*' in left:
+                    left = left[3:len(left)-1]
+                    #real_address = get_value(functions_table, constants_table, int(left), functions_stack[-1])
+                    quadruples.quadruples[ip].left_operand = operations.change_reference(int(left), functions_stack[-1])
+                if type(right) == str and '*' in right:
+                    right = right[3:len(right)-1]
+                    #real_address = get_value(functions_table, constants_table, int(right), functions_stack[-1])
+                    quadruples.quadruples[ip].right_operand = operations.change_reference(int(right), functions_stack[-1])
+                if type(result) == str and '*' in result:
+                    result = result[3:len(result)-1]
+                    #real_address = get_value(functions_table, constants_table, int(result), functions_stack[-1])
+                    quadruples.quadruples[ip].result = operations.change_reference(int(result), functions_stack[-1])
+                print('🎉')
             if cod_op == int(OperationCodes.SUM):
                 left_operand = quadruples.quadruples[ip].get_left_operand()
                 right_operand = quadruples.quadruples[ip].get_right_operand()
@@ -325,11 +277,11 @@ def read_file(file="object.txt"):
                 #else: 
                 #functions_stack.pop()
             elif cod_op == int(OperationCodes.PRINT):             # PRINT
-                result = quadruples.quadruples[ip].get_result()
+                result = quadruples.quadruples[ip].right_operand
 
                 #if type(result) == 'str':
-                print('☠️☠️☠️☠️☠️☠️☠️', type(result))
-                operations.print_op(result, functions_stack[-1])
+                print(type(result))
+                operations.print_op(quadruples.quadruples[ip], functions_stack[-1])
                 ip += 1
             elif cod_op == int(OperationCodes.ERA):            # ERA
                 name_func_address = quadruples.quadruples[ip].get_result()                
@@ -423,7 +375,6 @@ def read_file(file="object.txt"):
                 left_operand_address = quadruples.quadruples[ip].get_left_operand()
                 right_operand_address = quadruples.quadruples[ip].get_right_operand()
                 result_address = quadruples.quadruples[ip].get_result()
-                #print('🚧🚧🚧🚧🚧🚧🚧🚧🚧🚧🚧')
                 to_find = get_value(functions_table, constants_table, result_address, functions_stack[-1])
                 current_address = left_operand_address
                 res = -1

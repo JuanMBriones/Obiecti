@@ -96,8 +96,12 @@ class Operations:
             
         name_func : str
             Nombre de la función en la que se realizará la operación'''
-        result_value = self.__get_value(result, name_func)
-        print(result_value)
+        if result.right_operand != 2100022:
+            result_value = self.__get_value(result.right_operand, name_func)
+            print(result_value)
+        else:
+            result_value = self.__get_value(result.result, name_func)
+            print(result_value)
 
     def read_op(self, address_result, name_func, value):
         '''
