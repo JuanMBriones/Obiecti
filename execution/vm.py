@@ -361,11 +361,8 @@ def read_file(file="object.txt"):
                 left_operand_address = quadruples.quadruples[ip].get_left_operand()
                 right_operand = quadruples.quadruples[ip].get_right_operand()
                 result = quadruples.quadruples[ip].get_result()
-
-                left_operand_value = get_value(functions_table, constants_table, left_operand_address, functions_stack[-1])
-
-                if not (left_operand_value >= int(right_operand) and left_operand_value < int(result)): 
-                    raise Exception("Error: Arrays out of bounds")
+                
+                operations.ver_value(left_operand_address, right_operand, result, functions_stack[-1])
                 #right_operand_address = quadruples.quadruples[ip].get_right_operand()
 
                 
@@ -376,38 +373,37 @@ def read_file(file="object.txt"):
                 #set_value(functions_table, left_operand, result_value, None)
                 ip += 1
             elif cod_op == int(OperationCodes.MULTDIR):
+                # name_func, left_operand_address, right_operand, result_address):
                 left_operand_address = quadruples.quadruples[ip].get_left_operand()
-                left_operand_value = get_value(functions_table, constants_table, left_operand_address, functions_stack[-1])
-
                 right_operand = int(quadruples.quadruples[ip].get_right_operand())
-
-                result_value = left_operand_value * right_operand
-
-                set_value(functions_table, quadruples.quadruples[ip].result, result_value, functions_stack[-1])
-
+                operations.mult_dir(functions_stack[-1], left_operand_address, right_operand, quadruples.quadruples[ip].result)
                 ip += 1
             elif cod_op == int(OperationCodes.SUMDIR):
                 left_operand_address = quadruples.quadruples[ip].get_left_operand()
                 right_operand = quadruples.quadruples[ip].get_right_operand()
-                result_address = quadruples.quadruples[ip].get_result()
+                """result_address = quadruples.quadruples[ip].get_result()
 
                 left_operand_value = get_value(functions_table, constants_table, left_operand_address, functions_stack[-1])
                 address_index = left_operand_value + int(right_operand)
 
-                set_value(functions_table, quadruples.quadruples[ip].result, address_index, functions_stack[-1])
+                set_value(functions_table, quadruples.quadruples[ip].result, address_index, functions_stack[-1])"""
+                # left_operand_address, right_operand, name_func, result):
+                operations.sum_dir(left_operand_address, right_operand, functions_stack[-1], quadruples.quadruples[ip].result)
                 ip += 1
             elif cod_op == int(OperationCodes.ASSIGNDIR):
                 left_operand_value = quadruples.quadruples[ip].get_left_operand()
-
-                try: 
+                result_address = quadruples.quadruples[ip].get_result()
+                """try: 
                     left_operand_value = get_value(functions_table, constants_table, quadruples.quadruples[ip].get_left_operand(), functions_stack[-1])
                 except:
                     left_operand_value = quadruples.quadruples[ip].get_left_operand()
                 # the result_part of quadruple is a pointr to the address of the variable
-                result_address = quadruples.quadruples[ip].get_result()
+                
                 real_address = get_value(functions_table, constants_table, result_address, functions_stack[-1])
                 
-                set_value(functions_table, real_address, left_operand_value, functions_stack[-1])
+                set_value(functions_table, real_address, left_operand_value, functions_stack[-1])"""
+
+                operations.assign_dir(left_operand_value, result_address, functions_stack[-1])
                 ip += 1
             elif cod_op == int(OperationCodes.READ):
                 result_address = quadruples.quadruples[ip].get_result()

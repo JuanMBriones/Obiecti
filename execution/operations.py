@@ -456,4 +456,31 @@ class Operations:
         left_operand_value = self.__get_value(left_operand, prev_func)
         self.functions_table.set_param(act_func, result, left_operand_value)
 
+    def ver_value(self, left_operand_address, right_operand, result, name_func):
+        left_operand_value = self.__get_value(left_operand_address, name_func) #self.constants_table, left_operand_address, self.functions_stack[-1])
+        
+        if not (left_operand_value >= int(right_operand) and left_operand_value < int(result)): 
+            raise Exception("Error: Arrays out of bounds")
+    
+    def sum_dir(self, left_operand_address, right_operand, name_func, result):
+        left_operand_value = self.__get_value(left_operand_address, name_func)
+        address_index = left_operand_value + int(right_operand)
 
+        self.__set_value(result, address_index, name_func)
+
+    def mult_dir(self, name_func, left_operand_address, right_operand, result_address):
+        left_operand_value = self.__get_value(left_operand_address, name_func)
+
+        result_value = left_operand_value * right_operand
+        
+        self.__set_value(result_address, result_value, name_func)
+    
+    def assign_dir(self, left_operand, result, name_func):
+        try: 
+            left_operand_value = self.__get_value(left_operand, name_func)
+        except:
+            left_operand_value = left_operand
+        # the result_part of quadruple is a pointr to the address of the variable
+        result_address = result
+        real_address = self.__get_value(result_address, name_func)                
+        self.__set_value(real_address, left_operand_value, name_func)
