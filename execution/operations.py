@@ -484,3 +484,7 @@ class Operations:
         result_address = result
         real_address = self.__get_value(result_address, name_func)                
         self.__set_value(real_address, left_operand_value, name_func)
+    
+    def change_reference(self, val, name_func):
+        return self.__get_value(int(val), name_func)
+
