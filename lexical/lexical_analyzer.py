@@ -209,7 +209,8 @@ class LexicalAnalyzer:
             #print('diimm', dim_1)
 
             self.function_table.add_variable(self.functions_stack[-1], name_var, type_var, dim_1_h, None, None, dim_1_h)
-            self.add_var_func_size(self.functions_stack[-1], type_var, slots=int(dim_1_h))
+            self.add_var_func_size_slots(self.functions_stack[-1], type_var, slots=int(dim_1_h))
+
             #print('ffff', self.function_table.get_method(self.functions_stack[-1]).get_all_variables())
 
             #for var in self.function_table.get_method(self.functions_stack[-1]).get_all_variables():
@@ -230,7 +231,7 @@ class LexicalAnalyzer:
             m1 = int(dim_2_h)
             size = int(dim_1_h) * int(dim_2_h)
 
-            self.add_var_func_size(self.functions_stack[-1], type_var, slots=size)
+            self.add_var_func_size_slots(self.functions_stack[-1], type_var, slots=size)
             
             #print('diimm', dim_1_h, dim_2_h)
             #print("size", size)
@@ -239,7 +240,19 @@ class LexicalAnalyzer:
             self.function_table.add_variable(self.functions_stack[-1], name_var, type_var, dim_1_h, dim_2_h, m1, size)
             
 
-    def add_var_func_size(self, name_func, type, slots=1):
+    def add_var_func_size(self, name_func, type, slots):
+        if type == DataType.INT:
+            self.function_table.add_var_count(name_func, 0)
+        elif type == DataType.FLOAT:
+            self.function_table.add_var_count(name_func, 1)
+        elif type == DataType.CHAR:
+            self.function_table.add_var_count(name_func, 2)
+        elif type == DataType.STRING:
+            self.function_table.add_var_count(name_func, 3)
+        elif type == DataType.BOOL:
+            self.function_table.add_var_count(name_func, 4)
+
+    def add_var_func_size_slots(self, name_func, type, slots):
         if type == DataType.INT:
             self.function_table.add_var_count(name_func, 0, slots)
         elif type == DataType.FLOAT:
