@@ -1,1 +1,3 @@
 venv/*
+lexical/parsetab.py
+lexical/parser.out
