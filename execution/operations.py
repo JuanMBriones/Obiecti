@@ -43,7 +43,7 @@ class Operations:
 
         #   Si es mayor a 1600000, es una dirección en la tabla de constantes
         if address >= 1600000:
-            value = self. constants_table.get(address)
+            value = self.constants_table.get(address)
             if type(value) is str:
                 value = value.strip("\"")
             if address < 1700000:
@@ -98,7 +98,31 @@ class Operations:
             Nombre de la función en la que se realizará la operación'''
         result_value = self.__get_value(result, name_func)
         print(result_value)
-                
+
+    def read_op(self, address_result, name_func, value):
+        '''
+        Reads an operation
+
+        Params
+        ---------
+        address_result : int
+            Address of the result
+        
+        name_func : str
+            Name of the function
+        
+        value : int, str, float, bool
+            Actual value to be assigned on the result
+
+        Example 
+        ---------
+            read_op(1, "global", 23.5)
+            Assigns 23.5 to the variable on the address 1 in the function's scope(function with name name_func)
+        ''' 
+
+        self.__set_value(address_result, value, name_func)
+                   
+    
     def sum_op(self, left_operand, right_operand, result, name_func):
         '''Realiza la operación de suma
         

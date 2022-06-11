@@ -85,6 +85,36 @@ def debug(functions_table, constants_table):
         print(f"\tAddress: {value['address']}    Value: {value['value']}")
                 
         
+def cast_to_type(value, address):
+    if address < 500000:        #   Variable global
+        if address >= 0 and address < 100000:
+            value = int(value)
+        elif address >= 100000 and address < 200000:
+            value = float(value)
+        elif address >= 200000 and address < 300000:
+            pass # char
+        elif address >= 400000 and address < 500000:
+            value = bool(value)
+    elif address < 1000000:     #   Variable local
+        if address >= 500000 and address < 600000:
+            value = int(value)
+        elif address >= 600000 and address < 700000:
+            value = float(value)
+        elif address >= 700000 and address < 800000:
+            pass # char
+        elif address >= 900000 and address < 1000000:
+            value = bool(value)
+    elif address < 1600000:     #   Variable temporal
+        if address >= 1000000 and address < 1100000:
+            value = int(value)
+        elif address >= 1100000 and address < 1200000:
+            value = float(value)
+        elif address >= 1200000 and address < 1300000:
+            pass # char
+        elif address >= 1400000 and address < 1500000:
+            value = bool(value)
+    
+    return value
 
 
 def read_file(file="object.txt"):
@@ -383,8 +413,11 @@ def read_file(file="object.txt"):
                 result_address = quadruples.quadruples[ip].get_result()
 
                 input_value = input()
+                input_value = cast_to_type(input_value, result_address)
 
-                set_value(functions_table, result_address, input_value, functions_stack[-1])
+                operations.read_op(result_address, functions_stack[-1], input_value)
+
+                #set_value(functions_table, result_address, input_value, functions_stack[-1])
 
                 ip += 1
             elif cod_op == int(OperationCodes.FIND):
