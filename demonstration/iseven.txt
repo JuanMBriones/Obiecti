@@ -5,6 +5,8 @@ private class x3 : x4 {
         var i : int
    
         i = 0
+        print("Introduce el maximo:")
+        read(max)
         while(i < max) {
             if(i%2 == 0) {
                 print(i)

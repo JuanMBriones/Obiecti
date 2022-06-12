@@ -1,0 +1,22 @@
+program x2 
+private class x3 : x4 {
+
+    void def main() {
+        var arr[10] : int
+        var i : int 
+        i = 2
+        arr[0] = 1
+        arr[1] = 1
+        var temp : int
+        while(i < 10) {
+            temp = arr[i-1] 
+            print(temp)
+            i = i + 1
+        }
+        i = 0
+        while(i < 10) {
+            print(arr[i])
+            i = i + 1
+        }
+    }
+}

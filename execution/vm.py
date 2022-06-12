@@ -125,9 +125,16 @@ def read_file(file="object.txt"):
         quadruples_good.append(quadruple.split(','))
 
     for quadruple in quadruples_good:
+        #print(quadruple)
         operator = int(quadruple[0])
-        left_operand = int(quadruple[1])
-        right_operand = int(quadruple[2])
+        try:
+            left_operand = int(quadruple[1])
+        except:
+            left_operand = quadruple[1]
+        try:
+            right_operand = int(quadruple[2])
+        except:
+            right_operand = quadruple[2]
         try:
             result = int(quadruple[3])
         except:
@@ -163,8 +170,12 @@ def read_file(file="object.txt"):
             else:
                 if type(left) == str and '*' in left:
                     left = left[3:len(left)-1]
+                    #left = left.strip().strip('\'').strip('*')
+                    #print(left)
                     #real_address = get_value(functions_table, constants_table, int(left), functions_stack[-1])
-                    quadruples.quadruples[ip].left_operand = operations.change_reference(int(left), functions_stack[-1])
+                    #quadruples.quadruples[ip].left_operand
+                    temp = operations.change_reference(int(left), functions_stack[-1])
+                    operations.set(quadruples.quadruples[ip].result, temp, functions_stack[-1])
                 if type(right) == str and '*' in right:
                     right = right[3:len(right)-1]
                     #real_address = get_value(functions_table, constants_table, int(right), functions_stack[-1])
@@ -173,11 +184,22 @@ def read_file(file="object.txt"):
                     result = result[3:len(result)-1]
                     #real_address = get_value(functions_table, constants_table, int(result), functions_stack[-1])
                     quadruples.quadruples[ip].result = operations.change_reference(int(result), functions_stack[-1])
-                print('🎉')
+                #print('🎉')
             if cod_op == int(OperationCodes.SUM):
                 left_operand = quadruples.quadruples[ip].get_left_operand()
                 right_operand = quadruples.quadruples[ip].get_right_operand()
+
+                if type(left_operand) == str:
+                    left_operand = int(left_operand.strip().strip('\'').strip('*'))
+                    
+                    left_operand = operations.get(left_operand, functions_stack[-1])
+                if type(right_operand) == str:
+                    right_operand = int(right_operand.strip().strip('\'').strip('*'))
+                    right_operand = operations.get(right_operand, functions_stack[-1])
+                
                 result = quadruples.quadruples[ip].get_result()
+                #print('---',result)
+                #print(left_operand, right_operand, result)
                 operations.sum_op(left_operand, right_operand, result, functions_stack[-1])
                 ip += 1
             elif cod_op == int(OperationCodes.MINUS):
@@ -280,7 +302,7 @@ def read_file(file="object.txt"):
                 result = quadruples.quadruples[ip].right_operand
 
                 #if type(result) == 'str':
-                print(type(result))
+                #print(type(result))
                 operations.print_op(quadruples.quadruples[ip], functions_stack[-1])
                 ip += 1
             elif cod_op == int(OperationCodes.ERA):            # ERA
@@ -375,20 +397,9 @@ def read_file(file="object.txt"):
                 left_operand_address = quadruples.quadruples[ip].get_left_operand()
                 right_operand_address = quadruples.quadruples[ip].get_right_operand()
                 result_address = quadruples.quadruples[ip].get_result()
-                to_find = get_value(functions_table, constants_table, result_address, functions_stack[-1])
-                current_address = left_operand_address
-                res = -1
-                index = 0
-                while(current_address <= right_operand_address):
-                    current_value = get_value(functions_table, constants_table, current_address, functions_stack[-1])
-                    if int(current_value) == int(to_find):
-                        res = index
-                        break
-
-                    current_address += 1
-                    index += 1
                 
-                print(res)
+                operations.find(left_operand_address, right_operand_address, result_address, functions_stack[-1])
+
                 ip += 1
             elif cod_op == int(OperationCodes.SORT):
                 #[2100030, 500001, 500010, 500000]
@@ -397,22 +408,7 @@ def read_file(file="object.txt"):
                 right_operand_address = quadruples.quadruples[ip].get_right_operand()
                 result_address = quadruples.quadruples[ip].get_result()
 
-                current_address = left_operand_address
-                lst = []
-                while(current_address <= right_operand_address):
-                    current_value = get_value(functions_table, constants_table, current_address, functions_stack[-1])
-                    lst.append(current_value)
-                    current_address += 1
-                
-                lst.sort()
-                #print(f'❄️❄️❄️❄️❄️❄️❄️❄️', len(lst))
-                current_address = left_operand_address
-                index = 0
-                while(current_address <= right_operand_address):
-                    set_value(functions_table, current_address, lst[index], functions_stack[-1])
-
-                    index += 1
-                    current_address += 1
+                operations.sort(left_operand_address, right_operand_address, functions_stack[-1])
                 ip += 1
 
             else:
@@ -430,4 +426,4 @@ def read_file(file="object.txt"):
         print(f"{key}: {value}")
     print('Uff✨')"""
     print('End🚀')
-    debug(functions_table, constants_table)
+    #debug(functions_table, constants_table)

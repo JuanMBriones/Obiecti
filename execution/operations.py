@@ -491,4 +491,42 @@ class Operations:
     
     def change_reference(self, val, name_func):
         return self.__get_value(int(val), name_func)
+    
+    def set(self, address, val, name_func):
+        return self.__set_value(address, val, name_func)
+    
+    def get(self, address, name_func):
+        return self.__get_value(address, name_func)
+    
+    def sort(self, left_operand_address, right_operand_address, name_func):
+        current_address = left_operand_address
+        lst = []
+        while(current_address <= right_operand_address):
+            current_value = self.__get_value(current_address, name_func)
+            lst.append(current_value)
+            current_address += 1
+                
+        lst.sort()
+        current_address = left_operand_address
+        index = 0
+        while(current_address <= right_operand_address):
+            self.__set_value(current_address, lst[index], name_func)
 
+            index += 1
+            current_address += 1
+
+    def find(self, left_operand_address, right_operand_address, result_address, name_func):
+        to_find = self.__get_value(result_address, name_func)
+        current_address = left_operand_address
+        res = -1
+        index = 0
+        while(current_address <= right_operand_address):
+            current_value = self.__get_value(current_address, name_func)
+            if int(current_value) == int(to_find):
+                res = index
+                break
+
+            current_address += 1
+            index += 1
+                
+        print(res)

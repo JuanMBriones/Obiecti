@@ -7,15 +7,16 @@ private class x3 : x4 {
         var arr[4] : int
         var i : int
         i = 0
+        var num : int
         while(i < size) {
-            arr[i] = i
+            read(num)
+            arr[i] = num
             i = i + 1
         }
 
         i = 0        
         while(i < size) {
             print(arr[i])
-            print(arr[3])
             i = i + 1
         }
     }

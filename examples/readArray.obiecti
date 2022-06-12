@@ -1,0 +1,21 @@
+program patito
+private class x {
+    void def main() {
+        var array[10] : int
+        var index : int
+        
+        index = 8
+        array[6] = 89
+        
+        array[index] = 3
+
+        print(array[index-2])
+        print(array[8])
+
+        index = 6
+        print(array[index])
+        
+
+        
+    }
+}
